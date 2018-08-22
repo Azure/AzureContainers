@@ -1,0 +1,20 @@
+Package: AzureContainers
+Title: Interface to Docker Registry and Kubernetes via Azure
+Version: 0.1
+Authors@R: c(
+    person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
+    person("Microsoft", role="cph")
+    )
+Description: A package for Docker registries and Kubernetes clusters. Manage Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) instances. Supports generic Docker registries and Kubernetes clusters.
+License: file LICENSE
+VignetteBuilder: knitr
+Encoding: UTF-8
+Depends: 
+    R (>= 3.3)
+Imports: 
+    AzureRMR,
+    openssl,
+    httr,
+    R6
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 6.1.0
