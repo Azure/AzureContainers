@@ -8,24 +8,24 @@ public=list(
         private$config=config
     },
 
-    create_registry_secret=function(registry, secret_name=registry$server, email_address=NULL)
+    create_registry_secret=function(registry, secret_name=registry$server, email)
     {
         if(is_acr(registry))
             registry <- registry$get_docker_registry(registry)
 
         str <- paste0("create secret docker-registry ", secret_name,
-                  " --docker-server=", registry$server,
-                  " --docker-username=", registry$username,
-                  " --docker-password=", registry$password,
-                  if(!is.null(email_address)) paste0(" --docker-email=", email_addr))
+                      " --docker-server=", registry$server,
+                      " --docker-username=", registry$username,
+                      " --docker-password=", registry$password,
+                      " --docker-email=", email)
 
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     delete_registry_secret=function(secret_name)
     {
         str <- paste0("delete secret ", secret_name)
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     run=function(name, image, options="")
@@ -33,11 +33,11 @@ public=list(
         str <- paste0("run ", name,
                       " --image ", image,
                       " ", options)
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     expose=function(name, type=c("pod", "service", "replicationcontroller", "deployment", "replicaset"),
-                       file=NULL, options="")
+                    file=NULL, options="")
     {
         if(is.null(file))
         {
@@ -51,21 +51,21 @@ public=list(
             str <- paste0("expose -f ", file,
                           " ", options)
         }
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     create=function(file, options="")
     {
         str <- paste0("create -f ", file,
                       " ", options)
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     apply=function(file, options="")
     {
         str <- paste0("apply -f ", file,
                       " ", options)
-        private$kubectl(str)
+        self$kubectl(str)
     },
 
     delete=function(type, name, file=NULL, options="")
@@ -81,19 +81,26 @@ public=list(
             str <- paste0("delete -f ", file,
                           " ", options)
         }
-        private$kubectl(str)
-    }
-),
+        self$kubectl(str)
+    },
 
-private=list(
-    config=NULL,
+    get=function(type, options="")
+    {
+        str <- paste0("get ", type,
+                      " ", options)
+        self$kubectl(str)
+    },
 
-    kubectl=function(str, ...)
+    kubectl=function(str="", ...)
     {
         if(!is_empty(private$config))
             str <- paste0(str, " --kubeconfig=", shQuote(private$config))
         call_kubectl(str)
     }
+),
+
+private=list(
+    config=NULL
 ))
 
 
@@ -105,10 +112,12 @@ is_kubernetes_cluster <- function(object)
 
 
 #' @export
-call_kubectl <- function(str, ...)
+call_kubectl <- function(str="", ...)
 {
+    if(.AzureContainers$kubectl == "")
+        stop("kubectl binary not found", call.=FALSE)
     message("Kubernetes operation: ", str)
-    val <- system2("kubectl", str, ...)
+    val <- system2(.AzureContainers$kubectl, str, ...)
     attr(val, "cmdline") <- paste("kubectl", str)
     invisible(val)
 }

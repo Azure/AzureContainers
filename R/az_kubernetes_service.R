@@ -11,18 +11,25 @@ public=list(
             super$initialize(token, subscription, resource_group, type="Microsoft.ContainerService/managedClusters",
                              name=name,
                              ...)
-        else super$initialize(token, subscription, resource_group, type="Microsoft.ContainerService/managedClusters",
-                              name=name,
-                              location=location,
-                              properties=c(list(
-                                dnsPrefix=dns_prefix,
-                                agentPoolProfiles=agent_pools,
-                                enableRBAC=enable_rbac),
-                                properties),
-                              ...)
+        else
+        {
+            props <- c(
+                list(
+                    dnsPrefix=dns_prefix,
+                    agentPoolProfiles=agent_pools,
+                    enableRBAC=enable_rbac
+                ),
+                properties
+            )
+            super$initialize(token, subscription, resource_group, type="Microsoft.ContainerService/managedClusters",
+                             name=name,
+                             location=location,
+                             properties=props,
+                             ...)
+        }
     },
 
-    get_cluster=function(config=tempfile(), role=c("User", "Admin"))
+    get_cluster=function(config=tempfile(pattern="kubeconfig"), role=c("User", "Admin"))
     {
         role <- match.arg(role)
         cred_profile <- private$res_op(paste0("accessProfiles/cluster", role))$properties$kubeConfig

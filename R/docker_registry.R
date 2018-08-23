@@ -28,12 +28,12 @@ public=list(
     {
         if(missing(dest_image))
         {
-            dest_image <- self$add_server(src_image)
-            out1 <- numeric(0)
+            dest_image <- private$add_server(src_image)
+            out1 <- call_docker(sprintf("tag %s %s", src_image, dest_image))
         }
         else
         {
-            dest_image <- self$add_server(dest_image)
+            dest_image <- private$add_server(dest_image)
             out1 <- call_docker(sprintf("tag %s %s", src_image, dest_image))
         }
         out2 <- call_docker(sprintf("push %s", dest_image))
@@ -43,7 +43,7 @@ public=list(
 
     pull=function(image)
     {
-        image <- self$add_server(image)
+        image <- private$add_server(image)
         call_docker(sprintf("pull %s", image))
     },
 
@@ -74,13 +74,15 @@ is_docker_registry <- function(object)
 
 
 #' @export
-call_docker <- function(str, ...)
+call_docker <- function(str="", ...)
 {
+    if(.AzureContainers$docker == "")
+        stop("docker binary not found", call.=FALSE)
     message("Docker operation: ", str)
     win <- .Platform$OS.type == "windows"
     val <- if(win)
-        system2("docker", str, ...)
-    else system2("sudo", paste("docker", str), ...)
+        system2(.AzureContainers$docker, str, ...)
+    else system2("sudo", paste(.AzureContainers$docker, str), ...)
     attr(val, "cmdline") <- paste("docker", str)
     invisible(val)
 }
@@ -88,7 +90,7 @@ call_docker <- function(str, ...)
 
 call_repo <- function(server, username, password, ..., http_verb="GET")
 {
-    auth_str <- openssl::base64_encode(username, password, sep=":")
+    auth_str <- openssl::base64_encode(paste(username, password, sep=":"))
     url <- paste0("https://", server, "/v2/", ...)
     headers <- httr::add_headers(Authorization=sprintf("Basic %s", auth_str))
     verb <- get(http_verb, getNamespace("httr"))
