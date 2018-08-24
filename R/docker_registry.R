@@ -49,7 +49,8 @@ public=list(
 
     list_repositories=function()
     {
-        call_repo(self$server, self$username, self$password, "_catalog")
+        res <- call_registry(self$server, self$username, self$password, "_catalog")
+        unlist(res$repositories)
     }
 ),
 
@@ -88,11 +89,35 @@ call_docker <- function(str="", ...)
 }
 
 
-call_repo <- function(server, username, password, ..., http_verb="GET")
+call_registry <- function(server, username, password, ...,
+                          http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
+                          http_status_handler=c("stop", "warn", "message", "pass"))
 {
     auth_str <- openssl::base64_encode(paste(username, password, sep=":"))
     url <- paste0("https://", server, "/v2/", ...)
     headers <- httr::add_headers(Authorization=sprintf("Basic %s", auth_str))
-    verb <- get(http_verb, getNamespace("httr"))
-    verb(url, headers)
+    http_status_handler <- match.arg(http_status_handler)
+    verb <- get(match.arg(http_verb), getNamespace("httr"))
+
+    res <- verb(url, headers)
+
+    process_registry_response(res, http_status_handler)
 }
+
+
+process_registry_response <- function(response, handler)
+{
+    if(handler != "pass")
+    {
+        handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
+        handler(response)
+        cont <- httr::content(response)
+        if(is.null(cont))
+            cont <- list()
+        attr(cont, "status") <- httr::status_code(response)
+        cont
+    }
+    else response
+}
+
+
