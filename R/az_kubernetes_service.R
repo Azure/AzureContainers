@@ -3,32 +3,6 @@ aks <- R6::R6Class("az_kubernetes_service", inherit=AzureRMR::az_resource,
 
 public=list(
 
-    initialize=function(token, subscription, resource_group, name, location,
-        dns_prefix=name, agent_pools=list(), enable_rbac=FALSE, properties=list(), ...)
-    {
-        if(missing(location) && missing(dns_prefix) && missing(agent_pools) &&
-           missing(enable_rbac) && missing(properties))
-            super$initialize(token, subscription, resource_group, type="Microsoft.ContainerService/managedClusters",
-                             name=name,
-                             ...)
-        else
-        {
-            props <- c(
-                list(
-                    dnsPrefix=dns_prefix,
-                    agentPoolProfiles=agent_pools,
-                    enableRBAC=enable_rbac
-                ),
-                properties
-            )
-            super$initialize(token, subscription, resource_group, type="Microsoft.ContainerService/managedClusters",
-                             name=name,
-                             location=location,
-                             properties=props,
-                             ...)
-        }
-    },
-
     get_cluster=function(config=tempfile(pattern="kubeconfig"), role=c("User", "Admin"))
     {
         role <- match.arg(role)
@@ -59,3 +33,12 @@ is_aks <- function(object)
     R6::is.R6(object) && inherits(object, "az_kubernetes_service")
 }
 
+
+#' @export
+aks_pools <- function(name, count, size, os)
+{
+    count <- as.integer(count)
+    pool_df <- data.frame(name=name, count=count, vmSize=size, osType=os, stringsAsFactors=FALSE)
+    pool_df$name <- make.unique(pool_df$name, sep="")
+    lapply(seq_len(nrow(pool_df)), function(i) unclass(pool_df[i, ]))
+}

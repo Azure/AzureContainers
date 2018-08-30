@@ -3,21 +3,6 @@ acr <- R6::R6Class("az_container_registry", inherit=AzureRMR::az_resource,
 
 public=list(
 
-    initialize=function(token, subscription, resource_group, name, location,
-        admin_user_enabled=TRUE, sku="Standard", ...)
-    {
-        if(missing(location) && missing(admin_user_enabled) && missing(sku))
-            super$initialize(token, subscription, resource_group, type="Microsoft.containerRegistry/registries",
-                             name=name,
-                             ...)
-        else super$initialize(token, subscription, resource_group, type="Microsoft.containerRegistry/registries",
-                              name=name,
-                              location=location,
-                              properties=list(adminUserEnabled=admin_user_enabled),
-                              sku=list(name=sku, tier=sku),
-                              ...)
-    },
-
     list_credentials=function()
     {
         creds <- private$res_op("listCredentials", http_verb="POST")

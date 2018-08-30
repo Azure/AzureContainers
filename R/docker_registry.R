@@ -47,6 +47,34 @@ public=list(
         call_docker(sprintf("pull %s", image))
     },
 
+    delete_layer=function(layer, digest, confirm=TRUE)
+    {
+        if(confirm && interactive())
+        {
+            yn <- readline(paste0("Do you really want to delete the layer '", image, "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y") 
+                return(invisible(NULL))
+        }
+
+        res <- call_registry(self$server, self$username, self$password, file.path(layer, "blobs", digest),
+                             http_verb="DELETE")
+        invisible(res)
+    },
+
+    delete_image=function(image, digest, confirm=TRUE)
+    {
+        if(confirm && interactive())
+        {
+            yn <- readline(paste0("Do you really want to delete the image '", image, "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y") 
+                return(invisible(NULL))
+        }
+
+        res <- call_registry(self$server, self$username, self$password, file.path(image, "manifests", digest),
+                             http_verb="DELETE")
+        invisible(res)
+    },
+
     list_repositories=function()
     {
         res <- call_registry(self$server, self$username, self$password, "_catalog")
