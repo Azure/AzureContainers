@@ -20,6 +20,7 @@ public=list(
 
         if(file.exists(config))
             message("Overwriting existing cluster information in ", config)
+        else message("Storing cluster information in ", config)
 
         writeLines(cred_profile, config)
         kubernetes_cluster$new(config=config)
