@@ -2,6 +2,7 @@
 
 export(acr)
 export(aks)
+export(aks_pools)
 export(call_docker)
 export(call_kubectl)
 export(docker_registry)

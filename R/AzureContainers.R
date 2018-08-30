@@ -18,18 +18,24 @@ NULL
         message("Using kubectl binary ", .AzureContainers$kubectl)
     else warning("kubectl binary not found", call.=FALSE)
 
-    # add methods to AzureRMR resource group and subscription classes
+    ## add methods to AzureRMR resource group and subscription classes
 
+    # ACR methods
     az_resource_group$set("public", "create_acr", overwrite=TRUE,
-                          function(name, location, ...)
+                          function(name, location, admin_user_enabled=TRUE, sku="Standard", ...)
     {
-        acr$new(self$token, self$subscription, self$name, name, location=location, ...)
+        acr$new(self$token, self$subscription, self$name,
+                type="Microsoft.containerRegistry/registries", name=name, location=location,
+                properties=list(adminUserEnabled=admin_user_enabled),
+                sku=list(name=sku, tier=sku),
+                ...)
     })
 
     az_resource_group$set("public", "get_acr", overwrite=TRUE,
                           function(name)
     {
-        acr$new(self$token, self$subscription, self$name, name)
+        acr$new(self$token, self$subscription, self$name,
+                type="Microsoft.containerRegistry/registries", name=name)
     })
 
     az_resource_group$set("public", "delete_acr", overwrite=TRUE,
@@ -86,17 +92,37 @@ NULL
         named_list(lst)
     })
 
-    ###
+    # AKS methods
     az_resource_group$set("public", "create_aks", overwrite=TRUE,
-                          function(name, location, ...)
+                          function(name, location,
+                                   dns_prefix=name, kubernetes_version="1.11.2",
+                                   enable_rbac=FALSE, agent_pools=list(),
+                                   properties=list(), ...)
+
     {
-        aks$new(self$token, self$subscription, self$name, name, location=location, ...)
+        props <- c(
+            list(
+                kubernetesVersion=kubernetes_version,
+                dnsPrefix=dns_prefix,
+                agentPoolProfiles=agent_pools,
+                enableRBAC=enable_rbac
+            ),
+            properties)
+
+        if(is.null(props$servicePrincipalProfile))
+            props$servicePrincipalProfile <- list(clientId=self$token$app$key, secret=self$token$app$secret)
+
+        message("Creating Kubernetes cluster '", name, "'. Call the sync_fields() method to check progress.")
+        aks$new(self$token, self$subscription, self$name,
+                type="Microsoft.ContainerService/managedClusters", name=name, location=location,
+                properties=props, ...)
     })
 
     az_resource_group$set("public", "get_aks", overwrite=TRUE,
                           function(name)
     {
-        aks$new(self$token, self$subscription, self$name, name)
+        aks$new(self$token, self$subscription, self$name,
+                type="Microsoft.ContainerService/managedClusters", name=name)
     })
 
     az_resource_group$set("public", "delete_aks", overwrite=TRUE,
