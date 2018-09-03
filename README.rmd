@@ -8,8 +8,7 @@ Note that AzureContainers can talk to any Docker registry that uses the [V2 HTTP
 
 ## Example workflow
 
-Here is a sample R workflow to package up an R model as a container, deploy it to a Kubernetes cluster, and expose it as a service. This uses [Plumber](https://www.rplumber.io/) to define the model prediction REST API. Other options for deployment include [Microsoft Machine Learning Server Operationalization](https://docs.microsoft.com/en-us/machine-learning-server/what-is-operationalization).
-
+Here is a sample R workflow to package up an R model as a container, deploy it to a Kubernetes cluster, and expose it as a service.
 
 ```r
 # login to Azure ---
