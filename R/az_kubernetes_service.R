@@ -36,7 +36,7 @@ is_aks <- function(object)
 
 
 #' @export
-aks_pools <- function(name, count, size, os)
+aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
 {
     count <- as.integer(count)
     pool_df <- data.frame(name=name, count=count, vmSize=size, osType=os, stringsAsFactors=FALSE)
