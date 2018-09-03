@@ -21,4 +21,5 @@ NULL
     ## add methods to AzureRMR resource group and subscription classes
     add_acr_methods()
     add_aks_methods()
+    add_aci_methods()
 }
