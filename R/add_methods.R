@@ -1,7 +1,8 @@
 add_acr_methods <- function()
 {
     az_resource_group$set("public", "create_acr", overwrite=TRUE,
-                          function(name, location, admin_user_enabled=TRUE, sku="Standard", ...)
+    function(name, location=self$location,
+             admin_user_enabled=TRUE, sku="Standard", ...)
     {
         acr$new(self$token, self$subscription, self$name,
                 type="Microsoft.containerRegistry/registries", name=name, location=location,
@@ -11,20 +12,20 @@ add_acr_methods <- function()
     })
 
     az_resource_group$set("public", "get_acr", overwrite=TRUE,
-                          function(name)
+    function(name)
     {
         acr$new(self$token, self$subscription, self$name,
                 type="Microsoft.containerRegistry/registries", name=name)
     })
 
     az_resource_group$set("public", "delete_acr", overwrite=TRUE,
-                          function(name, confirm=TRUE, wait=FALSE)
+    function(name, confirm=TRUE, wait=FALSE)
     {
         self$get_acr(name)$delete(confirm=confirm, wait=wait)
     })
 
     az_resource_group$set("public", "list_acrs", overwrite=TRUE,
-                          function()
+    function()
     {
         provider <- "Microsoft.ContainerRegistry"
         path <- "registries"
@@ -49,7 +50,7 @@ add_acr_methods <- function()
     })
 
     az_subscription$set("public", "list_acrs", overwrite=TRUE,
-                        function()
+    function()
     {
         provider <- "Microsoft.ContainerRegistry"
         path <- "registries"
@@ -76,10 +77,10 @@ add_acr_methods <- function()
 add_aks_methods <- function()
 {
     az_resource_group$set("public", "create_aks", overwrite=TRUE,
-                          function(name, location,
-                                   dns_prefix=name, kubernetes_version="1.11.2",
-                                   enable_rbac=FALSE, agent_pools=list(),
-                                   properties=list(), ...)
+    function(name, location=self$location,
+             dns_prefix=name, kubernetes_version="1.11.2",
+             enable_rbac=FALSE, agent_pools=list(),
+             properties=list(), ...)
 
     {
         props <- c(
@@ -101,20 +102,20 @@ add_aks_methods <- function()
     })
 
     az_resource_group$set("public", "get_aks", overwrite=TRUE,
-                          function(name)
+    function(name)
     {
         aks$new(self$token, self$subscription, self$name,
                 type="Microsoft.ContainerService/managedClusters", name=name)
     })
 
     az_resource_group$set("public", "delete_aks", overwrite=TRUE,
-                          function(name, confirm=TRUE, wait=FALSE)
+    function(name, confirm=TRUE, wait=FALSE)
     {
         self$get_aks(name)$delete(confirm=confirm, wait=wait)
     })
 
     az_resource_group$set("public", "list_aks", overwrite=TRUE,
-                          function()
+    function()
     {
         provider <- "Microsoft.ContainerService"
         path <- "managedClusters"
@@ -139,7 +140,7 @@ add_aks_methods <- function()
     })
 
     az_subscription$set("public", "list_aks", overwrite=TRUE,
-                        function()
+    function()
     {
         provider <- "Microsoft.ContainerService"
         path <- "managedClusters"

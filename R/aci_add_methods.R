@@ -1,7 +1,7 @@
 add_aci_methods <- function()
 {
     az_resource_group$set("public", "create_aci", overwrite=TRUE,
-    function(name, location,
+    function(name, location=self$location,
              container_name=name,
              image_name,
              registry_creds=list(),
@@ -16,9 +16,6 @@ add_aci_methods <- function()
              restart=c("Always", "OnFailure", "Never"),
              ...)
     {
-        restart <- match.arg(restart)
-        os <- match.arg(os)
-
         containers <- list(
             name=container_name,
             properties=list(
@@ -31,8 +28,8 @@ add_aci_methods <- function()
 
         props <- list(
             containers=list(containers),
-            restartPolicy=restart,
-            osType=os)
+            restartPolicy=match.arg(restart),
+            osType=match.arg(os))
 
         if(!is_empty(registry_creds))
             props$imageRegistryCredentials <- get_aci_credentials_list(registry_creds)
