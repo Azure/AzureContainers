@@ -23,7 +23,7 @@ The following methods are available, in addition to those provided by the \link[
 
 \section{Details}{
 
-Initializing a new object of this class can either retrieve an existing registry resource, or create a new registry on the host. Generally, the best way to initialize an object is via the \code{get_aks}, \code{create_aks} or \code{list_aks} methods of the \link{az_resource_group} class, which handle the details automatically.
+Initializing a new object of this class can either retrieve an existing AKS resource, or create a new resource on the host. Generally, the best way to initialize an object is via the \code{get_aks}, \code{create_aks} or \code{list_aks} methods of the \link{az_resource_group} class, which handle the details automatically.
 
 Note that this class is separate from the Kubernetes cluster itself. This class exposes methods for working with the Azure resource: updating resource tags, updating and deleting the resource (including updating the Kubernetes version), and so on.
 

@@ -1,3 +1,24 @@
+#' Azure Container Instance class
+#'
+#' Class representing an Azure Container Instance (ACI) resource.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
+#' - `new(...)`: Initialize a new ACI object.
+#' - `restart()`, `start()`: Start a stopped container. These methods are synonyms for each other.
+#' - `stop()`: Stop a container.
+#'
+#' @section Details:
+#' Initializing a new object of this class can either retrieve an existing ACI resource, or create a new resource on the host. Generally, the best way to initialize an object is via the `get_aci`, `create_aci` or `list_acis` methods of the [az_resource_group] class, which handle the details automatically.
+#'
+#' @seealso
+#' [acr], [aks]
+#'
+#' [ACI documentation](https://docs.microsoft.com/en-us/azure/container-instances/) and
+#' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
+#'
+#' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
 #' @export
 aci <- R6::R6Class("az_container_instance", inherit=AzureRMR::az_resource,
 
@@ -21,6 +42,14 @@ public=list(
 ))
 
 
+#' Utilities for specifying ACI configuration information
+#'
+#' @param port,protocol For `aci_ports`, vectors of the port numbers and protocols to open for the instance.
+#' @param server,username,password For `aci_creds`, the authentication details for a Docker registry.
+#'
+#' @details
+#' These are helper functions to be used in specifying the configuration for a container instance.
+#' @rdname aci_utils
 #' @export
 aci_ports <- function(port=80L, protocol="TCP")
 {
@@ -29,6 +58,7 @@ aci_ports <- function(port=80L, protocol="TCP")
 }
 
 
+#' @rdname aci_utils
 #' @export
 aci_creds <- function(server, username, password)
 {

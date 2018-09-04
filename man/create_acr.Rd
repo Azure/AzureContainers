@@ -25,7 +25,7 @@ An object of class \code{az_container_registry} representing the registry resour
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
 \details{
-An ACR resource is a Docker registry hosted in Azure. See the \href{acr}{documentation for the resource} for more information. To work with the registry (transfer images, retag images, etc) see the \href{docker_registry}{documentation for the registry endpoint}.
+An ACR resource is a Docker registry hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-registry/}{documentation for the resource} for more information. To work with the registry (transfer images, retag images, etc) see the \href{docker_registry}{documentation for the registry endpoint}.
 }
 \seealso{
 \link{get_acr}, \link{delete_acr}, \link{list_acrs}
