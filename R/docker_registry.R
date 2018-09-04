@@ -1,3 +1,35 @@
+#' Docker registry class
+#'
+#' Class representing a [Docker registry](https://docs.docker.com/registry/). Note that this class can be used to interface with any Docker registry that supports the HTTP V2 API, not just those created via the Azure Container Registry service.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
+#' - `new(...)`: Initialize a new registry object. See 'Details'.
+#' - `login`: Login to the registry via `docker login`.
+#' - `push(src_image, dest_image)`: Push an image to the registry, using `docker tag` and `docker push`.
+#' - `pull(image)`: Pulls an image from the registry, using `docker pull`.
+#' - `delete_layer(layer, digest, confirm=TRUE)`: Deletes a layer from the registry.
+#' - `delete_image(image, digest, confirm=TRUE)`: Deletes an image from the registry.
+#' - `list_repositories`: Lists the repositories (images) in the registry.
+#'
+#' @section Details:
+#' The arguments to the `new()` method are:
+#' - `server`: The name of the registry server.
+#' - `username`: The username that Docker will use to authenticate with the registry.
+#' - `password`: The password that Docker will use to authenticate with the registry.
+#' - `login`: Whether to login to the registry immediately; defaults to TRUE.
+#'
+#' Currently this class does not support authentication methods other than a username/password combination.
+#'
+#' The `login()`, `push()` and `pull()` methods for this class call the `docker` commandline tool under the hood. This allows all the features supported by Docker to be available immediately, with a minimum of effort. Any calls to the `docker` tool will also contain the full commandline as the `cmdline` attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
+#'
+#' @seealso
+#' [acr], [call_docker]
+#'
+#' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
+#' [Docker registry API](https://docs.docker.com/registry/spec/api/)
 #' @export
 docker_registry <- R6::R6Class("docker_registry",
 
@@ -20,8 +52,8 @@ public=list(
 
     login=function()
     {
-        str <- paste("login --username", self$username, "--password", self$password, self$server)
-        call_docker(str)
+        cmd <- paste("login --username", self$username, "--password", self$password, self$server)
+        call_docker(cmd)
     },
 
     push=function(src_image, dest_image)
@@ -95,17 +127,35 @@ private=list(
 ))
 
 
+#' Call the docker commandline tool
+#'
+#' @param cmd The docker command line to execute.
+#' @param ... Other arguments to pass to [system2].
+#'
+#' @details
+#' This function calls the `docker` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
+
+#' @return
+#' By default, the return code from the `docker` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#'
+#' @seealso
+#' [system2], [call_kubectl] for the equivalent interface to the `kubectl` Kubernetes tool
+#'
+#' [docker_registry]
+#'
+#' [Docker command line reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
 #' @export
-call_docker <- function(str="", ...)
+call_docker <- function(cmd="", ...)
 {
     if(.AzureContainers$docker == "")
         stop("docker binary not found", call.=FALSE)
-    message("Docker operation: ", str)
+    message("Docker operation: ", cmd)
     win <- .Platform$OS.type == "windows"
     val <- if(win)
-        system2(.AzureContainers$docker, str, ...)
-    else system2("sudo", paste(.AzureContainers$docker, str), ...)
-    attr(val, "cmdline") <- paste("docker", str)
+        system2(.AzureContainers$docker, cmd, ...)
+    else system2("sudo", paste(.AzureContainers$docker, cmd), ...)
+    attr(val, "cmdline") <- paste("docker", cmd)
     invisible(val)
 }
 

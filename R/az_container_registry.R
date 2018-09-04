@@ -18,10 +18,10 @@
 #'
 #' For working with the registry, including uploading and downloading images, updating tags, deleting layers and images etc, use the endpoint object generated with `get_docker_registry`. This method takes two optional arguments:
 #'
-#' - `username`: The username that Docker will use to login to the registry.
-#' - `password`: The password that Docker will use to login to the registry.
+#' - `username`: The username that Docker will use to authenticate with the registry.
+#' - `password`: The password that Docker will use to authenticate with the registry.
 #'
-#' By default, these arguments will be retrieved from the ACR resource. They will only exist if the resource was created with `admin_user_enabled=TRUE`.
+#' By default, these arguments will be retrieved from the ACR resource. They will only exist if the resource was created with `admin_user_enabled=TRUE`. Currently AzureContainers does not support authentication methods other than a username/password combination.
 #'
 #' @seealso
 #' [create_acr], [get_acr], [delete_acr], [list_acrs]

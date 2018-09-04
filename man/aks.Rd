@@ -29,8 +29,8 @@ Note that this class is separate from the Kubernetes cluster itself. This class 
 
 For working with the cluster, including deploying images, services, etc use the object generated with the \code{get_cluster} method. This method takes two optional arguments:
 \itemize{
-\item \code{config}: The file used to store the cluster configuration details. By default, this will be located in the R temporary directory. To use the Kubernetes default ~/.kube/config file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
-\item \code{role}: This can be \code{"User"} or \code{"Admin}", with the default being the former.
+\item \code{config}: The file in which to store the cluster configuration details. By default, this will be located in the R temporary directory. To use the Kubernetes default \code{~/.kube/config} file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
+\item \code{role}: This can be \code{"User"} (the default) or \code{"Admin}".
 }
 }
 
