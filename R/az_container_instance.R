@@ -22,13 +22,6 @@ public=list(
 
 
 #' @export
-is_aci <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "az_container_instance")
-}
-
-
-#' @export
 aci_ports <- function(port=80L, protocol="TCP")
 {
     df <- data.frame(port=as.integer(port), protocol=protocol, stringsAsFactors=FALSE)

@@ -96,13 +96,6 @@ private=list(
 
 
 #' @export
-is_docker_registry <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "docker_registry")
-}
-
-
-#' @export
 call_docker <- function(str="", ...)
 {
     if(.AzureContainers$docker == "")
