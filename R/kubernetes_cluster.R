@@ -1,3 +1,37 @@
+#' Kubernetes cluster class
+#'
+#' Class representing a [Kubernetes](https://kubernetes.io/docs/home/) cluster. Note that this class can be used to interface with any Docker registry that supports the HTTP V2 API, not just those created via the Azure Container Registry service.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
+#' - `new(...)`: Initialize a new registry object. See 'Initialization' below.
+#' - `create_registry_secret(registry, secret_name, email)`: Provide authentication secret for a Docker registry. See 'Secrets' below.
+#' - `delete_registry_secret(secret_name)`: Delete a registry authentication secret.
+#' - `create(file)`: Creates a deployment or service from a file, using `kubectl create -f`.
+#' - `get(type)`: Get information about resources, using `kubectl get`.
+#' - `run(name, image)`: Runs an image using `kubectl run --image`.
+#' - `expose(name, type, file)`: Exposes a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
+#' - `delete(type, name, file)`: Deletes a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
+#' - `apply(file)`: Apply a configuration file, using `kubectl apply -f`.
+#' - `kubectl(cmd)`: Run an arbitrary `kubectl` command. Called by the other methods above.
+#'
+#' @section Initialization:
+#' The `new()` method takes one argument: `config`, the name of the file containing the configuration details for the cluster. This should be a yaml or json file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
+#'
+#' @section Secrets:
+#' To allow a cluster to authenticate with a Docker registry, call the `create_registry_secret` method with the following arguments:
+#' - `registry`: An object of class either [acr] representing an Azure Container Registry service, or [docker_registry] representing the registry itself.
+#' - `secret_name`: The name to give the secret. Defaults to the name of the registry server.
+#' - `email`: The email address for the Docker registry.
+#'
+#' @section Kubectl:
+#' The methods for this class call the `kubectl` commandline tool, passing it the `--config` option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that `kubectl` be installed. Any calls to `kubectl` will also contain the full commandline as the `cmdline` attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
+#'
+#' @seealso
+#' [aks], [call_kubectl]
+#'
+#' [Kubectl commandline reference](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)
 #' @export
 kubernetes_cluster <- R6::R6Class("kubernetes_cluster",
 
@@ -5,7 +39,7 @@ public=list(
 
     initialize=function(config=NULL)
     {
-        private$config=config
+        private$config <- config
     },
 
     create_registry_secret=function(registry, secret_name=registry$server, email)
@@ -13,27 +47,27 @@ public=list(
         if(is_acr(registry))
             registry <- registry$get_docker_registry(registry)
 
-        str <- paste0("create secret docker-registry ", secret_name,
+        cmd <- paste0("create secret docker-registry ", secret_name,
                       " --docker-server=", registry$server,
                       " --docker-username=", registry$username,
                       " --docker-password=", registry$password,
                       " --docker-email=", email)
 
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     delete_registry_secret=function(secret_name)
     {
-        str <- paste0("delete secret ", secret_name)
-        self$kubectl(str)
+        cmd <- paste0("delete secret ", secret_name)
+        self$kubectl(cmd)
     },
 
     run=function(name, image, options="")
     {
-        str <- paste0("run ", name,
+        cmd <- paste0("run ", name,
                       " --image ", image,
                       " ", options)
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     expose=function(name, type=c("pod", "service", "replicationcontroller", "deployment", "replicaset"),
@@ -42,60 +76,60 @@ public=list(
         if(is.null(file))
         {
             type <- match.arg(type)
-            str <- paste0("expose ", type,
+            cmd <- paste0("expose ", type,
                           " ", name,
                           " ", options)
         }
         else
         {
-            str <- paste0("expose -f ", file,
+            cmd <- paste0("expose -f ", file,
                           " ", options)
         }
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     create=function(file, options="")
     {
-        str <- paste0("create -f ", file,
+        cmd <- paste0("create -f ", file,
                       " ", options)
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     apply=function(file, options="")
     {
-        str <- paste0("apply -f ", file,
+        cmd <- paste0("apply -f ", file,
                       " ", options)
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     delete=function(type, name, file=NULL, options="")
     {
         if(is.null(file))
         {
-            str <- paste0("delete ", type,
+            cmd <- paste0("delete ", type,
                           " ", name,
                           " ", options)
         }
         else
         {
-            str <- paste0("delete -f ", file,
+            cmd <- paste0("delete -f ", file,
                           " ", options)
         }
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
     get=function(type, options="")
     {
-        str <- paste0("get ", type,
+        cmd <- paste0("get ", type,
                       " ", options)
-        self$kubectl(str)
+        self$kubectl(cmd)
     },
 
-    kubectl=function(str="", ...)
+    kubectl=function(cmd="", ...)
     {
         if(!is_empty(private$config))
-            str <- paste0(str, " --kubeconfig=", shQuote(private$config))
-        call_kubectl(str)
+            cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
+        call_kubectl(cmd)
     }
 ),
 
@@ -104,13 +138,31 @@ private=list(
 ))
 
 
+#' Call the Kubernetes commandline tool, kubectl
+#'
+#' @param cmd The kubectl command line to execute.
+#' @param ... Other arguments to pass to [system2].
+#'
+#' @details
+#' This function calls the `kubectl` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
+
+#' @return
+#' By default, the return code from the `kubectl` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#'
+#' @seealso
+#' [system2], [call_docker] for the equivalent interface to the `docker` tool
+#'
+#' [kubernetes_cluster]
+#'
+#' [Kubectl command line reference](https://kubernetes.io/docs/reference/kubectl/overview/)
+#'
 #' @export
-call_kubectl <- function(str="", ...)
+call_kubectl <- function(cmd="", ...)
 {
     if(.AzureContainers$kubectl == "")
         stop("kubectl binary not found", call.=FALSE)
-    message("Kubernetes operation: ", str)
-    val <- system2(.AzureContainers$kubectl, str, ...)
-    attr(val, "cmdline") <- paste("kubectl", str)
+    message("Kubernetes operation: ", cmd)
+    val <- system2(.AzureContainers$kubectl, cmd, ...)
+    attr(val, "cmdline") <- paste("kubectl", cmd)
     invisible(val)
 }
