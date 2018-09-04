@@ -105,13 +105,6 @@ private=list(
 
 
 #' @export
-is_kubernetes_cluster <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "kubernetes_cluster")
-}
-
-
-#' @export
 call_kubectl <- function(str="", ...)
 {
     if(.AzureContainers$kubectl == "")
