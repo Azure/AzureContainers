@@ -46,9 +46,10 @@ public=list(
 #'
 #' @param port,protocol For `aci_ports`, vectors of the port numbers and protocols to open for the instance.
 #' @param server,username,password For `aci_creds`, the authentication details for a Docker registry.
+#' @param lst for `get_aci_credentials_list`, a list of objects.
 #'
 #' @details
-#' These are helper functions to be used in specifying the configuration for a container instance.
+#' These are helper functions to be used in specifying the configuration for a container instance. Only `aci_ports` and `aci_creds` are meant to be called by the user; `get_aci_credentials_list` is exported to workaround namespacing issues on startup.
 #' @rdname aci_utils
 #' @export
 aci_ports <- function(port=80L, protocol="TCP")
@@ -68,6 +69,8 @@ aci_creds <- function(server, username, password)
 }
 
 
+#' @rdname aci_utils
+#' @export
 get_aci_credentials_list <- function(lst)
 {
     # try to ensure we actually have a list of registries as input

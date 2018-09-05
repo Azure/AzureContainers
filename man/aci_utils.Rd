@@ -3,20 +3,25 @@
 \name{aci_ports}
 \alias{aci_ports}
 \alias{aci_creds}
+\alias{get_aci_credentials_list}
 \title{Utilities for specifying ACI configuration information}
 \usage{
 aci_ports(port = 80L, protocol = "TCP")
 
 aci_creds(server, username, password)
+
+get_aci_credentials_list(lst)
 }
 \arguments{
 \item{port, protocol}{For \code{aci_ports}, vectors of the port numbers and protocols to open for the instance.}
 
 \item{server, username, password}{For \code{aci_creds}, the authentication details for a Docker registry.}
+
+\item{lst}{for \code{get_aci_credentials_list}, a list of objects.}
 }
 \description{
 Utilities for specifying ACI configuration information
 }
 \details{
-These are helper functions to be used in specifying the configuration for a container instance.
+These are helper functions to be used in specifying the configuration for a container instance. Only \code{aci_ports} and \code{aci_creds} are meant to be called by the user; \code{get_aci_credentials_list} is exported to workaround namespacing issues on startup.
 }
