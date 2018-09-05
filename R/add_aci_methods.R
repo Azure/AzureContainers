@@ -118,8 +118,8 @@ add_aci_methods <- function()
 {
     az_resource_group$set("public", "create_aci", overwrite=TRUE,
     function(name, location=self$location,
-             container_name=name,
-             image_name,
+             container=name,
+             image,
              registry_creds=list(),
              cores=1,
              memory=8,
@@ -133,9 +133,9 @@ add_aci_methods <- function()
              ...)
     {
         containers <- list(
-            name=container_name,
+            name=container,
             properties=list(
-                image=image_name,
+                image=image,
                 command=command,
                 environmentVariables=env_vars,
                 resources=list(requests=list(cpu=cores, memoryInGB=memory)),
@@ -152,6 +152,7 @@ add_aci_methods <- function()
         if(public_ip)
             props$ipAddress <- list(type="public", dnsNameLabel=dns_name, ports=ports)
 
+        message("Creating container instance '", name, "'. Call the sync_fields() method to check progress.")
         aci$new(self$token, self$subscription, self$name,
                 type="Microsoft.containerInstance/containerGroups", name=name, location=location,
                 properties=props,
