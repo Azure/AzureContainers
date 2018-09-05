@@ -1,0 +1,124 @@
+---
+title: "Deploying a model as a predictive service"
+Author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Model deployment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+This document shows how you can deploy a fitted model as a web service, using ACR, ACI and AKS.
+
+
+## Fit the model
+
+We'll fit a simple model for illustrative purposes, using the Boston housing dataset which ships with R (in the MASS package). To make the deployment process more interesting, the model we fit will be a random forest, using the randomForest package. This is _not_ part of R, so we'll have to install it from CRAN.
+
+```{r, eval=FALSE}
+data(Boston, package="MASS")
+install.packages("randomForest")
+library(randomForest)
+
+# train a model for median house price as a function of the other variables
+bos_rf <- randomForest(medv ~ ., data=Boston, ntree=100)
+
+# save the model
+saveRDS(bos.rf, "bos_rf.rds")
+```
+
+
+## Scoring script for plumber
+
+Now that we have the model, we also need a script to obtain predicted values from it given a set of inputs:
+
+```{r, eval=FALSE}
+bos_rf <- loadRDS("bos_rf.rds")
+
+library(randomForest)
+
+#* @param df data frame of variables
+#* @post /score
+function(req, df)
+{
+    df <- as.data.frame(df)
+    predict(m, df)
+}
+```
+
+This is fairly straightforward, but the comments may require some explanation. They are annotations for [plumber](https://www.rplumber.io), an R package to convert your R code into a REST API accessible via the web. These particular annotations tell plumber to call the function if the server receives a HTTP POST request with the path `/score`, and query parameter `df`.
+
+
+## Create a Dockerfile
+
+Let's package up the model and the scoring script into a Docker image. A Dockerfile to do this would look like the following. This uses the base image supplied by plumber (`trestletech/plumber`), installs randomForest, and then adds the model and the above scoring script. Finally, it runs the plumber code that will start the server and listen on port 8000.
+
+```
+# example Dockerfile to expose a plumber service
+
+FROM trestletech/plumber
+MAINTAINER Hong Ooi <hongooi@microsoft.com>
+
+# install the randomForest package
+RUN R -e 'install.packages(c("randomForest"))'
+
+# copy model and scoring script
+RUN mkdir /data
+COPY bos_rf.rds /data
+COPY bos_rf_score.R /data
+WORKDIR /data
+
+# plumb and run server
+EXPOSE 8000
+ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/data/bos_rf_score.R'); pr$run(host='0.0.0.0', port=8000)"]
+```
+
+## Build and upload the image
+
+To store our image on Azure Container Registry, we run code like this. You should substitute the values of `tenant`, `app` and/or `secret` from your Azure service principal. For more information on how to create a service principal, see the [AzureRMR authentication vignette](https://github.com/Hong-Revo/AzureRMR/vignettes/aad_register.Rmd), or the [Azure tutorial](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
+
+```{r, eval=FALSE}
+library(AzureContainers)
+
+az <- AzureRMR::az_rm$new(
+    tenant="72f988bf-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    app="f72c1733-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    secret="xxxxx")
+
+deployresgrp <- az$
+    get_subscription("35975484-5360-4e67-bf76-14fcb0ab5b9d")$
+    create_resource_group("deployresgrp", location="australiaeast")
+
+
+# create container registry ---
+deployreg_svc <- deployresgrp$create_acr("deployreg")
+
+
+# build image 'bos_rf' ---
+call_docker("build -t bos_rf .")
+
+
+# upload the  image ---
+deployreg <- deployreg_svc$get_docker_registry()
+deployreg$push("bos_rf")
+
+```
+
+If you run this code, you should see a lot of output indicating that R is downloading, compiling and installing randomForest, and finally that the image is being pushed to Azure.
+
+
+## Deploy to an Azure Container Instance
+
+The simplest way to deploy a service is via a Container Instance. This creates a single running container which contains our model, listening on port 8000.
+
+
+```{r, eval=FALSE}
+deployaci <- deployresgrp$create_aci("deployaci",
+    image="deployreg.azurecr.io/bos_rf", registry_creds=deployreg, ports=aci_ports(8000))
+
+r2 <- httr::POST("http://hongaci.australiaeast.azurecontainer.io:8000/score",
+    body=list(df=mtcars[1:10,]), encode="json")
+jsonlite::fromJSON(httr::content(r2, as="text"), flatten=TRUE)
+```
+
+

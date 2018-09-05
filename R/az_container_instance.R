@@ -76,7 +76,7 @@ get_aci_credentials_list <- function(lst)
     # try to ensure we actually have a list of registries as input
     if(is_acr(lst) || is_docker_registry(lst) || inherits(lst, "aci_creds") || !is.list(lst))
         lst <- list(lst)
-    lapply(lst, extract_creds)
+    lapply(lst, function(x) extract_creds(x))
 }
 
 extract_creds <- function(obj, ...)
