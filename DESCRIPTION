@@ -3,6 +3,8 @@ Title: Interface to Docker Registry and Kubernetes via Azure
 Version: 0.1
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
+    person("Bill", "Liang", role = "ctb", comment = "Assistance debugging MMLS on Kubernetes"),
+    person("Ramkumar", "Chandrasekaran", role = "ctb", comment = "Original blog article on Dockerising MMLS"),
     person("Microsoft", role="cph")
     )
 Description: A package for Docker registries and Kubernetes clusters. Manage Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) instances. Supports generic Docker registries and Kubernetes clusters.
