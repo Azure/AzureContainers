@@ -21,7 +21,7 @@ Call the Kubernetes commandline tool, kubectl
 This function calls the \code{kubectl} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 }
 \seealso{
-\link{system2}, \link{call_docker} for the equivalent interface to the \code{docker} tool
+\link{system2}, \link{call_docker}, \link{call_helm}
 
 \link{kubernetes_cluster}
 

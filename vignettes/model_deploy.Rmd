@@ -33,6 +33,8 @@ saveRDS(bos.rf, "bos_rf.rds")
 Now that we have the model, we also need a script to obtain predicted values from it given a set of inputs:
 
 ```{r, eval=FALSE}
+# save as bos_rf_score.R
+
 bos_rf <- readRDS("bos_rf.rds")
 
 library(randomForest)

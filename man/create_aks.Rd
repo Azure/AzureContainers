@@ -5,8 +5,9 @@
 \title{Create Azure Kubernetes Service (AKS)}
 \usage{
 create_aks(name, location = self$location,
-           dns_prefix = name, kubernetes_version = "1.11.2",
+           dns_prefix = name, kubernetes_version = NULL,
            enable_rbac = FALSE, agent_pools = list(),
+           login_user = "", login_passkey = "",
            properties = list(), ...)
 }
 \arguments{
@@ -16,11 +17,13 @@ create_aks(name, location = self$location,
 
 \item{dns_prefix}{The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.}
 
-\item{kubernetes_version}{The Kubernetes version to use.}
+\item{kubernetes_version}{The Kubernetes version to use. If not specified, defaults to \code{"1.11.2"}.}
 
 \item{enable_rbac}{Whether to enable role-based access controls.}
 
 \item{agent_pools}{A list of pool specifications. See 'Details'.}
+
+\item{login_user, login_passkey}{Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.}
 
 \item{properties}{A named list of further Kubernetes-specific properties to pass to the initialization function.}
 

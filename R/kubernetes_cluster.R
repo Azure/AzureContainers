@@ -10,10 +10,11 @@
 #' - `delete_registry_secret(secret_name)`: Delete a registry authentication secret.
 #' - `create(file)`: Creates a deployment or service from a file, using `kubectl create -f`.
 #' - `get(type)`: Get information about resources, using `kubectl get`.
-#' - `run(name, image)`: Runs an image using `kubectl run --image`.
-#' - `expose(name, type, file)`: Exposes a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
-#' - `delete(type, name, file)`: Deletes a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
+#' - `run(name, image)`: Run an image using `kubectl run --image`.
+#' - `expose(name, type, file)`: Expose a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
+#' - `delete(type, name, file)`: Delete a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
 #' - `apply(file)`: Apply a configuration file, using `kubectl apply -f`.
+#' - `show_dashboard(port)`: Display the cluster dashboard. By default, use local port 30000.
 #' - `kubectl(cmd)`: Run an arbitrary `kubectl` command. Called by the other methods above.
 #'
 #' @section Initialization:
@@ -125,11 +126,23 @@ public=list(
         self$kubectl(cmd)
     },
 
+    show_dashboard=function(port=30000, options="")
+    {
+        cmd <- paste0("proxy --port ", port,
+                      " ", options)
+        self$kubectl(cmd, wait=FALSE)
+        url <- paste0("http://localhost:",
+            port,
+            "/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/#!/overview")
+        message("If the dashboard does not appear, enter the URL '", url, "' in your browser")
+        browseURL(url)
+    },
+
     kubectl=function(cmd="", ...)
     {
         if(!is_empty(private$config))
             cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
-        call_kubectl(cmd)
+        call_kubectl(cmd, ...)
     }
 ),
 
@@ -150,7 +163,7 @@ private=list(
 #' By default, the return code from the `kubectl` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
 #'
 #' @seealso
-#' [system2], [call_docker] for the equivalent interface to the `docker` tool
+#' [system2], [call_docker], [call_helm]
 #'
 #' [kubernetes_cluster]
 #'
@@ -164,5 +177,35 @@ call_kubectl <- function(cmd="", ...)
     message("Kubernetes operation: ", cmd)
     val <- system2(.AzureContainers$kubectl, cmd, ...)
     attr(val, "cmdline") <- paste("kubectl", cmd)
+    invisible(val)
+}
+
+
+#' Call the Helm commandline tool
+#'
+#' @param cmd The Helm command line to execute.
+#' @param ... Other arguments to pass to [system2].
+#'
+#' @details
+#' This function calls the `helm` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
+
+#' @return
+#' By default, the return code from the `helm` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#'
+#' @seealso
+#' [system2], [call_docker], [call_kubectl]
+#'
+#' [kubernetes_cluster]
+#'
+#' [Kubectl command line reference](https://kubernetes.io/docs/reference/kubectl/overview/)
+#'
+#' @export
+call_helm <- function(cmd="", ...)
+{
+    if(.AzureContainers$helm == "")
+        stop("helm binary not found", call.=FALSE)
+    message("Helm operation: ", cmd)
+    val <- system2(.AzureContainers$helm, cmd, ...)
+    attr(val, "cmdline") <- paste("helm", cmd)
     invisible(val)
 }
