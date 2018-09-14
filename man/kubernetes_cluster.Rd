@@ -20,10 +20,11 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{delete_registry_secret(secret_name)}: Delete a registry authentication secret.
 \item \code{create(file)}: Creates a deployment or service from a file, using \code{kubectl create -f}.
 \item \code{get(type)}: Get information about resources, using \code{kubectl get}.
-\item \code{run(name, image)}: Runs an image using \code{kubectl run --image}.
-\item \code{expose(name, type, file)}: Exposes a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
-\item \code{delete(type, name, file)}: Deletes a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
+\item \code{run(name, image)}: Run an image using \code{kubectl run --image}.
+\item \code{expose(name, type, file)}: Expose a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
+\item \code{delete(type, name, file)}: Delete a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
 \item \code{apply(file)}: Apply a configuration file, using \code{kubectl apply -f}.
+\item \code{show_dashboard(port)}: Display the cluster dashboard. By default, use local port 30000.
 \item \code{kubectl(cmd)}: Run an arbitrary \code{kubectl} command. Called by the other methods above.
 }
 }

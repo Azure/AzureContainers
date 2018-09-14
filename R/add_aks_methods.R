@@ -6,16 +6,18 @@
 #' @name create_aks
 #' @usage
 #' create_aks(name, location = self$location,
-#'            dns_prefix = name, kubernetes_version = "1.11.2",
+#'            dns_prefix = name, kubernetes_version = NULL,
 #'            enable_rbac = FALSE, agent_pools = list(),
+#'            login_user = "", login_passkey = "",
 #'            properties = list(), ...)
 #'
 #' @param name The name of the Kubernetes service.
 #' @param location The location/region in which to create the service. Defaults to this resource group's location.
 #' @param dns_prefix The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
-#' @param kubernetes_version The Kubernetes version to use.
+#' @param kubernetes_version The Kubernetes version to use. If not specified, defaults to `"1.11.2"`.
 #' @param enable_rbac Whether to enable role-based access controls.
 #' @param agent_pools A list of pool specifications. See 'Details'.
+#' @param login_user,login_passkey Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 #' @param properties A named list of further Kubernetes-specific properties to pass to the initialization function.
 #' @param ... Other named arguments to pass to the initialization function.
 #'
@@ -112,11 +114,14 @@ add_aks_methods <- function()
 {
     az_resource_group$set("public", "create_aks", overwrite=TRUE,
     function(name, location=self$location,
-             dns_prefix=name, kubernetes_version="1.11.2",
+             dns_prefix=name, kubernetes_version=NULL,
+             login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
              properties=list(), ...)
-
     {
+        if(is.null(kubernetes_version))
+            kubernetes_version <- .AzureContainers$kubever
+
         props <- c(
             list(
                 kubernetesVersion=kubernetes_version,
@@ -125,6 +130,12 @@ add_aks_methods <- function()
                 enableRBAC=enable_rbac
             ),
             properties)
+
+        if(login_user != "" && login_passkey != "")
+            props$linuxProfile <- list(
+                adminUsername=login_user,
+                ssh=list(publicKeys=list(list(Keydata=login_passkey)))
+            )
 
         if(is.null(props$servicePrincipalProfile))
             props$servicePrincipalProfile <- list(clientId=self$token$app$key, secret=self$token$app$secret)
