@@ -3,12 +3,12 @@ title: "Deploying a prediction service with Plumber"
 Author: Hong Ooi
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Model deployment}
+  %\VignetteIndexEntry{Plumber model deployment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{utf8}
 ---
 
-This document shows how you can deploy a fitted model as a web service using ACR, ACI and AKS. The framework used is [plumber](https://www.rplumber.io), a package to expose your R code as a service via a REST API.
+This document shows how you can deploy a fitted model as a web service using ACR, ACI and AKS. The framework used is [Plumber](https://www.rplumber.io), a package to expose your R code as a service via a REST API.
 
 
 ## Fit the model
@@ -36,7 +36,6 @@ Now that we have the model, we also need a script to obtain predicted values fro
 # save as bos_rf_score.R
 
 bos_rf <- readRDS("bos_rf.rds")
-
 library(randomForest)
 
 #* @param df data frame of variables
@@ -53,7 +52,7 @@ This is fairly straightforward, but the comments may require some explanation. T
 
 ## Create a Dockerfile
 
-Let's package up the model and the scoring script into a Docker image. A Dockerfile to do this would look like the following. This uses the base image supplied by plumber (`trestletech/plumber`), installs randomForest, and then adds the model and the above scoring script. Finally, it runs the plumber code that will start the server and listen on port 8000.
+Let's package up the model and the scoring script into a Docker image. A Dockerfile to do this would look like the following. This uses the base image supplied by Plumber (`trestletech/plumber`), installs randomForest, and then adds the model and the above scoring script. Finally, it runs the code that will start the server and listen on port 8000.
 
 ```
 # example Dockerfile to expose a plumber service
@@ -78,9 +77,9 @@ ENTRYPOINT ["R", "-e", \
 
 ## Build and upload the image
 
-The code to store our image on Azure Container Registry is as follows. If you are running this code, you should substitute the values of `tenant`, `app` and/or `secret` from your Azure service principal. Similarly, if you are using the public Azure cloud, you should use your own registry, instance and cluster names because all ACR, ACI and AKS resources use a common DNS namespace.
+The code to store our image on Azure Container Registry is as follows. If you are running this code, you should substitute the values of `tenant`, `app` and/or `secret` from your Azure service principal. Similarly, if you are using the public Azure cloud, note that all ACR instances share a common DNS namespace, as do all ACI and AKS instances.
 
-For more information on how to create a service principal, see the [AzureRMR authentication vignette](https://github.com/Hong-Revo/AzureRMR/vignettes/aad_register.Rmd), or the [Azure tutorial](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
+For more information on how to create a service principal, see the [AzureRMR authentication vignette](https://github.com/Hong-Revo/AzureRMR/blob/master/vignettes/aad_register.Rmd), or the [Azure tutorial](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
 
 ```{r, eval=FALSE}
 library(AzureContainers)
@@ -108,7 +107,7 @@ deployreg$push("bos_rf")
 
 If you run this code, you should see a lot of output indicating that R is downloading, compiling and installing randomForest, and finally that the image is being pushed to Azure. (You will see this output even if your machine already has the randomForest package installed. This is because the package is being installed to the R session _inside the container_, which is distinct from the one running the code shown here.)
 
-Note also that all Docker calls, like the one to build the image, return the actual docker commandline as the `cmdline` attribute of the (invisible) returned value. In this case, the commandline is `docker build -t bos_rf .` Similarly, the `push()` method actually involves two Docker calls, one to retag the image, and the second to do the actual pushing; the returned value in this case will be a 2-component list with the command lines being `docker tag bos_rf deployreg.azurecr.io/bos_rf` and `docker push deployreg.azurecr.io/bos_rf`.
+All Docker calls in AzureContainers, like the one to build the image, return the actual docker commandline as the `cmdline` attribute of the (invisible) returned value. In this case, the commandline is `docker build -t bos_rf .` Similarly, the `push()` method actually involves two Docker calls, one to retag the image, and the second to do the actual pushing; the returned value in this case will be a 2-component list with the command lines being `docker tag bos_rf deployreg.azurecr.io/bos_rf` and `docker push deployreg.azurecr.io/bos_rf`.
 
 
 ## Deploy to an Azure Container Instance
@@ -134,17 +133,12 @@ deployaci$properties$provisioningState
 
 Once the instance is running, let's call the prediction API with some sample data. By default, AzureContainers will assign the container a domain name with prefix taken from the instance name. The port is 8000 as specified in the Dockerfile, and the URI path is `/score` indicating we want to call the scoring function defined earlier.
 
-The data to be scored---the first 10 rows of the Boston dataset---is passed in the _body_ of the request as a named list, encoded as JSON. A feature of plumber is that, when the body of the request is in this format, it will extract the elements of the list and pass them to the scoring function as named arguments. This makes it easy to pass around relatively large amounts of data, eg for batch scoring purposes. For more information on how to interact with plumber, consult the [plumber documentation](https://www.rplumber.io/docs/).
+The data to be scored---the first 10 rows of the Boston dataset---is passed in the _body_ of the request as a named list, encoded as JSON. A feature of Plumber is that, when the body of the request is in this format, it will extract the elements of the list and pass them to the scoring function as named arguments. This makes it easy to pass around relatively large amounts of data, eg if the data is wide, or for scoring multiple rows at a time. For more information on how to create and interact with Plumber APIs, consult the [Plumber documentation](https://www.rplumber.io/docs/).
 
 ```{r, eval=FALSE}
 response <- httr::POST("http://deployaci.australiaeast.azurecontainer.io:8000/score",
     body=list(df=MASS::Boston[1:10,]), encode="json")
-```
-
-The response from the API is also JSON-formatted, so we extract it using the jsonlite package:
-
-```{r, eval=FALSE}
-jsonlite::fromJSON(httr::content(response, as="text"), flatten=TRUE)
+httr::content(response, flatten=TRUE)
 #> [1] 25.9269 22.0636 34.1876 33.7737 34.8081 27.6394 21.8007 22.3577 16.7812 18.9785
 ```
 
@@ -238,8 +232,7 @@ Once the service is up and running, as indicated by the presence of an external 
 ```{r, eval=FALSE}
 response <- httr::POST("http://52.187.249.58:8000/score",
     body=list(df=MASS::Boston[1:10,]), encode="json")
-
-jsonlite::fromJSON(httr::content(response, as="text"), flatten=TRUE)
+httr::content(response, flatten=TRUE)
 #> [1] 25.9269 22.0636 34.1876 33.7737 34.8081 27.6394 21.8007 22.3577 16.7812 18.9785
 ```
 
@@ -255,4 +248,9 @@ And if required, we can also delete all the resources created here, by simply de
 ```{r, eval=FALSE}
 deployresgrp$delete()
 ```
+
+
+## See also
+
+An alternative to Plumber is the [model operationalisation](https://docs.microsoft.com/en-us/machine-learning-server/what-is-operationalization) framework found in [Microsoft Machine Learning Server](https://www.microsoft.com/en-us/sql-server/machinelearningserver). While it is proprietary software, unlike Plumber which is open source, ML Server provides a number of features not available in the latter. These include model management, so that you can easily access multiple versions of a given model, as well as performing batch (asynchronous) requests. See the vignette "ML Server model deployment" for more information.
 
