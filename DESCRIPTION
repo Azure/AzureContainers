@@ -18,5 +18,8 @@ Imports:
     openssl,
     httr,
     R6
+Suggests:
+    plumber,
+    mrsdeploy
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0
