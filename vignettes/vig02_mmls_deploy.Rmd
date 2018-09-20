@@ -176,7 +176,7 @@ spec:
         app: bos-rf-mls
     spec:
       containers:
-      - name: bos-rf-mls-small
+      - name: bos-rf-mls
         image: deployreg.azurecr.io/bos-rf-mls
         ports:
         - containerPort: 12800
