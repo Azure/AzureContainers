@@ -63,7 +63,7 @@ bos_rf_score <- function(inputData)
 
 library(mrsdeploy)
 
-# make sure you use a strong password in a production setting
+# make sure you use a strong password or Azure Active Directory authentication in production
 remoteLogin("http://localhost:12800", username="admin", password="Microsoft@2018", session=FALSE)
 api <- publishService("bos-rf", v="1.0.0",
     code=bos_rf_score,
