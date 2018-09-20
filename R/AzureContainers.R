@@ -23,7 +23,7 @@ NULL
     else warning("kubectl binary not found", call.=FALSE)
 
     if(.AzureContainers$helm != "")
-        message("Using helm binary ", .AzureContainers$kubectl)
+        message("Using helm binary ", .AzureContainers$helm)
     else warning("helm binary not found", call.=FALSE)
 
     ## add methods to AzureRMR resource group and subscription classes
