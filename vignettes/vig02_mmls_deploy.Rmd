@@ -242,8 +242,8 @@ Note also that ML Server returns a comprehensive response object, that includes 
 # get status of the service, including the IP address
 deployclus$get("service bos-rf-mls-svc")
 #> Kubernetes operation: get service bos-rf-svc  --kubeconfig=".../kubeconfigxxxx"
-#> NAME         TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)          AGE
-#> bos-rf-svc   LoadBalancer   10.0.107.147   52.187.245.39   8000:30365/TCP   5m 
+#> NAME         TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)           AGE
+#> bos-rf-svc   LoadBalancer   10.0.107.147   52.187.245.39   12800:30365/TCP   5m 
 
 # obtain an authentication token from the server
 response <- POST("http://52.187.245.39:12800/login/",
