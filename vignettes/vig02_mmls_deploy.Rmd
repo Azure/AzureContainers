@@ -19,7 +19,9 @@ ML Server ships with a sophisticated framework for model management and deployme
 
 - A prediction service automatically includes the ability to handle both synchronous and asynchronous (batch) requests without requiring any extra work on your part.
 
-In addition to the above features, ML Server includes comprehensive facilities to manage a server pool, authenticate users, and do load balancing. For the purposes of this vignette, we'll let Kubernetes handle these issues. More information can be obtained from the [relevant pages on docs.microsoft.com](https://docs.microsoft.com/en-us/machine-learning-server/operationalize/how-to-deploy-web-service-publish-manage-in-r).
+- Authentication is similarly included; to use a service, users must either supply a username and password, or authenticate with Azure Active Directory.
+
+In addition to the above features, ML Server includes comprehensive facilities to manage a server pool and do load balancing. For the purposes of this vignette, we'll let Kubernetes handle these issues. More information can be obtained from the [relevant pages on docs.microsoft.com](https://docs.microsoft.com/en-us/machine-learning-server/operationalize/how-to-deploy-web-service-publish-manage-in-r).
 
 Unlike Plumber, ML Server is proprietary software. However, if you have a Microsoft SQL Server license, you will generally also have access to ML Server. There is also a development license that can be used for free.
 
@@ -80,7 +82,7 @@ This Dockerfile installs the Azure CLI (which is needed to initialise the operat
 Some other differences of note from the Plumber Dockerfile:
 
 - The base image is Ubuntu, rather than one from the Rocker project. As this doesn't include the C and Fortran compilers required to install randomForest, we have to add them explicitly.
-- It's necessary to modify some of ML Server's config files to enable it to work in a Kubernetes cluster. In particular, we have to supply a certificate so that different nodes in the cluster can recognise each other. Here, we use a certificate supplied by Microsoft; in a production setting, you should use your own.
+- It's necessary to modify some of ML Server's config files to enable it to work in a Kubernetes cluster. In particular, we have to supply a certificate so that different nodes in the cluster can recognise each other. Here, we use a certificate supplied by Microsoft; in a production setting, you should [use your own](https://blogs.msdn.microsoft.com/mlserver/2017/05/19/using-certificates-in-r-server-operationalization-for-linux/).
 - The startup command does more work than in the Plumber case, where it simply started R and called a Plumber function. Here, it initialises the operationalisation web and compute nodes, starts R, and calls the deployment script.
 
 ```
@@ -146,6 +148,7 @@ writeLines(toJSON(settings, auto_unbox=TRUE, pretty=TRUE), settings_file) \n\
 
 RUN chmod +x configure_jwt_cert.R
 
+# insert your own cert here
 RUN sed -i 's/grep docker/grep "kubepods\\|docker"/g' /opt/microsoft/mlserver/9.3.0/o16n/Microsoft.MLServer.*Node/autoStartScriptsLinux/*.sh \
     && mkdir -p /home/webnode_usr/.dotnet/corefx/cryptography/x509stores/root \
     && wget https://github.com/Microsoft/microsoft-r/raw/master/mlserver-arm-templates/enterprise-configuration/linux-postgresql/25706AA4612FC42476B8E6C72A97F58D4BB5721B.pfx -O /home/webnode_usr/.dotnet/corefx/cryptography/x509stores/root/25706AA4612FC42476B8E6C72A97F58D4BB5721B.pfx \
@@ -296,5 +299,4 @@ content(response, simplifyVector=TRUE)$batchExecutionResults$outputParameters
 #> 1 25.92692, 22.06357, 34.18765, 33.77370, 34.80810, 27.63945, 21.80073, 22.35773, 16.78120, 18.97845
 #> 2 17.22610, 20.05682, 21.63635, 20.13023, 18.69370, 20.14845, 22.33917, 17.92152, 19.33282, 18.75947
 ```
-
 
