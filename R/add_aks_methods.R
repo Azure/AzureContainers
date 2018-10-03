@@ -6,7 +6,7 @@
 #' @name create_aks
 #' @usage
 #' create_aks(name, location = self$location,
-#'            dns_prefix = name, kubernetes_version = NULL,
+#'            dns_prefix = name, kubernetes_version = "1.11.2",
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
 #'            properties = list(), ...)
@@ -114,14 +114,11 @@ add_aks_methods <- function()
 {
     az_resource_group$set("public", "create_aks", overwrite=TRUE,
     function(name, location=self$location,
-             dns_prefix=name, kubernetes_version=NULL,
+             dns_prefix=name, kubernetes_version="1.11.2",
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
              properties=list(), ...)
     {
-        if(is.null(kubernetes_version))
-            kubernetes_version <- .AzureContainers$kubever
-
         props <- c(
             list(
                 kubernetesVersion=kubernetes_version,
