@@ -11,9 +11,6 @@ NULL
     .AzureContainers$kubectl <- Sys.which("kubectl")
     .AzureContainers$helm <- Sys.which("helm")
 
-    # default Kubernetes version
-    .AzureContainers$kubever <- "1.11.2"
-
     if(.AzureContainers$docker != "")
         message("Using docker binary ", .AzureContainers$docker)
     else warning("docker binary not found", call.=FALSE)
