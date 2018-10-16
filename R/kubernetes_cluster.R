@@ -15,7 +15,8 @@
 #' - `delete(type, name, file)`: Delete a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
 #' - `apply(file)`: Apply a configuration file, using `kubectl apply -f`.
 #' - `show_dashboard(port)`: Display the cluster dashboard. By default, use local port 30000.
-#' - `kubectl(cmd)`: Run an arbitrary `kubectl` command. Called by the other methods above.
+#' - `kubectl(cmd)`: Run an arbitrary `kubectl` command on this cluster. Called by the other methods above.
+#' - `helm(cmd)`: Run a `helm` command on this cluster.
 #'
 #' @section Initialization:
 #' The `new()` method takes one argument: `config`, the name of the file containing the configuration details for the cluster. This should be a yaml or json file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
@@ -143,6 +144,13 @@ public=list(
         if(!is_empty(private$config))
             cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
         call_kubectl(cmd, ...)
+    },
+
+    helm=function(cmd="", ...)
+    {
+        if(!is_empty(private$config))
+            cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
+        call_helm(cmd, ...)
     }
 ),
 
