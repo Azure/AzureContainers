@@ -5,7 +5,7 @@
 \title{Create Azure Kubernetes Service (AKS)}
 \usage{
 create_aks(name, location = self$location,
-           dns_prefix = name, kubernetes_version = NULL,
+           dns_prefix = name, kubernetes_version = "1.11.2",
            enable_rbac = FALSE, agent_pools = list(),
            login_user = "", login_passkey = "",
            properties = list(), ...)
