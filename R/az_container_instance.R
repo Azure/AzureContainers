@@ -19,6 +19,7 @@
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
 #'
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#' @aliases az_container_instance
 #' @export
 aci <- R6::R6Class("az_container_instance", inherit=AzureRMR::az_resource,
 

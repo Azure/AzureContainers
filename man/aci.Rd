@@ -3,6 +3,7 @@
 \docType{class}
 \name{aci}
 \alias{aci}
+\alias{az_container_instance}
 \title{Azure Container Instance class}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
