@@ -41,6 +41,8 @@ create_aci(name, location = self$location,
 \item{public_ip}{Whether the instance should be publicly accessible.}
 
 \item{restart}{Whether to restart the instance should an event occur.}
+
+\item{...}{Other named arguments to pass to the \link{az_resource} initialization function.}
 }
 \value{
 An object of class \code{az_container_instance} representing the instance.

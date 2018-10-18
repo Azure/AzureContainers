@@ -1,6 +1,6 @@
 Package: AzureContainers
 Title: Interface to Docker Registry and Kubernetes via Azure
-Version: 0.1
+Version: 0.9
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Bill", "Liang", role = "ctb", comment = "Assistance debugging MMLS on Kubernetes"),
@@ -19,7 +19,6 @@ Imports:
     httr,
     R6
 Suggests:
-    plumber,
-    mrsdeploy
+    knitr
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0

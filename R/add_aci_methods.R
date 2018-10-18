@@ -28,6 +28,7 @@
 #' @param dns_name The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
 #' @param public_ip Whether the instance should be publicly accessible.
 #' @param restart Whether to restart the instance should an event occur.
+#' @param ... Other named arguments to pass to the [az_resource] initialization function.
 #'
 #' @details
 #' An ACI resource is a running container hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-instances/) for more information. Currently ACI only supports a single image in an instance.
