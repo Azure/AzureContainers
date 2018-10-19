@@ -63,5 +63,7 @@ jsonlite::fromJSON(httr::content(response, as="text"), flatten=TRUE)
 # delete the deployment ---
 clus$delete("service", "model1-svc")
 clus$delete("deployment", "model1")
-
 ```
+
+---
+[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)

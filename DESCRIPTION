@@ -10,7 +10,6 @@ Authors@R: c(
 Description: A package for Docker registries and Kubernetes clusters. Manage Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) instances. Supports generic Docker registries and Kubernetes clusters.
 License: file LICENSE
 VignetteBuilder: knitr
-Encoding: UTF-8
 Depends: 
     R (>= 3.3)
 Imports: 
