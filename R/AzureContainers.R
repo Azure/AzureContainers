@@ -12,20 +12,27 @@ globalVariables("self", "AzureContainers")
     .AzureContainers$kubectl <- Sys.which("kubectl")
     .AzureContainers$helm <- Sys.which("helm")
 
-    if(.AzureContainers$docker != "")
-        packageStartupMessage("Using docker binary ", .AzureContainers$docker)
-    else warning("docker binary not found", call.=FALSE)
-
-    if(.AzureContainers$kubectl != "")
-        packageStartupMessage("Using kubectl binary ", .AzureContainers$kubectl)
-    else warning("kubectl binary not found", call.=FALSE)
-
-    if(.AzureContainers$helm != "")
-        packageStartupMessage("Using helm binary ", .AzureContainers$helm)
-    else warning("helm binary not found", call.=FALSE)
-
     ## add methods to AzureRMR resource group and subscription classes
     add_acr_methods()
     add_aks_methods()
     add_aci_methods()
+}
+
+
+.onAttach <- function(libname, pkgname)
+{
+    if(.AzureContainers$docker != "")
+        packageStartupMessage("Using docker binary ", .AzureContainers$docker)
+    if(.AzureContainers$kubectl != "")
+        packageStartupMessage("Using kubectl binary ", .AzureContainers$kubectl)
+    if(.AzureContainers$helm != "")
+        packageStartupMessage("Using helm binary ", .AzureContainers$helm)
+
+    if(.AzureContainers$docker == "")
+        packageStartupMessage("NOTE: docker binary not found")
+    if(.AzureContainers$kubectl == "")
+        packageStartupMessage("NOTE: kubectl binary not found")
+    if(.AzureContainers$helm == "")
+        packageStartupMessage("NOTE: helm binary not found")
+    invisible(NULL)
 }
