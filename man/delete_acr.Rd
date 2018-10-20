@@ -3,22 +3,28 @@
 \name{delete_acr}
 \alias{delete_acr}
 \title{Delete an Azure Container Registry (ACR)}
-\usage{
-delete_acr(name, confirm=TRUE, wait=FALSE)
-}
-\arguments{
-\item{name}{The name of the container registry.}
-
-\item{confirm}{Whether to ask for confirmation before deleting.}
-
-\item{wait}{Whether to wait until the deletion is complete.}
-}
-\value{
-NULL on successful deletion.
-}
 \description{
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
+\section{Usage}{
+\preformatted{delete_acr(name, confirm=TRUE, wait=FALSE)
+}
+}
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: The name of the container registry.
+\item \code{confirm}: Whether to ask for confirmation before deleting.
+\item \code{wait}: Whether to wait until the deletion is complete.
+}
+}
+
+\section{Value}{
+
+NULL on successful deletion.
+}
+
 \seealso{
 \link{create_acr}, \link{get_acr}
 

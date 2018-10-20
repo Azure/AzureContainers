@@ -3,22 +3,28 @@
 \name{delete_aci}
 \alias{delete_aci}
 \title{Delete an Azure Container Instance (ACI)}
-\usage{
-delete_aci(name, confirm=TRUE, wait=FALSE)
-}
-\arguments{
-\item{name}{The name of the container instance.}
-
-\item{confirm}{Whether to ask for confirmation before deleting.}
-
-\item{wait}{Whether to wait until the deletion is complete.}
-}
-\value{
-NULL on successful deletion.
-}
 \description{
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
+\section{Usage}{
+\preformatted{delete_aci(name, confirm=TRUE, wait=FALSE)
+}
+}
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: The name of the container instance.
+\item \code{confirm}: Whether to ask for confirmation before deleting.
+\item \code{wait}: Whether to wait until the deletion is complete.
+}
+}
+
+\section{Value}{
+
+NULL on successful deletion.
+}
+
 \seealso{
 \link{create_aci}, \link{get_aci}
 

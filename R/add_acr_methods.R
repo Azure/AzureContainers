@@ -4,20 +4,23 @@
 #'
 #' @rdname create_acr
 #' @name create_acr
-#' @usage
+#' @aliases create_acr
+#' @section Usage:
+#' ```
 #' create_acr(name, location = self$location,
 #'            admin_user_enabled = TRUE, sku = "Standard", ...)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the container registry.
+#' - `location`: The location/region in which to create the container registry. Defaults to this resource group's location.
+#' - `admin_user_enabled`: Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
+#' - `sku`: The SKU.
+#' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
-#' @param name The name of the container registry.
-#' @param location The location/region in which to create the container registry. Defaults to this resource group's location.
-#' @param admin_user_enabled Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
-#' @param sku The SKU.
-#' @param ... Other named arguments to pass to the [az_resource] initialization function.
-#'
-#' @details
+#' @section Details:
 #' An ACR resource is a Docker registry hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-registry/) for more information. To work with the registry (transfer images, retag images, etc) see the [documentation for the registry endpoint](docker_registry).
 #'
-#' @return
+#' @section Value:
 #' An object of class `az_container_registry` representing the registry resource.
 #'
 #' @seealso
@@ -40,18 +43,20 @@ NULL
 #'
 #' @rdname get_acr
 #' @name get_acr
-#' @aliases list_acrs
+#' @aliases get_acr list_acrs
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' get_acr(name)
 #' list_acrs()
+#' ```
+#' @section Arguments:
+#' - `name`: For `get_acr()`, the name of the container registry resource.
 #'
-#' @param name For `get_acr()`, the name of the container registry resource.
-#'
-#' @details
+#' @section Details:
 #' The `AzureRMR::az_resource_group` class has both `get_acr()` and `list_acrs()` methods, while the `AzureRMR::az_subscription` class only has the latter.
 #'
-#' @return
+#' @section Value:
 #' For `get_acr()`, an object of class `az_container_registry` representing the registry resource.
 #'
 #' For `list_acrs()`, a list of such objects.
@@ -76,15 +81,18 @@ NULL
 #'
 #' @rdname delete_acr
 #' @name delete_acr
+#' @aliases delete_acr
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' delete_acr(name, confirm=TRUE, wait=FALSE)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the container registry.
+#' - `confirm`: Whether to ask for confirmation before deleting.
+#' - `wait`: Whether to wait until the deletion is complete.
 #'
-#' @param name The name of the container registry.
-#' @param confirm Whether to ask for confirmation before deleting.
-#' @param wait Whether to wait until the deletion is complete.
-#'
-#' @return
+#' @section Value:
 #' NULL on successful deletion.
 #'
 #' @seealso

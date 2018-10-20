@@ -3,30 +3,36 @@
 \name{create_acr}
 \alias{create_acr}
 \title{Create Azure Container Registry (ACR)}
-\usage{
-create_acr(name, location = self$location,
-           admin_user_enabled = TRUE, sku = "Standard", ...)
-}
-\arguments{
-\item{name}{The name of the container registry.}
-
-\item{location}{The location/region in which to create the container registry. Defaults to this resource group's location.}
-
-\item{admin_user_enabled}{Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.}
-
-\item{sku}{The SKU.}
-
-\item{...}{Other named arguments to pass to the \link{az_resource} initialization function.}
-}
-\value{
-An object of class \code{az_container_registry} representing the registry resource.
-}
 \description{
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
-\details{
+\section{Usage}{
+\preformatted{create_acr(name, location = self$location,
+           admin_user_enabled = TRUE, sku = "Standard", ...)
+}
+}
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: The name of the container registry.
+\item \code{location}: The location/region in which to create the container registry. Defaults to this resource group's location.
+\item \code{admin_user_enabled}: Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
+\item \code{sku}: The SKU.
+\item \code{...}: Other named arguments to pass to the \link{az_resource} initialization function.
+}
+}
+
+\section{Details}{
+
 An ACR resource is a Docker registry hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-registry/}{documentation for the resource} for more information. To work with the registry (transfer images, retag images, etc) see the \href{docker_registry}{documentation for the registry endpoint}.
 }
+
+\section{Value}{
+
+An object of class \code{az_container_registry} representing the registry resource.
+}
+
 \seealso{
 \link{get_acr}, \link{delete_acr}, \link{list_acrs}
 

@@ -3,43 +3,45 @@
 \name{create_aks}
 \alias{create_aks}
 \title{Create Azure Kubernetes Service (AKS)}
-\usage{
-create_aks(name, location = self$location,
+\description{
+Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
+}
+\section{Usage}{
+\preformatted{create_aks(name, location = self$location,
            dns_prefix = name, kubernetes_version = "1.11.2",
            enable_rbac = FALSE, agent_pools = list(),
            login_user = "", login_passkey = "",
            properties = list(), ...)
 }
-\arguments{
-\item{name}{The name of the Kubernetes service.}
-
-\item{location}{The location/region in which to create the service. Defaults to this resource group's location.}
-
-\item{dns_prefix}{The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.}
-
-\item{kubernetes_version}{The Kubernetes version to use. If not specified, defaults to \code{"1.11.2"}.}
-
-\item{enable_rbac}{Whether to enable role-based access controls.}
-
-\item{agent_pools}{A list of pool specifications. See 'Details'.}
-
-\item{login_user, login_passkey}{Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.}
-
-\item{properties}{A named list of further Kubernetes-specific properties to pass to the initialization function.}
-
-\item{...}{Other named arguments to pass to the initialization function.}
 }
-\value{
-An object of class \code{az_kubernetes_service} representing the service.
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: The name of the Kubernetes service.
+\item \code{location}: The location/region in which to create the service. Defaults to this resource group's location.
+\item \code{dns_prefix}: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
+\item \code{kubernetes_version}: The Kubernetes version to use. If not specified, defaults to \code{"1.11.2"}.
+\item \code{enable_rbac}: Whether to enable role-based access controls.
+\item \code{agent_pools}: A list of pool specifications. See 'Details'.
+\item \code{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
+\item \code{properties}: A named list of further Kubernetes-specific properties to pass to the initialization function.
+\item \code{...}: Other named arguments to pass to the initialization function.
 }
-\description{
-Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
-\details{
+
+\section{Details}{
+
 An AKS resource is a Kubernetes cluster hosted in Azure. See the \href{aks}{documentation for the resource} for more information. To work with the cluster (deploy images, define and start services, etc) see the \href{kubernetes_cluster}{documentation for the cluster endpoint}.
 
 To specify the agent pools for the cluster, it is easiest to use the \link{aks_pools} function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs. Note that currently, AKS only supports one agent pool per cluster.
 }
+
+\section{Value}{
+
+An object of class \code{az_kubernetes_service} representing the service.
+}
+
 \seealso{
 \link{get_aks}, \link{delete_aks}, \link{list_aks}, \link{aks_pools}
 

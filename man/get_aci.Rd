@@ -4,24 +4,34 @@
 \alias{get_aci}
 \alias{list_acis}
 \title{Get Azure Container Instance (ACI)}
-\usage{
-get_aci(name)
+\description{
+Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
+}
+\section{Usage}{
+\preformatted{get_aci(name)
 list_acis()
 }
-\arguments{
-\item{name}{For \code{get_aci()}, the name of the container instance resource.}
 }
-\value{
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: For \code{get_aci()}, the name of the container instance resource.
+}
+}
+
+\section{Details}{
+
+The \code{AzureRMR::az_resource_group} class has both \code{get_aci()} and \code{list_acis()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
+}
+
+\section{Value}{
+
 For \code{get_aci()}, an object of class \code{az_container_instance} representing the instance resource.
 
 For \code{list_acis()}, a list of such objects.
 }
-\description{
-Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
-}
-\details{
-The \code{AzureRMR::az_resource_group} class has both \code{get_aci()} and \code{list_acis()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
-}
+
 \seealso{
 \link{create_aci}, \link{delete_aci}
 
