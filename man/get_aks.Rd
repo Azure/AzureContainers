@@ -4,24 +4,34 @@
 \alias{get_aks}
 \alias{list_aks}
 \title{Get Azure Kubernetes Service (AKS)}
-\usage{
-get_aks(name)
+\description{
+Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
+}
+\section{Usage}{
+\preformatted{get_aks(name)
 list_aks()
 }
-\arguments{
-\item{name}{For \code{get_aks()}, the name of the Kubernetes service.}
 }
-\value{
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: For \code{get_aks()}, the name of the Kubernetes service.
+}
+}
+
+\section{Details}{
+
+The \code{AzureRMR::az_resource_group} class has both \code{get_aks()} and \code{list_aks()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
+}
+
+\section{Value}{
+
 For \code{get_aks()}, an object of class \code{az_kubernetes_service} representing the service.
 
 For \code{list_aks()}, a list of such objects.
 }
-\description{
-Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
-}
-\details{
-The \code{AzureRMR::az_resource_group} class has both \code{get_aks()} and \code{list_aks()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
-}
+
 \seealso{
 \link{create_aks}, \link{delete_aks}
 

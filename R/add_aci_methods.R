@@ -4,7 +4,9 @@
 #'
 #' @rdname create_aci
 #' @name create_aci
-#' @usage
+#' @aliases create_aci
+#' @section Usage:
+#' ```
 #' create_aci(name, location = self$location,
 #'            container_name = name, image_name,
 #'            registry_creds = list(),
@@ -13,31 +15,32 @@
 #'            command = list(), env_vars = list(),
 #'            ports = NULL, dns_name = name, public_ip = TRUE,
 #'            restart = c("Always", "OnFailure", "Never"), ...)
-#'            
-#' @param name The name of the ACI service.
-#' @param location The location/region in which to create the ACI service. Defaults to this resource group's location.
-#' @param container_name The name of the running container.
-#' @param image_name The name of the image to run.
-#' @param registry_creds Docker registry authentication credentials, if the image is stored in a private registry. See 'Details'.
-#' @param cores The number of CPU cores for the instance.
-#' @param memory The memory size in GB for the instance.
-#' @param os The operating system to run in the instance.
-#' @param command A list of commands to run in the instance.
-#' @param env_vars A list of name-value pairs to set as environment variables in the instance.
-#' @param ports The network ports to open. See 'Details'.
-#' @param dns_name The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
-#' @param public_ip Whether the instance should be publicly accessible.
-#' @param restart Whether to restart the instance should an event occur.
-#' @param ... Other named arguments to pass to the [az_resource] initialization function.
+#' ```
+#' @section Arguments:        
+#' - `name`: The name of the ACI service.
+#' - `location`: The location/region in which to create the ACI service. Defaults to this resource group's location.
+#' - `container_name`: The name of the running container.
+#' - `image_name`: The name of the image to run.
+#' - `registry_creds`: Docker registry authentication credentials, if the image is stored in a private registry. See 'Details'.
+#' - `cores`: The number of CPU cores for the instance.
+#' - `memory`: The memory size in GB for the instance.
+#' - `os`: The operating system to run in the instance.
+#' - `command`: A list of commands to run in the instance.
+#' - `env_vars`: A list of name-value pairs to set as environment variables in the instance.
+#' - `ports`: The network ports to open. See 'Details'.
+#' - `dns_name`: The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
+#' - `public_ip`: Whether the instance should be publicly accessible.
+#' - `restart`: Whether to restart the instance should an event occur.
+#' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
-#' @details
+#' @section Details:
 #' An ACI resource is a running container hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-instances/) for more information. Currently ACI only supports a single image in an instance.
 #'
 #' To supply the registry authentication credentials, the `registry_creds` argument should contain either an [ACI](aci) object, a [docker_registry] object, or the result of a call to the [aci_creds] function.
 #'
 #' The ports to open should be obtained by calling the [aci_ports] function. This takes a vector of port numbers as well as the protocol (TCP or UDP) for each port.
 #'
-#' @return
+#' @section Value:
 #' An object of class `az_container_instance` representing the instance.
 #'
 #' @seealso
@@ -58,18 +61,20 @@ NULL
 #'
 #' @rdname get_aci
 #' @name get_aci
-#' @aliases list_acis
+#' @aliases get_aci list_acis
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' get_aci(name)
 #' list_acis()
+#' ```
+#' @section Arguments:
+#' - `name`: For `get_aci()`, the name of the container instance resource.
 #'
-#' @param name For `get_aci()`, the name of the container instance resource.
-#'
-#' @details
+#' @section Details:
 #' The `AzureRMR::az_resource_group` class has both `get_aci()` and `list_acis()` methods, while the `AzureRMR::az_subscription` class only has the latter.
 #'
-#' @return
+#' @section Value:
 #' For `get_aci()`, an object of class `az_container_instance` representing the instance resource.
 #'
 #' For `list_acis()`, a list of such objects.
@@ -92,15 +97,18 @@ NULL
 #'
 #' @rdname delete_aci
 #' @name delete_aci
+#' @aliases delete_aci
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' delete_aci(name, confirm=TRUE, wait=FALSE)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the container instance.
+#' - `confirm`: Whether to ask for confirmation before deleting.
+#' - `wait`: Whether to wait until the deletion is complete.
 #'
-#' @param name The name of the container instance.
-#' @param confirm Whether to ask for confirmation before deleting.
-#' @param wait Whether to wait until the deletion is complete.
-#'
-#' @return
+#' @section Value:
 #' NULL on successful deletion.
 #'
 #' @seealso

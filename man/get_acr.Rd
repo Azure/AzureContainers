@@ -4,24 +4,34 @@
 \alias{get_acr}
 \alias{list_acrs}
 \title{Get Azure Container Registry (ACR)}
-\usage{
-get_acr(name)
+\description{
+Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
+}
+\section{Usage}{
+\preformatted{get_acr(name)
 list_acrs()
 }
-\arguments{
-\item{name}{For \code{get_acr()}, the name of the container registry resource.}
 }
-\value{
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: For \code{get_acr()}, the name of the container registry resource.
+}
+}
+
+\section{Details}{
+
+The \code{AzureRMR::az_resource_group} class has both \code{get_acr()} and \code{list_acrs()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
+}
+
+\section{Value}{
+
 For \code{get_acr()}, an object of class \code{az_container_registry} representing the registry resource.
 
 For \code{list_acrs()}, a list of such objects.
 }
-\description{
-Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
-}
-\details{
-The \code{AzureRMR::az_resource_group} class has both \code{get_acr()} and \code{list_acrs()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
-}
+
 \seealso{
 \link{create_acr}, \link{delete_acr}
 

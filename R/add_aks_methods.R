@@ -4,29 +4,32 @@
 #'
 #' @rdname create_aks
 #' @name create_aks
-#' @usage
+#' @aliases create_aks
+#' @section Usage:
+#' ```
 #' create_aks(name, location = self$location,
 #'            dns_prefix = name, kubernetes_version = "1.11.2",
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
 #'            properties = list(), ...)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the Kubernetes service.
+#' - `location`: The location/region in which to create the service. Defaults to this resource group's location.
+#' - `dns_prefix`: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
+#' - `kubernetes_version`: The Kubernetes version to use. If not specified, defaults to `"1.11.2"`.
+#' - `enable_rbac`: Whether to enable role-based access controls.
+#' - `agent_pools`: A list of pool specifications. See 'Details'.
+#' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
+#' - `properties`: A named list of further Kubernetes-specific properties to pass to the initialization function.
+#' - `...`: Other named arguments to pass to the initialization function.
 #'
-#' @param name The name of the Kubernetes service.
-#' @param location The location/region in which to create the service. Defaults to this resource group's location.
-#' @param dns_prefix The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
-#' @param kubernetes_version The Kubernetes version to use. If not specified, defaults to `"1.11.2"`.
-#' @param enable_rbac Whether to enable role-based access controls.
-#' @param agent_pools A list of pool specifications. See 'Details'.
-#' @param login_user,login_passkey Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
-#' @param properties A named list of further Kubernetes-specific properties to pass to the initialization function.
-#' @param ... Other named arguments to pass to the initialization function.
-#'
-#' @details
+#' @section Details:
 #' An AKS resource is a Kubernetes cluster hosted in Azure. See the [documentation for the resource](aks) for more information. To work with the cluster (deploy images, define and start services, etc) see the [documentation for the cluster endpoint](kubernetes_cluster).
 #'
 #' To specify the agent pools for the cluster, it is easiest to use the [aks_pools] function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs. Note that currently, AKS only supports one agent pool per cluster.
 #'
-#' @return
+#' @section Value:
 #' An object of class `az_kubernetes_service` representing the service.
 #'
 #' @seealso
@@ -49,18 +52,20 @@ NULL
 #'
 #' @rdname get_aks
 #' @name get_aks
-#' @aliases list_aks
+#' @aliases get_aks list_aks
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' get_aks(name)
 #' list_aks()
+#' ```
+#' @section Arguments:
+#' - `name`: For `get_aks()`, the name of the Kubernetes service.
 #'
-#' @param name For `get_aks()`, the name of the Kubernetes service.
-#'
-#' @details
+#' @section Details:
 #' The `AzureRMR::az_resource_group` class has both `get_aks()` and `list_aks()` methods, while the `AzureRMR::az_subscription` class only has the latter.
 #'
-#' @return
+#' @section Value:
 #' For `get_aks()`, an object of class `az_kubernetes_service` representing the service.
 #'
 #' For `list_aks()`, a list of such objects.
@@ -85,15 +90,18 @@ NULL
 #'
 #' @rdname delete_aks
 #' @name delete_aks
+#' @aliases delete_aks
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' delete_aks(name, confirm=TRUE, wait=FALSE)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the Kubernetes service.
+#' - `confirm`: Whether to ask for confirmation before deleting.
+#' - `wait`: Whether to wait until the deletion is complete.
 #'
-#' @param name The name of the Kubernetes service.
-#' @param confirm Whether to ask for confirmation before deleting.
-#' @param wait Whether to wait until the deletion is complete.
-#'
-#' @return
+#' @section Value:
 #' NULL on successful deletion.
 #'
 #' @seealso
