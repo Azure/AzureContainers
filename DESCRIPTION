@@ -1,6 +1,6 @@
 Package: AzureContainers
 Title: Interface to Docker Registry and Kubernetes via Azure
-Version: 0.9
+Version: 0.9.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Bill", "Liang", role = "ctb", comment = "Assistance debugging MMLS on Kubernetes"),
