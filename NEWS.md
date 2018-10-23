@@ -1,3 +1,3 @@
-# AzureContainers 0.9
+# AzureContainers 0.9.0
 
 * Moved to cloudyr organisation
