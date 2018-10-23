@@ -84,7 +84,7 @@ public=list(
         }
         else
         {
-            cmd <- paste0("expose -f ", file,
+            cmd <- paste0("expose -f ", make_file(file, ".yaml"),
                           " ", options)
         }
         self$kubectl(cmd)
@@ -92,14 +92,14 @@ public=list(
 
     create=function(file, options="")
     {
-        cmd <- paste0("create -f ", file,
+        cmd <- paste0("create -f ", make_file(file, ".yaml"),
                       " ", options)
         self$kubectl(cmd)
     },
 
     apply=function(file, options="")
     {
-        cmd <- paste0("apply -f ", file,
+        cmd <- paste0("apply -f ", make_file(file, ".yaml"),
                       " ", options)
         self$kubectl(cmd)
     },
@@ -114,7 +114,7 @@ public=list(
         }
         else
         {
-            cmd <- paste0("delete -f ", file,
+            cmd <- paste0("delete -f ", make_file(file, ".yaml"),
                           " ", options)
         }
         self$kubectl(cmd)
@@ -216,4 +216,16 @@ call_helm <- function(cmd="", ...)
     val <- system2(.AzureContainers$helm, cmd, ...)
     attr(val, "cmdline") <- paste("helm", cmd)
     invisible(val)
+}
+
+
+# generate a file from a character vector to be passed to kubectl
+make_file <- function(file, ext="")
+{
+    if(file.exists(file))
+        return(file)
+
+    out <- tempfile(fileext=ext)
+    writeLines(file, out)
+    out
 }
