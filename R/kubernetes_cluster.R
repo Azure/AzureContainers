@@ -222,7 +222,7 @@ call_helm <- function(cmd="", ...)
 # generate a file from a character vector to be passed to kubectl
 make_file <- function(file, ext="")
 {
-    if(length(file) == 1 && file.exists(file1))
+    if(length(file) == 1 && file.exists(file))
         return(file)
 
     out <- tempfile(fileext=ext)
