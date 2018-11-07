@@ -1,8 +1,8 @@
 # AzureContainers
 
-A package for working with Azure Container Registry (ACR), Azure Kubernetes Service (AKS) and Azure Container Instances (ACI). Extends the Azure Resource Manager interface provided by the [AzureRMR](https://github.com/Hong-Revo/AzureRMR) package.
+A package for working with [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/services/container-registry/), [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) and [Azure Container Instances (ACI)](https://azure.microsoft.com/en-us/services/container-instances/). Extends the Azure Resource Manager interface provided by the [AzureRMR](https://github.com/Hong-Revo/AzureRMR) package.
 
-AzureContainers lets you build and deploy containerised services in R, using Docker and Kubernetes. For full functionality, you should have [Docker](https://docs.docker.com/install/) installed, as well as the [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) commandline tool. Otherwise it is relatively lightweight, requiring neither Powershell nor Python.
+AzureContainers lets you build and deploy containerised services in R, using Docker and Kubernetes. For full functionality, you should have [Docker](https://docs.docker.com/install/) installed, as well as the [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) and [helm](https://www.helm.sh/) commandline tools. Otherwise it is relatively lightweight, requiring neither Powershell nor Python.
 
 Note that AzureContainers can talk to any Docker registry that uses the [V2 HTTP API](https://docs.docker.com/registry/spec/api/), not just those created via ACR. Similarly, it can interface with Kubernetes clusters anywhere, not just those created via AKS.
 
@@ -42,22 +42,6 @@ clus <- aks$get_cluster()
 clus$create_registry_secret(reg, email="email@example.com")
 clus$create("model1.yaml")
 clus$get("service")
-
-
-# test the deployment ---
-response <- httr::POST("http://<ip_address>:8000/score", body=list(df=mtcars[1:10,]), encode="json")
-jsonlite::fromJSON(httr::content(response, as="text"), flatten=TRUE)
-#[,1]
-#[1,] 22.5776
-#[2,] 22.1081
-#[3,] 26.2834
-#[4,] 21.1876
-#[5,] 17.6451
-#[6,] 20.3864
-#[7,] 14.3661
-#[8,] 22.4849
-#[9,] 24.3762
-#[10,] 18.7343
 
 
 # delete the deployment ---
