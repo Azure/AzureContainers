@@ -42,11 +42,6 @@ clus <- aks$get_cluster()
 clus$create_registry_secret(reg, email="email@example.com")
 clus$create("model1.yaml")
 clus$get("service")
-
-
-# delete the deployment ---
-clus$delete("service", "model1-svc")
-clus$delete("deployment", "model1")
 ```
 
 ---
