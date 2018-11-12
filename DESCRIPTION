@@ -1,5 +1,5 @@
 Package: AzureContainers
-Title: Interface to Docker Registry and Kubernetes via Azure
+Title: Interface to 'Container Instances', 'Docker Registry' and 'Kubernetes' in 'Azure'
 Version: 0.9.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
@@ -7,8 +7,10 @@ Authors@R: c(
     person("Ramkumar", "Chandrasekaran", role = "ctb", comment = "Original blog article on Dockerising MMLS"),
     person("Microsoft", role="cph")
     )
-Description: A package for Docker registries and Kubernetes clusters. Manage Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) instances. Supports generic Docker registries and Kubernetes clusters.
-License: file LICENSE
+Description: An interface to container functionality in Microsoft's 'Azure' cloud. Manage 'Azure Container Instance' (ACI), 'Azure Container Registry' (ACR) and 'Azure Kubernetes Service' (AKS) resources. On the client side, lightweight shells to the 'docker', 'kubectl' and 'helm' commandline tools are provided.
+URL: https://github.com/cloudyr/AzureContainers
+BugReports: https://github.com/cloudyr/AzureContainers/issues
+License: MIT + file LICENSE
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.3)
