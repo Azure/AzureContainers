@@ -223,15 +223,9 @@ add_aks_methods <- function()
     az_resource_group$set("public", "list_kubernetes_versions", overwrite=TRUE,
     function()
     {
-        sub <- az_subscription$new(self$token, self$subscription)
-        api_version <- sub$get_provider_api_version("Microsoft.ContainerService", "locations/orchestrators")
-        op <- file.path("providers/Microsoft.ContainerService/locations", self$location, "orchestrators")
-
-        res <- call_azure_rm(self$token, self$subscription, op,
-                             options=list(`resource-type`="managedClusters"),
-                             api_version=api_version)
-
-        sapply(orch$properties$orchestrators, `[[`, "orchestratorVersion")
+        az_subscription$
+            new(self$token, self$subscription)$
+            list_kubernetes_versions(self$location)
     })
 
     az_subscription$set("public", "list_aks", overwrite=TRUE,
