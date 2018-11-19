@@ -8,7 +8,7 @@
 #' @section Usage:
 #' ```
 #' create_aks(name, location = self$location,
-#'            dns_prefix = name, kubernetes_version = "1.11.2",
+#'            dns_prefix = name, kubernetes_version = "1.11.4",
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
 #'            properties = list(), ...)
@@ -17,7 +17,7 @@
 #' - `name`: The name of the Kubernetes service.
 #' - `location`: The location/region in which to create the service. Defaults to this resource group's location.
 #' - `dns_prefix`: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
-#' - `kubernetes_version`: The Kubernetes version to use. If not specified, defaults to `"1.11.2"`.
+#' - `kubernetes_version`: The Kubernetes version to use. If not specified, defaults to `"1.11.4"`.
 #' - `enable_rbac`: Whether to enable role-based access controls.
 #' - `agent_pools`: A list of pool specifications. See 'Details'.
 #' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
