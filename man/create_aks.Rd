@@ -8,7 +8,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 }
 \section{Usage}{
 \preformatted{create_aks(name, location = self$location,
-           dns_prefix = name, kubernetes_version = "1.11.2",
+           dns_prefix = name, kubernetes_version = "1.11.4",
            enable_rbac = FALSE, agent_pools = list(),
            login_user = "", login_passkey = "",
            properties = list(), ...)
@@ -21,7 +21,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{name}: The name of the Kubernetes service.
 \item \code{location}: The location/region in which to create the service. Defaults to this resource group's location.
 \item \code{dns_prefix}: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
-\item \code{kubernetes_version}: The Kubernetes version to use. If not specified, defaults to \code{"1.11.2"}.
+\item \code{kubernetes_version}: The Kubernetes version to use. If not specified, defaults to \code{"1.11.4"}.
 \item \code{enable_rbac}: Whether to enable role-based access controls.
 \item \code{agent_pools}: A list of pool specifications. See 'Details'.
 \item \code{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
