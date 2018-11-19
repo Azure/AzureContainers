@@ -122,7 +122,7 @@ add_aks_methods <- function()
 {
     az_resource_group$set("public", "create_aks", overwrite=TRUE,
     function(name, location=self$location,
-             dns_prefix=name, kubernetes_version="1.11.2",
+             dns_prefix=name, kubernetes_version="1.11.4",
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
              properties=list(), ...)
