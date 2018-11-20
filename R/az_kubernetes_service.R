@@ -25,6 +25,25 @@
 #'
 #' [AKS documentation](https://docs.microsoft.com/en-us/azure/aks/) and
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/aks/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way of retrieving a cluster: via a resource group object
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' myaks <- rg$get_aks("mycluster")
+#'
+#' # sync with Azure: AKS resource creation can take a long time, use this to track status
+#' myaks$sync_fields()
+#'
+#' # get the cluster endpoint
+#' kubclus <- myaks$get_cluster()
+#'
+#' }
 #' @aliases az_kubernetes_service
 #' @export
 aks <- R6::R6Class("az_kubernetes_service", inherit=AzureRMR::az_resource,

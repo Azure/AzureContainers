@@ -33,6 +33,18 @@ An ACR resource is a Docker registry hosted in Azure. See the \href{https://docs
 An object of class \code{az_container_registry} representing the registry resource.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+rg$create_acr("myregistry")
+
+}
+}
 \seealso{
 \link{get_acr}, \link{delete_acr}, \link{list_acrs}
 

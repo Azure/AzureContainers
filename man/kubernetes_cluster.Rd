@@ -50,6 +50,63 @@ To allow a cluster to authenticate with a Docker registry, call the \code{create
 The methods for this class call the \code{kubectl} commandline tool, passing it the \code{--config} option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that \code{kubectl} be installed. Any calls to \code{kubectl} will also contain the full commandline as the \code{cmdline} attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a cluster: via a resource group object
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# get the cluster endpoint
+kubclus <- rg$get_aks("mycluster")$get_cluster()
+
+# get registry authentication secret
+kubclus$create_registry_secret(rg$get_acr("myregistry"))
+
+# deploy a service
+kubclus$create("deployment.yaml")
+
+can also supply the deployment parameters inline
+kubclus$create("
+  apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: model1
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: model1
+      spec:
+        containers:
+        - name: model1
+          image: myregistry.azurecr.io/model1
+          ports:
+          - containerPort: 8000
+        imagePullSecrets:
+        - name: myregistry.azurecr.io
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: model1-svc
+  spec:
+    selector:
+      app: model1
+    type: LoadBalancer
+    ports:
+    - protocol: TCP
+      port: 8000")
+
+# track status
+kubclus$get("deployment")
+kubclus$get("service")
+
+}
+}
 \seealso{
 \link{aks}, \link{call_kubectl}
 

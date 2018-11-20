@@ -25,6 +25,18 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 NULL on successful deletion.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+rg$delete_acr("myregistry")
+
+}
+}
 \seealso{
 \link{create_acr}, \link{get_acr}
 

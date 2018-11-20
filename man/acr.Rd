@@ -39,6 +39,25 @@ For working with the registry, including uploading and downloading images, updat
 By default, these arguments will be retrieved from the ACR resource. They will only exist if the resource was created with \code{admin_user_enabled=TRUE}. Currently AzureContainers does not support authentication methods other than a username/password combination.
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a registry: via a resource group object
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+myacr <- rg$get_acr("myregistry")
+
+myacr$list_credentials()
+myacr$list_policies()
+
+# get the registry endpoint
+dockerreg <- myacr$get_docker_registry()
+
+}
+}
 \seealso{
 \link{create_acr}, \link{get_acr}, \link{delete_acr}, \link{list_acrs}
 

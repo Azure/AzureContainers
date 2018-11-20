@@ -40,6 +40,29 @@ Currently this class does not support authentication methods other than a userna
 The \code{login()}, \code{push()} and \code{pull()} methods for this class call the \code{docker} commandline tool under the hood. This allows all the features supported by Docker to be available immediately, with a minimum of effort. Any calls to the \code{docker} tool will also contain the full commandline as the \code{cmdline} attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a registry: via a resource group object
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# get the registry endpoint
+dockerreg <- rg$get_acr("myregistry")$get_docker_registry()
+
+dockerreg$login()
+dockerreg$list_repositories()
+
+# create an image from a Dockerfile in the current directory
+call_docker("build -t myimage .")
+
+# push the image
+dockerreg$push("myimage")
+
+}
+}
 \seealso{
 \link{acr}, \link{call_docker}
 

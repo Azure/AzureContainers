@@ -43,6 +43,21 @@
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/aks/)
 #'
 #' [Kubernetes reference](https://kubernetes.io/docs/reference/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$create_aks("mycluster", agent_pools=aks_pools("pool1", 5))
+#'
+#' # GPU-enabled cluster
+#' rg$create_aks("mygpucluster", agent_pools=aks_pools("pool1", 5, size="Standard_NC6s_v3"))
+#'
+#' }
 NULL
 
 
@@ -81,6 +96,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/aks/)
 #'
 #' [Kubernetes reference](https://kubernetes.io/docs/reference/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$get_aks("mycluster")
+#'
+#' }
 NULL
 
 
@@ -115,6 +142,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/aks/)
 #'
 #' [Kubernetes reference](https://kubernetes.io/docs/reference/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$delete_aks("mycluster")
+#'
+#' }
 NULL
 
 
@@ -143,6 +182,18 @@ NULL
 #' [create_aks]
 #'
 #' [Kubernetes reference](https://kubernetes.io/docs/reference/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$list_kubernetes_versions()
+#'
+#' }
 NULL
 
 
