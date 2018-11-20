@@ -8,7 +8,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 }
 \section{Usage}{
 \preformatted{create_aci(name, location = self$location,
-           container_name = name, image_name,
+           container = name, image,
            registry_creds = list(),
            cores = 1, memory = 8,
            os = c("Linux", "Windows"),
@@ -23,8 +23,8 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \itemize{
 \item \code{name}: The name of the ACI service.
 \item \code{location}: The location/region in which to create the ACI service. Defaults to this resource group's location.
-\item \code{container_name}: The name of the running container.
-\item \code{image_name}: The name of the image to run.
+\item \code{container}: The name of the running container.
+\item \code{image}: The name of the image to run.
 \item \code{registry_creds}: Docker registry authentication credentials, if the image is stored in a private registry. See 'Details'.
 \item \code{cores}: The number of CPU cores for the instance.
 \item \code{memory}: The memory size in GB for the instance.
@@ -43,7 +43,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 An ACI resource is a running container hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-instances/}{documentation for the resource} for more information. Currently ACI only supports a single image in an instance.
 
-To supply the registry authentication credentials, the \code{registry_creds} argument should contain either an \href{aci}{ACI} object, a \link{docker_registry} object, or the result of a call to the \link{aci_creds} function.
+To supply the registry authentication credentials, the \code{registry_creds} argument should contain either an \href{acr}{ACR} object, a \link{docker_registry} object, or the result of a call to the \link{aci_creds} function.
 
 The ports to open should be obtained by calling the \link{aci_ports} function. This takes a vector of port numbers as well as the protocol (TCP or UDP) for each port.
 }
@@ -53,6 +53,23 @@ The ports to open should be obtained by calling the \link{aci_ports} function. T
 An object of class \code{az_container_instance} representing the instance.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# get the ACR resource that contains the image
+myacr <- rg$get_acr("myregistry")
+
+rg$create_aci("mycontainer",
+    image_name="myregistry.azurecr.io/myimage:latest",
+    registry_creds=myacr)
+
+}
+}
 \seealso{
 \link{get_aci}, \link{delete_aci}, \link{list_acis}
 

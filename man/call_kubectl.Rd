@@ -20,6 +20,24 @@ Call the Kubernetes commandline tool, kubectl
 \details{
 This function calls the \code{kubectl} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 }
+\examples{
+\dontrun{
+
+# without any args, prints the kubectl help screen
+call_kubectl()
+
+# append "--help" to get help for a command
+call_kubectl("create --help")
+
+# deploy a service from a yaml file
+call_kubectl("create -f deployment.yaml")
+
+# get deployment and service status
+call_kubectl("get deployment")
+call_kubectl("get service")
+
+}
+}
 \seealso{
 \link{system2}, \link{call_docker}, \link{call_helm}
 

@@ -27,6 +27,18 @@ list_kubernetes_versions()
 A vector of strings, which are the Kubernetes versions that can be used when creating a cluster.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+rg$list_kubernetes_versions()
+
+}
+}
 \seealso{
 \link{create_aks}
 

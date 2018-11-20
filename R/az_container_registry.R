@@ -30,6 +30,25 @@
 #'
 #' [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/) and
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/containerregistry/registries)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way of retrieving a registry: via a resource group object
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' myacr <- rg$get_acr("myregistry")
+#'
+#' myacr$list_credentials()
+#' myacr$list_policies()
+#'
+#' # get the registry endpoint
+#' dockerreg <- myacr$get_docker_registry()
+#'
+#' }
 #' @aliases az_container_registry
 #' @export
 acr <- R6::R6Class("az_container_registry", inherit=AzureRMR::az_resource,

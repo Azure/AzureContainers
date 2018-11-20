@@ -30,6 +30,29 @@
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
 #'
 #' [Docker registry API](https://docs.docker.com/registry/spec/api/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way of retrieving a registry: via a resource group object
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' # get the registry endpoint
+#' dockerreg <- rg$get_acr("myregistry")$get_docker_registry()
+#'
+#' dockerreg$login()
+#' dockerreg$list_repositories()
+#'
+#' # create an image from a Dockerfile in the current directory
+#' call_docker("build -t myimage .")
+#'
+#' # push the image
+#' dockerreg$push("myimage")
+#'
+#' }
 #' @export
 docker_registry <- R6::R6Class("docker_registry",
 
@@ -145,6 +168,23 @@ private=list(
 #'
 #' [Docker command line reference](https://docs.docker.com/engine/reference/commandline/cli/)
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # without any args, prints the docker help screen
+#' call_docker()
+#'
+#' # build an image
+#' call_docker("build -t myimage .")
+#'
+#' # list running containers
+#' call_docker("container ls")
+#'
+#' # prune unused containers and images
+#' call_docker("container prune -f")
+#' call_docker("image prune -f")
+#'
+#' }
 #' @export
 call_docker <- function(cmd="", ...)
 {

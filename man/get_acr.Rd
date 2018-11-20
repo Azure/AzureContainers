@@ -32,6 +32,18 @@ For \code{get_acr()}, an object of class \code{az_container_registry} representi
 For \code{list_acrs()}, a list of such objects.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+rg$get_acr("myregistry")
+
+}
+}
 \seealso{
 \link{create_acr}, \link{delete_acr}
 

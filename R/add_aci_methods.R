@@ -8,7 +8,7 @@
 #' @section Usage:
 #' ```
 #' create_aci(name, location = self$location,
-#'            container_name = name, image_name,
+#'            container = name, image,
 #'            registry_creds = list(),
 #'            cores = 1, memory = 8,
 #'            os = c("Linux", "Windows"),
@@ -19,8 +19,8 @@
 #' @section Arguments:        
 #' - `name`: The name of the ACI service.
 #' - `location`: The location/region in which to create the ACI service. Defaults to this resource group's location.
-#' - `container_name`: The name of the running container.
-#' - `image_name`: The name of the image to run.
+#' - `container`: The name of the running container.
+#' - `image`: The name of the image to run.
 #' - `registry_creds`: Docker registry authentication credentials, if the image is stored in a private registry. See 'Details'.
 #' - `cores`: The number of CPU cores for the instance.
 #' - `memory`: The memory size in GB for the instance.
@@ -36,7 +36,7 @@
 #' @section Details:
 #' An ACI resource is a running container hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-instances/) for more information. Currently ACI only supports a single image in an instance.
 #'
-#' To supply the registry authentication credentials, the `registry_creds` argument should contain either an [ACI](aci) object, a [docker_registry] object, or the result of a call to the [aci_creds] function.
+#' To supply the registry authentication credentials, the `registry_creds` argument should contain either an [ACR](acr) object, a [docker_registry] object, or the result of a call to the [aci_creds] function.
 #'
 #' The ports to open should be obtained by calling the [aci_ports] function. This takes a vector of port numbers as well as the protocol (TCP or UDP) for each port.
 #'
@@ -52,6 +52,23 @@
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
 #'
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' # get the ACR resource that contains the image
+#' myacr <- rg$get_acr("myregistry")
+#'
+#' rg$create_aci("mycontainer",
+#'     image_name="myregistry.azurecr.io/myimage:latest",
+#'     registry_creds=myacr)
+#'
+#' }
 NULL
 
 
@@ -88,6 +105,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
 #'
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$get_aci("mycontainer")
+#'
+#' }
 NULL
 
 
@@ -120,6 +149,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
 #'
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$delete_aci("mycontainer")
+#'
+#' }
 NULL
 
 

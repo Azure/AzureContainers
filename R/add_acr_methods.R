@@ -34,6 +34,18 @@
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/containerregistry/registries)
 #'
 #' [Docker registry API](https://docs.docker.com/registry/spec/api/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$create_acr("myregistry")
+#'
+#' }
 NULL
 
 
@@ -72,6 +84,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/containerregistry/registries)
 #'
 #' [Docker registry API](https://docs.docker.com/registry/spec/api/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$get_acr("myregistry")
+#'
+#' }
 NULL
 
 
@@ -106,6 +130,18 @@ NULL
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/containerregistry/registries)
 #'
 #' [Docker registry API](https://docs.docker.com/registry/spec/api/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' rg$delete_acr("myregistry")
+#'
+#' }
 NULL
 
 

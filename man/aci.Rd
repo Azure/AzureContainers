@@ -27,6 +27,22 @@ The following methods are available, in addition to those provided by the \link[
 Initializing a new object of this class can either retrieve an existing ACI resource, or create a new resource on the host. Generally, the best way to initialize an object is via the \code{get_aci}, \code{create_aci} or \code{list_acis} methods of the \link{az_resource_group} class, which handle the details automatically.
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a container: via a resource group object
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+myaci <- rg$get_aci("mycontainer")
+
+myaci$stop()
+myaci$restart()
+
+}
+}
 \seealso{
 \link{acr}, \link{aks}
 

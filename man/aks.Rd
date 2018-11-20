@@ -34,6 +34,25 @@ For working with the cluster, including deploying images, services, etc use the 
 }
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a cluster: via a resource group object
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+myaks <- rg$get_aks("mycluster")
+
+# sync with Azure: AKS resource creation can take a long time, use this to track status
+myaks$sync_fields()
+
+# get the cluster endpoint
+kubclus <- myaks$get_cluster()
+
+}
+}
 \seealso{
 \link{create_aks}, \link{get_aks}, \link{delete_aks}, \link{list_aks}
 

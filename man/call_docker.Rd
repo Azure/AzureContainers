@@ -20,6 +20,24 @@ Call the docker commandline tool
 \details{
 This function calls the \code{docker} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 }
+\examples{
+\dontrun{
+
+# without any args, prints the docker help screen
+call_docker()
+
+# build an image
+call_docker("build -t myimage .")
+
+# list running containers
+call_docker("container ls")
+
+# prune unused containers and images
+call_docker("container prune -f")
+call_docker("image prune -f")
+
+}
+}
 \seealso{
 \link{system2}, \link{call_kubectl} for the equivalent interface to the \code{kubectl} Kubernetes tool
 

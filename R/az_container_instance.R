@@ -19,6 +19,22 @@
 #' [API reference](https://docs.microsoft.com/en-us/rest/api/container-instances/)
 #'
 #' [Docker commandline reference](https://docs.docker.com/engine/reference/commandline/cli/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way of retrieving a container: via a resource group object
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' myaci <- rg$get_aci("mycontainer")
+#'
+#' myaci$stop()
+#' myaci$restart()
+#'
+#' }
 #' @aliases az_container_instance
 #' @export
 aci <- R6::R6Class("az_container_instance", inherit=AzureRMR::az_resource,

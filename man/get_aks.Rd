@@ -32,6 +32,18 @@ For \code{get_aks()}, an object of class \code{az_kubernetes_service} representi
 For \code{list_aks()}, a list of such objects.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+rg$get_aks("mycluster")
+
+}
+}
 \seealso{
 \link{create_aks}, \link{delete_aks}
 
