@@ -261,7 +261,7 @@ add_aks_methods <- function()
                              options=list(`resource-type`="managedClusters"),
                              api_version=api_version)
 
-        sapply(orch$properties$orchestrators, `[[`, "orchestratorVersion")
+        sapply(res$properties$orchestrators, `[[`, "orchestratorVersion")
     })
 }
 
