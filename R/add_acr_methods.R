@@ -184,7 +184,7 @@ add_acr_methods <- function()
 
         cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aks$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) aci$new(self$token, self$subscription, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
@@ -207,7 +207,7 @@ add_acr_methods <- function()
 
         cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aks$new(self$token, self$id, deployed_properties=parms))
+            function(parms) acr$new(self$token, self$id, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
