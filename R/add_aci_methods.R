@@ -13,7 +13,7 @@
 #'            cores = 1, memory = 8,
 #'            os = c("Linux", "Windows"),
 #'            command = list(), env_vars = list(),
-#'            ports = NULL, dns_name = name, public_ip = TRUE,
+#'            ports = aci_ports(), dns_name = name, public_ip = TRUE,
 #'            restart = c("Always", "OnFailure", "Never"), ...)
 #' ```
 #' @section Arguments:        
@@ -27,7 +27,7 @@
 #' - `os`: The operating system to run in the instance.
 #' - `command`: A list of commands to run in the instance.
 #' - `env_vars`: A list of name-value pairs to set as environment variables in the instance.
-#' - `ports`: The network ports to open. See 'Details'.
+#' - `ports`: The network ports to open. By default, opens ports 80 and 443. See 'Details'.
 #' - `dns_name`: The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
 #' - `public_ip`: Whether the instance should be publicly accessible.
 #' - `restart`: Whether to restart the instance should an event occur.
@@ -176,7 +176,7 @@ add_aci_methods <- function()
              os=c("Linux", "Windows"),
              command=list(),
              env_vars=list(),
-             ports=NULL,
+             ports=aci_ports(),
              dns_name=name,
              public_ip=TRUE,
              restart=c("Always", "OnFailure", "Never"),

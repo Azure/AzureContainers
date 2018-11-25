@@ -13,7 +13,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
            cores = 1, memory = 8,
            os = c("Linux", "Windows"),
            command = list(), env_vars = list(),
-           ports = NULL, dns_name = name, public_ip = TRUE,
+           ports = aci_ports(), dns_name = name, public_ip = TRUE,
            restart = c("Always", "OnFailure", "Never"), ...)
 }
 }
@@ -31,7 +31,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{os}: The operating system to run in the instance.
 \item \code{command}: A list of commands to run in the instance.
 \item \code{env_vars}: A list of name-value pairs to set as environment variables in the instance.
-\item \code{ports}: The network ports to open. See 'Details'.
+\item \code{ports}: The network ports to open. By default, opens ports 80 and 443. See 'Details'.
 \item \code{dns_name}: The domain name prefix for the instance. Only takes effect if \code{public_ip=TRUE}.
 \item \code{public_ip}: Whether the instance should be publicly accessible.
 \item \code{restart}: Whether to restart the instance should an event occur.

@@ -6,7 +6,7 @@
 \alias{get_aci_credentials_list}
 \title{Utilities for specifying ACI configuration information}
 \usage{
-aci_ports(port = 80L, protocol = "TCP")
+aci_ports(port = c(80L, 443L), protocol = "TCP")
 
 aci_creds(server, username, password)
 
