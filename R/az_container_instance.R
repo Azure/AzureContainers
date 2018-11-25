@@ -69,7 +69,7 @@ public=list(
 #' These are helper functions to be used in specifying the configuration for a container instance. Only `aci_ports` and `aci_creds` are meant to be called by the user; `get_aci_credentials_list` is exported to workaround namespacing issues on startup.
 #' @rdname aci_utils
 #' @export
-aci_ports <- function(port=80L, protocol="TCP")
+aci_ports <- function(port=c(80L, 443L), protocol="TCP")
 {
     df <- data.frame(port=as.integer(port), protocol=protocol, stringsAsFactors=FALSE)
     lapply(seq_len(nrow(df)), function(i) unclass(df[i,]))
