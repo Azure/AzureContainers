@@ -1,0 +1,3 @@
+FROM alpine
+RUN echo "hello world!" > hlw.txt
+CMD ["cat", "hlw.txt"]
