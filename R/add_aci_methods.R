@@ -242,7 +242,7 @@ add_aci_methods <- function()
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) acr$new(self$token, self$subscription, deployed_properties=parms))
+                function(parms) aci$new(self$token, self$subscription, deployed_properties=parms))
         }
         named_list(lst)
     })
@@ -265,7 +265,7 @@ add_aci_methods <- function()
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) acr$new(self$token, self$id, deployed_properties=parms))
+                function(parms) aci$new(self$token, self$id, deployed_properties=parms))
         }
         named_list(lst)
     })
