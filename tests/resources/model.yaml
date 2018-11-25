@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: model1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: model1
+    spec:
+      containers:
+      - name: acrname
+        image: acrname.azurecr.io/test-model
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+      imagePullSecrets:
+      - name: acrname.azurecr.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model1-svc
+spec:
+  selector:
+    app: model1
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000
