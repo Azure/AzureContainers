@@ -79,14 +79,28 @@ public=list(
 #'
 #' @param name The name(s) of the pool(s).
 #' @param count The number of nodes per pool.
-#' @param size The VM type (size) to use for the pool.
+#' @param size The VM type (size) to use for the pool. To see a list of available VM sizes, use the [list_vm_sizes] method for the resource group or subscription classes.
 #' @param os The operating system to use for the pool. Can be "Linux" or "Windows".
 #'
 #' @details
-#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. To specify multiple pools, provide vectors as input arguments; any scalar inputs will be replicated to match. Note that while Kubernetes in general is capable of having multiple pools per cluster, AKS currently only supports a single pool.
+#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. You can specify multiple pools by providing vectors as input arguments; any scalar inputs will be replicated to match.
 #'
 #' @return
 #' A list of lists, suitable for passing to the `create_aks` constructor method.
+#'
+#' @seealso
+#' [list_vm_sizes]
+#'
+#' @examples
+#' # 1 pool of 5 Linux VMs
+#' aks_pools("pool1", 5)
+#'
+#' # 1 pool of 3 Windows Server VMs
+#' aks_pools("pool1", 3, os="Windows")
+#'
+#' # 2 pools with different VM sizes per pool
+#' aks_pools(c("pool1", "pool2"), count=c(3, 3), size=c("Standard_DS2_v2", "Standard_DS3_v2"))
+#'
 #' @export
 aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
 {
