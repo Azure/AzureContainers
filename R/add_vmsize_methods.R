@@ -15,10 +15,7 @@
 #' - `name_only`: Whether to return only a vector of names, or all information on each VM size.
 #'
 #' @section Value:
-#' If `name_only` is TRUE, a character vector of names, suitable for passing to `create_vm`. If FALSE, a data frame containing the following information for each VM size: the name, number of cores, OS disk size, resource disk size, memory, and maximum data disks.
-#'
-#' @seealso
-#' [create_vm]
+#' If `name_only` is TRUE, a character vector of names. If FALSE, a data frame containing the following information for each VM size: the name, number of cores, OS disk size, resource disk size, memory, and maximum data disks.
 #'
 #' @examples
 #' \dontrun{

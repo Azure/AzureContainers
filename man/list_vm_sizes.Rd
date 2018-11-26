@@ -25,7 +25,7 @@ list_vm_sizes(name_only = FALSE)
 
 \section{Value}{
 
-If \code{name_only} is TRUE, a character vector of names, suitable for passing to \code{create_vm}. If FALSE, a data frame containing the following information for each VM size: the name, number of cores, OS disk size, resource disk size, memory, and maximum data disks.
+If \code{name_only} is TRUE, a character vector of names. If FALSE, a data frame containing the following information for each VM size: the name, number of cores, OS disk size, resource disk size, memory, and maximum data disks.
 }
 
 \examples{
@@ -42,7 +42,4 @@ rg <- sub$create_resource_group("rgname", location="australiaeast")
 rg$list_vm_sizes()
 
 }
-}
-\seealso{
-\link{create_vm}
 }
