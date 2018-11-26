@@ -26,9 +26,6 @@ test_that("AKS works",
     reg <- acr$get_docker_registry()
     expect_true(is_docker_registry(reg))
 
-    call_docker("build -f ../resources/model_dockerfile -t test-model ../resources")
-    reg$push("test-model")
-
     expect_is(rg$list_kubernetes_versions(), "character")
 
     aksname <- paste0(sample(letters, 10, TRUE), collapse="")
@@ -41,9 +38,7 @@ test_that("AKS works",
     clus <- aks$get_cluster()
     expect_true(is_kubernetes_cluster(clus))
 
-    model_yaml <- gsub("acrname", acrname, readLines("../resources/model.yaml"))
+    hello_yaml <- gsub("acrname", acrname, readLines("../resources/hello.yaml"))
     clus$create_registry_secret(reg, email="me@example.com")
-    clus$create(model_yaml)
-
-    call_docker(paste0("image rm ", acrname, ".azurecr.io/test-model"))
+    clus$create(hello_yaml)
 })

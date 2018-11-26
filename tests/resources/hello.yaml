@@ -1,35 +1,28 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: model1
+  name: hello
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: model1
+        app: hello
     spec:
       containers:
       - name: acrname
-        image: acrname.azurecr.io/test-model
-        ports:
-        - containerPort: 8000
-        resources:
-          requests:
-            cpu: 250m
-          limits:
-            cpu: 500m
+        image: acrname.azurecr.io/hello-world
       imagePullSecrets:
       - name: acrname.azurecr.io
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: model1-svc
+  name: hello-svc
 spec:
   selector:
-    app: model1
+    app: hello
   type: LoadBalancer
   ports:
   - protocol: TCP
-    port: 8000
+    port: 80
