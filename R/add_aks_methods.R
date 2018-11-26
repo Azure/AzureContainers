@@ -11,7 +11,7 @@
 #'            dns_prefix = name, kubernetes_version = NULL,
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
-#'            properties = list(), ...)
+#'            properties = list(), ..., wait = TRUE)
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the Kubernetes service.
@@ -22,6 +22,7 @@
 #' - `agent_pools`: A list of pool specifications. See 'Details'.
 #' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 #' - `properties`: A named list of further Kubernetes-specific properties to pass to the initialization function.
+#' - `wait`: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 #' - `...`: Other named arguments to pass to the initialization function.
 #'
 #' @section Details:
@@ -204,7 +205,7 @@ add_aks_methods <- function()
              dns_prefix=name, kubernetes_version=NULL,
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
-             properties=list(), ...)
+             properties=list(), ..., wait=TRUE)
     {
         if(is_empty(kubernetes_version))
             kubernetes_version <- tail(self$list_kubernetes_versions(), 1)
@@ -228,9 +229,27 @@ add_aks_methods <- function()
             props$servicePrincipalProfile <- list(clientId=self$token$app$key, secret=self$token$app$secret)
 
         message("Creating Kubernetes cluster '", name, "'. Call the sync_fields() method to check progress.")
-        aks$new(self$token, self$subscription, self$name,
-                type="Microsoft.ContainerService/managedClusters", name=name, location=location,
-                properties=props, ...)
+        obj <- aks$new(self$token, self$subscription, self$name,
+                       type="Microsoft.ContainerService/managedClusters", name=name, location=location,
+                       properties=props, ...)
+        if(wait)
+        {
+            message("AKS resource creation started. Waiting for provisioning to complete")
+            for(i in 1:1000)
+            {
+                message(".", appendLF=FALSE)
+                obj$sync_fields()
+                status <- obj$properties$provisioningState
+                if(status %in% c("Succeeded", "Error", "Failed"))
+                    break
+                Sys.sleep(10)
+            }
+            if(status == "Succeeded")
+                message("\nResource creation successful")
+            else stop("\nUnable to create resource", call.=FALSE)
+        }
+        else message("AKS resource creation started. Call the sync_fields() method to track status.")
+        obj
     })
 
     az_resource_group$set("public", "get_aks", overwrite=TRUE,

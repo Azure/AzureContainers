@@ -29,22 +29,14 @@ test_that("AKS works",
     call_docker("build -f ../resources/model_dockerfile -t test-model ../resources")
     reg$push("test-model")
 
+    expect_is(rg$list_kubernetes_versions(), "character")
+
     aksname <- paste0(sample(letters, 10, TRUE), collapse="")
     expect_true(is_aks(rg$create_aks(aksname, agent_pools=aks_pools("pool1", 3))))
 
     expect_true(is_aks(rg$list_aks()[[1]]))
     aks <- rg$get_aks(aksname)
     expect_true(is_aks(aks))
-
-    # wait until deployment complete
-    for(i in 1:500)
-    {
-        Sys.sleep(10)
-        aks$sync_fields()
-        if(aks$properties$provisioningState == "Succeeded")
-            break
-    }
-    expect_equal(aks$properties$provisioningState, "Succeeded")
 
     clus <- aks$get_cluster()
     expect_true(is_kubernetes_cluster(clus))

@@ -11,7 +11,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
            dns_prefix = name, kubernetes_version = NULL,
            enable_rbac = FALSE, agent_pools = list(),
            login_user = "", login_passkey = "",
-           properties = list(), ...)
+           properties = list(), ..., wait = TRUE)
 }
 }
 
@@ -26,6 +26,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{agent_pools}: A list of pool specifications. See 'Details'.
 \item \code{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 \item \code{properties}: A named list of further Kubernetes-specific properties to pass to the initialization function.
+\item \code{wait}: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 \item \code{...}: Other named arguments to pass to the initialization function.
 }
 }
