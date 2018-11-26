@@ -1,4 +1,5 @@
 #' @import AzureRMR
+#' @importFrom utils tail
 NULL
 
 .AzureContainers <- new.env()
