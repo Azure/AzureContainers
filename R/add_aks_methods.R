@@ -228,7 +228,6 @@ add_aks_methods <- function()
         if(is.null(props$servicePrincipalProfile))
             props$servicePrincipalProfile <- list(clientId=self$token$app$key, secret=self$token$app$secret)
 
-        message("Creating Kubernetes cluster '", name, "'. Call the sync_fields() method to check progress.")
         obj <- aks$new(self$token, self$subscription, self$name,
                        type="Microsoft.ContainerService/managedClusters", name=name, location=location,
                        properties=props, ...)
@@ -248,7 +247,7 @@ add_aks_methods <- function()
                 message("\nResource creation successful")
             else stop("\nUnable to create resource", call.=FALSE)
         }
-        else message("AKS resource creation started. Call the sync_fields() method to track status.")
+        else message("AKS resource creation started. Call the sync_fields() method to check progress.")
         obj
     })
 

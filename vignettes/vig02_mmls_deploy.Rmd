@@ -214,7 +214,7 @@ library(AzureContainers)
 az <- AzureRMR::az_rm$new(
     tenant="72f988bf-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     app="f72c1733-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    secret="xxxxxxxxx")
+    password="xxxxxxxxx")
 
 deployresgrp <- az$
     get_subscription("35975484-xxxx-xxxx-xxxx-xxxxxxxxxxxx")$
