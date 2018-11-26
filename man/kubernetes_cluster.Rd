@@ -68,38 +68,38 @@ kubclus$create_registry_secret(rg$get_acr("myregistry"))
 # deploy a service
 kubclus$create("deployment.yaml")
 
-can also supply the deployment parameters inline
+# can also supply the deployment parameters inline
 kubclus$create("
-  apiVersion: extensions/v1beta1
-  kind: Deployment
-  metadata:
-    name: model1
-  spec:
-    replicas: 1
-    template:
-      metadata:
-        labels:
-          app: model1
-      spec:
-        containers:
-        - name: model1
-          image: myregistry.azurecr.io/model1
-          ports:
-          - containerPort: 8000
-        imagePullSecrets:
-        - name: myregistry.azurecr.io
-  ---
-  apiVersion: v1
-  kind: Service
-  metadata:
-    name: model1-svc
-  spec:
-    selector:
-      app: model1
-    type: LoadBalancer
-    ports:
-    - protocol: TCP
-      port: 8000")
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: model1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: model1
+    spec:
+      containers:
+      - name: model1
+        image: myregistry.azurecr.io/model1
+        ports:
+        - containerPort: 8000
+      imagePullSecrets:
+      - name: myregistry.azurecr.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model1-svc
+spec:
+  selector:
+    app: model1
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000")
 
 # track status
 kubclus$get("deployment")
