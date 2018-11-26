@@ -79,7 +79,7 @@ ENTRYPOINT ["R", "-e", \
 
 The code to store our image on Azure Container Registry is as follows. If you are running this code, you should substitute the values of `tenant`, `app` and/or `secret` from your Azure service principal. Similarly, if you are using the public Azure cloud, note that all ACR instances share a common DNS namespace, as do all ACI and AKS instances.
 
-For more information on how to create a service principal, see the [AzureRMR authentication vignette](https://github.com/Hong-Revo/AzureRMR/blob/master/vignettes/aad_register.Rmd), or the [Azure tutorial](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal).
+For more information on how to create a service principal, see the [AzureRMR readme](https://github.com/cloudyr/AzureRMR).
 
 ```{r, eval=FALSE}
 library(AzureContainers)
@@ -87,7 +87,7 @@ library(AzureContainers)
 az <- AzureRMR::az_rm$new(
     tenant="72f988bf-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     app="f72c1733-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    secret="xxxxxxxxx")
+    password="xxxxxxxxx")
 
 # create a resource group for our deployments
 deployresgrp <- az$
@@ -123,11 +123,10 @@ deployaci <- deployresgrp$create_aci("deployaci",
     ports=aci_ports(8000))
 ```
 
-To check on the progress of the deployment, call the object's `sync_fields()` method and then examine its `properties$provisioningState`. This will be `"Creating"` while the instance is being created, and `"Succeeded"` once it is running. Deploying a simple container like this usually takes less than a minute.
+To check on the progress of the deployment, call the object's `sync_fields()` method. This will update and return its provisioning state, which will be `"Creating"` while the instance is being created, and `"Succeeded"` once it is running. Deploying a simple container like this usually takes less than a minute.
 
 ```{r, eval=FALSE}
 deployaci$sync_fields()
-deployaci$properties$provisioningState
 #> [1] "Succeeded"
 ```
 
@@ -152,13 +151,7 @@ Deploying a service to a container instance is simple, but lacks many features t
 deployclus_svc <- deployresgrp$create_aks("deployclus", agent_pools=aks_pools("pool1", 2))
 ```
 
-Creating a cluster can take a few minutes. Again, you can check on the progress by calling the `sync_fields()` method and looking at the value of `properties$provisioningState`.
-
-```{r, eval=FALSE}
-deployclus_svc$sync_fields()
-deployclus_svc$properties$provisioningState
-#> [1] "Succeeded"
-```
+Unlike an ACI resource, creating a Kubernetes cluster can take several minutes. By default, the `create_aks()` method will wait until the cluster provisioning is complete before it returns.
 
 Having created the cluster, we can deploy our model and create a service. We'll use a YAML configuration file to specify the details for the deployment and service API. The image to be deployed is the same as before.
 
