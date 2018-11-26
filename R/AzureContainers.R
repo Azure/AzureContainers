@@ -16,6 +16,7 @@ globalVariables("self", "AzureContainers")
     add_acr_methods()
     add_aks_methods()
     add_aci_methods()
+    add_vmsize_methods()
 }
 
 
