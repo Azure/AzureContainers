@@ -11,6 +11,7 @@
 #'            dns_prefix = name, kubernetes_version = NULL,
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
+#'            cluster_service_principal = NULL,
 #'            properties = list(), ..., wait = TRUE)
 #' ```
 #' @section Arguments:
@@ -21,6 +22,7 @@
 #' - `enable_rbac`: Whether to enable role-based access controls.
 #' - `agent_pools`: A list of pool specifications. See 'Details'.
 #' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
+#' - `cluster_service_principal`: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, the values are obtained from the service principal used for this ARM login.
 #' - `properties`: A named list of further Kubernetes-specific properties to pass to the initialization function.
 #' - `wait`: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 #' - `...`: Other named arguments to pass to the initialization function.
@@ -205,6 +207,7 @@ add_aks_methods <- function()
              dns_prefix=name, kubernetes_version=NULL,
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
+             cluster_service_principal=NULL,
              properties=list(), ..., wait=TRUE)
     {
         if(is_empty(kubernetes_version))
@@ -225,8 +228,16 @@ add_aks_methods <- function()
                 ssh=list(publicKeys=list(list(Keydata=login_passkey)))
             )
 
+        if(is.null(cluster_service_principal))
+            cluster_service_principal <- list(self$token$app$key, self$token$app$secret)
+
         if(is.null(props$servicePrincipalProfile))
-            props$servicePrincipalProfile <- list(clientId=self$token$app$key, secret=self$token$app$secret)
+            props$servicePrincipalProfile <- list(
+                clientId=cluster_service_principal[[1]],
+                secret=cluster_service_principal[[2]])
+
+        if(is.null(props$servicePrincipalProfile$secret))
+            stop("Must provide a service principal with a secret password")
 
         obj <- aks$new(self$token, self$subscription, self$name,
                        type="Microsoft.ContainerService/managedClusters", name=name, location=location,
