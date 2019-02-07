@@ -151,18 +151,18 @@ add_acr_methods <- function()
     function(name, location=self$location,
              admin_user_enabled=TRUE, sku="Standard", ...)
     {
-        acr$new(self$token, self$subscription, self$name,
-                type="Microsoft.containerRegistry/registries", name=name, location=location,
-                properties=list(adminUserEnabled=admin_user_enabled),
-                sku=list(name=sku, tier=sku),
-                ...)
+        AzureContainers::acr$new(self$token, self$subscription, self$name,
+            type="Microsoft.containerRegistry/registries", name=name, location=location,
+            properties=list(adminUserEnabled=admin_user_enabled),
+            sku=list(name=sku, tier=sku),
+            ...)
     })
 
     az_resource_group$set("public", "get_acr", overwrite=TRUE,
     function(name)
     {
-        acr$new(self$token, self$subscription, self$name,
-                type="Microsoft.containerRegistry/registries", name=name)
+        AzureContainers::acr$new(self$token, self$subscription, self$name,
+            type="Microsoft.containerRegistry/registries", name=name)
     })
 
     az_resource_group$set("public", "delete_acr", overwrite=TRUE,
@@ -184,14 +184,14 @@ add_acr_methods <- function()
 
         cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) acr$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) AzureContainers::acr$new(self$token, self$subscription, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) acr$new(self$token, self$subscription, deployed_properties=parms))
+                function(parms) AzureContainers::acr$new(self$token, self$subscription, deployed_properties=parms))
         }
         named_list(lst)
     })
@@ -207,14 +207,14 @@ add_acr_methods <- function()
 
         cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) acr$new(self$token, self$id, deployed_properties=parms))
+            function(parms) AzureContainers::acr$new(self$token, self$id, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) acr$new(self$token, self$id, deployed_properties=parms))
+                function(parms) AzureContainers::acr$new(self$token, self$id, deployed_properties=parms))
         }
         named_list(lst)
     })
