@@ -203,17 +203,17 @@ add_aci_methods <- function()
             props$ipAddress <- list(type="public", dnsNameLabel=dns_name, ports=ports)
 
         message("Creating container instance '", name, "'. Call the sync_fields() method to check progress.")
-        aci$new(self$token, self$subscription, self$name,
-                type="Microsoft.containerInstance/containerGroups", name=name, location=location,
-                properties=props,
-                ...)
+        AzureContainers::aci$new(self$token, self$subscription, self$name,
+            type="Microsoft.containerInstance/containerGroups", name=name, location=location,
+            properties=props,
+            ...)
     })
 
     az_resource_group$set("public", "get_aci", overwrite=TRUE,
     function(name)
     {
-        aci$new(self$token, self$subscription, self$name,
-                type="Microsoft.containerInstance/containerGroups", name=name)
+        AzureContainers::aci$new(self$token, self$subscription, self$name,
+            type="Microsoft.containerInstance/containerGroups", name=name)
     })
 
     az_resource_group$set("public", "delete_aci", overwrite=TRUE,
@@ -235,14 +235,14 @@ add_aci_methods <- function()
 
         cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aci$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) AzureContainers::aci$new(self$token, self$subscription, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) aci$new(self$token, self$subscription, deployed_properties=parms))
+                function(parms) AzureContainers::aci$new(self$token, self$subscription, deployed_properties=parms))
         }
         named_list(lst)
     })
@@ -258,14 +258,14 @@ add_aci_methods <- function()
 
         cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aci$new(self$token, self$id, deployed_properties=parms))
+            function(parms) AzureContainers::aci$new(self$token, self$id, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) aci$new(self$token, self$id, deployed_properties=parms))
+                function(parms) AzureContainers::aci$new(self$token, self$id, deployed_properties=parms))
         }
         named_list(lst)
     })

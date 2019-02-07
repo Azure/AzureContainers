@@ -239,9 +239,9 @@ add_aks_methods <- function()
         if(is.null(props$servicePrincipalProfile$secret))
             stop("Must provide a service principal with a secret password")
 
-        obj <- aks$new(self$token, self$subscription, self$name,
-                       type="Microsoft.ContainerService/managedClusters", name=name, location=location,
-                       properties=props, ...)
+        obj <- AzureContainers::aks$new(self$token, self$subscription, self$name,
+            type="Microsoft.ContainerService/managedClusters", name=name, location=location,
+            properties=props, ...)
         if(wait)
         {
             message("AKS resource creation started. Waiting for provisioning to complete")
@@ -265,8 +265,8 @@ add_aks_methods <- function()
     az_resource_group$set("public", "get_aks", overwrite=TRUE,
     function(name)
     {
-        aks$new(self$token, self$subscription, self$name,
-                type="Microsoft.ContainerService/managedClusters", name=name)
+        AzureContainers::aks$new(self$token, self$subscription, self$name,
+            type="Microsoft.ContainerService/managedClusters", name=name)
     })
 
     az_resource_group$set("public", "delete_aks", overwrite=TRUE,
@@ -288,14 +288,14 @@ add_aks_methods <- function()
 
         cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aks$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) AzureContainers::aks$new(self$token, self$subscription, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) aks$new(self$token, self$subscription, deployed_properties=parms))
+                function(parms) AzureContainers::aks$new(self$token, self$subscription, deployed_properties=parms))
         }
         named_list(lst)
     })
@@ -319,14 +319,14 @@ add_aks_methods <- function()
 
         cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
-            function(parms) aks$new(self$token, self$id, deployed_properties=parms))
+            function(parms) AzureContainers::aks$new(self$token, self$id, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-                function(parms) aks$new(self$token, self$id, deployed_properties=parms))
+                function(parms) AzureContainers::aks$new(self$token, self$id, deployed_properties=parms))
         }
         named_list(lst)
     })
