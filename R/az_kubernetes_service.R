@@ -114,7 +114,7 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
 # handle differences between httr token and AzureAuth token
 get_app_details <- function(token)
 {
-    if(packageVersion("AzureRMR") <= package_version("1.0.0"))
+    if(inherits(token, "Token")) # httr class
         list(token$app$key, token$app$secret)
     else list(token$client$client_id, token$client$client_secret)
 }
