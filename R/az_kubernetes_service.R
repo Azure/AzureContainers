@@ -53,8 +53,8 @@ public=list(
     get_cluster=function(config=tempfile(pattern="kubeconfig"), role=c("User", "Admin"))
     {
         role <- match.arg(role)
-        cred_profile <- private$res_op(paste0("accessProfiles/cluster", role))$properties$kubeConfig
-        cred_profile <- rawToChar(openssl::base64_decode(cred_profile))
+        profile <- private$res_op(paste0("listCluster", role, "Credential"), http_verb="POST")$kubeconfigs
+        profile <- rawToChar(openssl::base64_decode(profile[[1]]$value))
 
         # provide ability to save to default .kube/config by passing a NULL
         if(is.null(config))
@@ -69,7 +69,7 @@ public=list(
             message("Overwriting existing cluster information in ", config)
         else message("Storing cluster information in ", config)
 
-        writeLines(cred_profile, config)
+        writeLines(profile, config)
         kubernetes_cluster$new(config=config)
     }
 ))
@@ -108,4 +108,13 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
     pool_df <- data.frame(name=name, count=count, vmSize=size, osType=os, stringsAsFactors=FALSE)
     pool_df$name <- make.unique(pool_df$name, sep="")
     lapply(seq_len(nrow(pool_df)), function(i) unclass(pool_df[i, ]))
+}
+
+
+# handle differences between httr token and AzureAuth token
+get_app_details <- function(token)
+{
+    if(packageVersion("AzureRMR") <= package_version("1.0.0"))
+        list(token$app$key, token$app$secret)
+    else list(token$client$client_id, token$client$client_secret)
 }

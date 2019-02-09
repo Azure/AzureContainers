@@ -229,7 +229,7 @@ add_aks_methods <- function()
             )
 
         if(is.null(cluster_service_principal))
-            cluster_service_principal <- list(self$token$app$key, self$token$app$secret)
+            cluster_service_principal <- get_app_details(self$token)
 
         if(is.null(props$servicePrincipalProfile))
             props$servicePrincipalProfile <- list(
