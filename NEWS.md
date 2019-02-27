@@ -1,3 +1,7 @@
+# AzureContainers 1.0.1.9000
+
+* Ensure dir for Kubernetes config file exists before writing the file
+
 # AzureContainers 1.0.1
 
 * Change `aks$get_cluster()` method to use a non-deprecated API call.
