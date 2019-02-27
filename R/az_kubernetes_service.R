@@ -67,7 +67,13 @@ public=list(
 
         if(file.exists(config))
             message("Overwriting existing cluster information in ", config)
-        else message("Storing cluster information in ", config)
+        else
+        {
+            config_dir <- dirname(config)
+            if(!dir.exists(config_dir))
+                dir.create(config_dir, recursive=TRUE)
+            message("Storing cluster information in ", config)
+        }
 
         writeLines(profile, config)
         kubernetes_cluster$new(config=config)
