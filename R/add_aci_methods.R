@@ -31,6 +31,7 @@
 #' - `dns_name`: The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
 #' - `public_ip`: Whether the instance should be publicly accessible.
 #' - `restart`: Whether to restart the instance should an event occur.
+#' - `wait`: Whether to wait until the ACI resource provisioning is complete.
 #' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
 #' @section Details:
@@ -180,7 +181,8 @@ add_aci_methods <- function()
              dns_name=name,
              public_ip=TRUE,
              restart=c("Always", "OnFailure", "Never"),
-             ...)
+             ...,
+             wait=TRUE)
     {
         containers <- list(
             name=container,
@@ -206,7 +208,8 @@ add_aci_methods <- function()
         AzureContainers::aci$new(self$token, self$subscription, self$name,
             type="Microsoft.containerInstance/containerGroups", name=name, location=location,
             properties=props,
-            ...)
+            ...,
+            wait=wait)
     })
 
     az_resource_group$set("public", "get_aci", overwrite=TRUE,

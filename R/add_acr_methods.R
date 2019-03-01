@@ -15,6 +15,7 @@
 #' - `location`: The location/region in which to create the container registry. Defaults to this resource group's location.
 #' - `admin_user_enabled`: Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
 #' - `sku`: The SKU.
+#' - `wait`: Whether to wait until the ACR resource provisioning is complete.
 #' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
 #' @section Details:
@@ -149,13 +150,13 @@ add_acr_methods <- function()
 {
     az_resource_group$set("public", "create_acr", overwrite=TRUE,
     function(name, location=self$location,
-             admin_user_enabled=TRUE, sku="Standard", ...)
+             admin_user_enabled=TRUE, sku="Standard", ..., wait=TRUE)
     {
         AzureContainers::acr$new(self$token, self$subscription, self$name,
             type="Microsoft.containerRegistry/registries", name=name, location=location,
             properties=list(adminUserEnabled=admin_user_enabled),
             sku=list(name=sku, tier=sku),
-            ...)
+            ..., wait=wait)
     })
 
     az_resource_group$set("public", "get_acr", overwrite=TRUE,

@@ -19,6 +19,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{location}: The location/region in which to create the container registry. Defaults to this resource group's location.
 \item \code{admin_user_enabled}: Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
 \item \code{sku}: The SKU.
+\item \code{wait}: Whether to wait until the ACR resource provisioning is complete.
 \item \code{...}: Other named arguments to pass to the \link{az_resource} initialization function.
 }
 }
