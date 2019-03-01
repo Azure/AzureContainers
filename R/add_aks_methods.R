@@ -239,27 +239,9 @@ add_aks_methods <- function()
         if(is.null(props$servicePrincipalProfile$secret))
             stop("Must provide a service principal with a secret password")
 
-        obj <- AzureContainers::aks$new(self$token, self$subscription, self$name,
+        AzureContainers::aks$new(self$token, self$subscription, self$name,
             type="Microsoft.ContainerService/managedClusters", name=name, location=location,
-            properties=props, ...)
-        if(wait)
-        {
-            message("AKS resource creation started. Waiting for provisioning to complete")
-            for(i in 1:1000)
-            {
-                message(".", appendLF=FALSE)
-                obj$sync_fields()
-                status <- obj$properties$provisioningState
-                if(status %in% c("Succeeded", "Error", "Failed"))
-                    break
-                Sys.sleep(10)
-            }
-            if(status == "Succeeded")
-                message("\nResource creation successful")
-            else stop("\nUnable to create resource", call.=FALSE)
-        }
-        else message("AKS resource creation started. Call the sync_fields() method to check progress.")
-        obj
+            properties=props, ..., wait=wait)
     })
 
     az_resource_group$set("public", "get_aks", overwrite=TRUE,

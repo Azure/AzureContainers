@@ -35,6 +35,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{dns_name}: The domain name prefix for the instance. Only takes effect if \code{public_ip=TRUE}.
 \item \code{public_ip}: Whether the instance should be publicly accessible.
 \item \code{restart}: Whether to restart the instance should an event occur.
+\item \code{wait}: Whether to wait until the ACI resource provisioning is complete.
 \item \code{...}: Other named arguments to pass to the \link{az_resource} initialization function.
 }
 }
