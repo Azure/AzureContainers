@@ -16,6 +16,7 @@ Depends:
     R (>= 3.3)
 Imports: 
     AzureRMR (>= 2.0.0),
+    AzureGraph,
     openssl,
     httr,
     R6
@@ -24,3 +25,6 @@ Suggests:
     testthat
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000
+Remotes:
+    cloudyr/AzureGraph
+    

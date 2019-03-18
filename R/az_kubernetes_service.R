@@ -116,11 +116,3 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
     lapply(seq_len(nrow(pool_df)), function(i) unclass(pool_df[i, ]))
 }
 
-
-# handle differences between httr token and AzureAuth token
-get_app_details <- function(token)
-{
-    if(inherits(token, "Token")) # httr class
-        list(token$app$key, token$app$secret)
-    else list(token$client$client_id, token$client$client_secret)
-}
