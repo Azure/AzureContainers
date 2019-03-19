@@ -210,6 +210,29 @@ add_aks_methods <- function()
              cluster_service_principal=NULL,
              properties=list(), ..., wait=TRUE)
     {
+        extract_service_principal_credentials <- function()
+        {
+            creds <- if(is.null(cluster_service_principal))
+            {
+                gr <- try(AzureGraph::get_azure_login(), silent=TRUE)
+                if(inherits(gr, "try-error"))
+                    gr <- AzureGraph::create_azure_login()
+                
+                appname <- paste("RAKSapp", name, location, sep="-") 
+                app <- gr$create_app(appname)
+                list(app$properties$appId, app$password)
+            }
+            else if(inherits(cluster_service_principal, "az_app"))
+                list(cluster_service_principal$properties$appId, cluster_service_principal$password)
+            else if(length(cluster_service_principal == 2))
+                list(cluster_service_principal[[1]], cluster_service_principal[[2]])
+
+            if(is_empty(creds) || is_empty(creds[[2]]))
+                stop("Invalid service principal credentials: must supply app ID and password")
+
+            creds
+        }
+
         if(is_empty(kubernetes_version))
             kubernetes_version <- tail(self$list_kubernetes_versions(), 1)
 
@@ -228,8 +251,7 @@ add_aks_methods <- function()
                 ssh=list(publicKeys=list(list(Keydata=login_passkey)))
             )
 
-        if(is.null(cluster_service_principal))
-            cluster_service_principal <- create_service_principal(name, location)
+        cluster_service_principal <- extract_service_principal_credentials()
 
         if(is.null(props$servicePrincipalProfile))
             props$servicePrincipalProfile <- list(
@@ -327,14 +349,3 @@ add_aks_methods <- function()
     })
 }
 
-
-create_service_principal <- function(name, location)
-{
-    gr <- try(AzureGraph::get_azure_login(), silent=TRUE)
-    if(inherits(gr, "try-error"))
-        gr <- AzureGraph::create_azure_login()
-    
-    appname <- paste("RAKSapp", name, location, sep="-") 
-    app <- gr$create_app(appname)
-    list(app$properties$appId, app$password)
-}
