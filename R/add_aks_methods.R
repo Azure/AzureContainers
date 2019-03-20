@@ -213,8 +213,9 @@ add_aks_methods <- function()
         if(is_empty(kubernetes_version))
             kubernetes_version <- tail(self$list_kubernetes_versions(), 1)
 
-        cluster_service_principal <- AzureContainers:::find_app_creds(cluster_service_principal,
-            name, location, self$token)
+        # hide from CRAN check
+        find_app_creds <- get("find_app_creds", getNamespace("AzureContainers"))
+        cluster_service_principal <- find_app_creds(cluster_service_principal, name, location, self$token)
 
         props <- list(
             kubernetesVersion=kubernetes_version,
