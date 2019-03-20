@@ -214,9 +214,9 @@ add_aks_methods <- function()
         {
             creds <- if(is.null(cluster_service_principal))
             {
-                gr <- try(AzureGraph::get_azure_login(), silent=TRUE)
+                gr <- try(AzureGraph::get_graph_login(), silent=TRUE)
                 if(inherits(gr, "try-error"))
-                    gr <- AzureGraph::create_azure_login()
+                    gr <- AzureGraph::create_graph_login()
                 
                 appname <- paste("RAKSapp", name, location, sep="-") 
                 app <- gr$create_app(appname)
