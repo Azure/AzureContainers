@@ -214,22 +214,29 @@ add_aks_methods <- function()
         {
             creds <- if(is.null(cluster_service_principal))
             {
-                gr <- try(AzureGraph::get_graph_login(), silent=TRUE)
+                # hide from R CMD check
+                decode <- get("decode_jwt", getNamespace("AzureAuth"))
+                tenant <- decode(self$token$credentials$access_token)$payload$tid
+
+                gr <- try(AzureGraph::get_graph_login(tenant=tenant), silent=TRUE)
                 if(inherits(gr, "try-error"))
-                    gr <- AzureGraph::create_graph_login()
+                    gr <- AzureGraph::create_graph_login(tenant=tenant)
                 
+                message("Creating cluster service principal")
                 appname <- paste("RAKSapp", name, location, sep="-") 
                 app <- gr$create_app(appname)
+
+                # wait for Graph and ARM to sync
+                Sys.sleep(60)
                 list(app$properties$appId, app$password)
             }
             else if(inherits(cluster_service_principal, "az_app"))
                 list(cluster_service_principal$properties$appId, cluster_service_principal$password)
-            else if(length(cluster_service_principal == 2))
+            else if(length(cluster_service_principal) == 2)
                 list(cluster_service_principal[[1]], cluster_service_principal[[2]])
 
-            if(is_empty(creds) || is_empty(creds[[2]]))
+            if(is_empty(creds) || length(creds) < 2 || is_empty(creds[[2]]))
                 stop("Invalid service principal credentials: must supply app ID and password")
-
             creds
         }
 
