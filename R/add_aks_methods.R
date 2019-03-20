@@ -210,47 +210,25 @@ add_aks_methods <- function()
              cluster_service_principal=NULL,
              properties=list(), ..., wait=TRUE)
     {
-        extract_service_principal_credentials <- function()
-        {
-            creds <- if(is.null(cluster_service_principal))
-            {
-                # hide from R CMD check
-                decode <- get("decode_jwt", getNamespace("AzureAuth"))
-                tenant <- decode(self$token$credentials$access_token)$payload$tid
-
-                gr <- try(AzureGraph::get_graph_login(tenant=tenant), silent=TRUE)
-                if(inherits(gr, "try-error"))
-                    gr <- AzureGraph::create_graph_login(tenant=tenant)
-                
-                message("Creating cluster service principal")
-                appname <- paste("RAKSapp", name, location, sep="-") 
-                app <- gr$create_app(appname)
-
-                # wait for Graph and ARM to sync
-                Sys.sleep(60)
-                list(app$properties$appId, app$password)
-            }
-            else if(inherits(cluster_service_principal, "az_app"))
-                list(cluster_service_principal$properties$appId, cluster_service_principal$password)
-            else if(length(cluster_service_principal) == 2)
-                list(cluster_service_principal[[1]], cluster_service_principal[[2]])
-
-            if(is_empty(creds) || length(creds) < 2 || is_empty(creds[[2]]))
-                stop("Invalid service principal credentials: must supply app ID and password")
-            creds
-        }
-
         if(is_empty(kubernetes_version))
             kubernetes_version <- tail(self$list_kubernetes_versions(), 1)
 
-        props <- c(
-            list(
-                kubernetesVersion=kubernetes_version,
-                dnsPrefix=dns_prefix,
-                agentPoolProfiles=agent_pools,
-                enableRBAC=enable_rbac
-            ),
-            properties)
+        cluster_service_principal <- AzureContainers:::find_app_creds(cluster_service_principal,
+            name, location, self$token)
+
+        props <- list(
+            kubernetesVersion=kubernetes_version,
+            dnsPrefix=dns_prefix,
+            agentPoolProfiles=agent_pools,
+            enableRBAC=enable_rbac,
+            servicePrincipalProfile=list(
+                clientId=cluster_service_principal[[1]],
+                secret=cluster_service_principal[[2]]
+            )
+        )
+
+        if(is.null(props$servicePrincipalProfile$secret))
+            stop("Must provide a service principal with a secret password", call.=FALSE)
 
         if(login_user != "" && login_passkey != "")
             props$linuxProfile <- list(
@@ -258,19 +236,24 @@ add_aks_methods <- function()
                 ssh=list(publicKeys=list(list(Keydata=login_passkey)))
             )
 
-        cluster_service_principal <- extract_service_principal_credentials()
+        props <- utils::modifyList(props, properties)
 
-        if(is.null(props$servicePrincipalProfile))
-            props$servicePrincipalProfile <- list(
-                clientId=cluster_service_principal[[1]],
-                secret=cluster_service_principal[[2]])
-
-        if(is.null(props$servicePrincipalProfile$secret))
-            stop("Must provide a service principal with a secret password")
-
-        AzureContainers::aks$new(self$token, self$subscription, self$name,
-            type="Microsoft.ContainerService/managedClusters", name=name, location=location,
-            properties=props, ..., wait=wait)
+        # if service principal was created here, must try repeatedly until it shows up in ARM
+        for(i in 1:20)
+        {
+            res <- tryCatch(AzureContainers::aks$new(self$token, self$subscription, self$name,
+                type="Microsoft.ContainerService/managedClusters", name=name, location=location,
+                properties=props, ..., wait=wait), error=function(e) e)
+            if(!(inherits(res, "error") && grepl("Service principal clientID", res$message)))
+                break
+        }
+        if(inherits(res, "error"))
+        {
+            # fix printed output from httr errors
+            class(res) <- c("simpleError", "error", "condition")
+            stop(res)
+        }
+        res
     })
 
     az_resource_group$set("public", "get_aks", overwrite=TRUE,
@@ -356,3 +339,30 @@ add_aks_methods <- function()
     })
 }
 
+
+find_app_creds <- function(credlist, name, location, token)
+{
+    creds <- if(is.null(credlist))
+    {
+        tenant <- token$tenant
+
+        gr <- try(AzureGraph::get_graph_login(tenant=tenant), silent=TRUE)
+        if(inherits(gr, "try-error"))
+            gr <- AzureGraph::create_graph_login(tenant=tenant)
+        
+        message("Creating cluster service principal")
+        appname <- paste("RAKSapp", name, location, sep="-") 
+        app <- gr$create_app(appname)
+
+        message("Waiting for Resource Manager to sync with Graph")
+        list(app$properties$appId, app$password)
+    }
+    else if(inherits(credlist, "az_app"))
+        list(credlist$properties$appId, credlist$password)
+    else if(length(credlist) == 2)
+        list(credlist[[1]], credlist[[2]])
+
+    if(is_empty(creds) || length(creds) < 2 || is_empty(creds[[2]]))
+        stop("Invalid service principal credentials: must supply app ID and password")
+    creds
+}

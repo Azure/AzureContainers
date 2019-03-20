@@ -15,6 +15,7 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 3.3)
 Imports: 
+    utils,
     AzureRMR (>= 2.0.0),
     AzureGraph,
     openssl,
