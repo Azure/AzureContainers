@@ -46,10 +46,9 @@ public=list(
         private$res_op("restart", http_verb="POST")
     },
 
-    # synonym for restart
     start=function()
     {
-        private$res_op("restart", http_verb="POST")
+        private$res_op("start", http_verb="POST")
     },
 
     stop=function()

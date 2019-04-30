@@ -66,7 +66,7 @@
 #' myacr <- rg$get_acr("myregistry")
 #'
 #' rg$create_aci("mycontainer",
-#'     image_name="myregistry.azurecr.io/myimage:latest",
+#'     image="myregistry.azurecr.io/myimage:latest",
 #'     registry_creds=myacr)
 #'
 #' }
