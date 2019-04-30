@@ -28,6 +28,10 @@ test_that("ACI works",
     expect_true(is_aci(aci))
     expect_true(is_aci(rg$list_acis()[[1]]))
 
+    expect_silent(aci$stop())
+    expect_silent(aci$start())
+    expect_silent(aci$restart())
+
     acr <- rg$get_acr(acrname)
     expect_true(is_acr(acr))
     reg <- acr$get_docker_registry()
