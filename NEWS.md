@@ -1,8 +1,9 @@
 # AzureContainers 1.0.1.9000
 
-* Ensure dir for Kubernetes config file exists before writing the file
-* Add `wait` argument to `create_aci` and `create_aks` methods; rely on AzureRMR 2.0 for implementation
-* By default, create a new service principal when creating a new AKS resource; this relies on the AzureGraph package
+* Ensure dir for Kubernetes config file exists before writing the file.
+* Add `wait` argument to `create_aci` and `create_aks` methods; rely on AzureRMR 2.0 for implementation.
+* By default, create a new service principal when creating a new AKS resource; this relies on the AzureGraph package.
+* Fix bug in `aci$start()` method.
 
 # AzureContainers 1.0.1
 
