@@ -16,6 +16,7 @@ Depends:
     R (>= 3.3)
 Imports: 
     utils,
+    AzureAuth,
     AzureRMR (>= 2.0.0),
     AzureGraph,
     openssl,

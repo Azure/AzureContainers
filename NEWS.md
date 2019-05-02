@@ -4,6 +4,7 @@
 * Add `wait` argument to `create_aci` and `create_aks` methods; rely on AzureRMR 2.0 for implementation.
 * By default, create a new service principal when creating a new AKS resource; this relies on the AzureGraph package.
 * Fix bug in `aci$start()` method.
+* By default, save the config file for an AKS cluster in the AzureR directory to allow reuse without going through Resource Manager.
 
 # AzureContainers 1.0.1
 
