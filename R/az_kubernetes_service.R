@@ -15,11 +15,11 @@
 #'
 #' For working with the cluster, including deploying images, services, etc use the object generated with the `get_cluster` method. This method takes two optional arguments:
 #'
-#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the R temporary directory. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
+#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory, which you can find with `AzureR_dir()`. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
 #' - `role`: This can be `"User"` (the default) or `"Admin"`.
 #'
 #' @seealso
-#' [create_aks], [get_aks], [delete_aks], [list_aks]
+#' [create_aks], [get_aks], [delete_aks], [list_aks], [AzureAuth::AzureR_dir]
 #'
 #' [kubernetes_cluster] for interacting with the cluster endpoint
 #'
@@ -50,8 +50,13 @@ aks <- R6::R6Class("az_kubernetes_service", inherit=AzureRMR::az_resource,
 
 public=list(
 
-    get_cluster=function(config=tempfile(pattern="kubeconfig"), role=c("User", "Admin"))
+    get_cluster=function(config=kubeconfig_file(), role=c("User", "Admin"))
     {
+        kubeconfig_file <- function()
+        {
+            file.path(AzureR_dir(), paste0("kubeconfig_", self$name))
+        }
+
         role <- match.arg(role)
         profile <- private$res_op(paste0("listCluster", role, "Credential"), http_verb="POST")$kubeconfigs
         profile <- rawToChar(openssl::base64_decode(profile[[1]]$value))
