@@ -15,7 +15,7 @@
 #'
 #' For working with the cluster, including deploying images, services, etc use the object generated with the `get_cluster` method. This method takes two optional arguments:
 #'
-#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory, which you can find with `AzureR_dir()`. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
+#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory if it exists (see [AzureAuth::AzureR_dir]); otherwise, in the R temporary directory. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
 #' - `role`: This can be `"User"` (the default) or `"Admin"`.
 #'
 #' @seealso
@@ -54,7 +54,10 @@ public=list(
     {
         kubeconfig_file <- function()
         {
-            file.path(AzureR_dir(), paste0("kubeconfig_", self$name))
+            az_dir <- AzureR_dir()
+            if(!dir.exists(az_dir))
+                az_dir <- tempdir()
+            file.path(az_dir, paste0("kubeconfig_", self$name))
         }
 
         role <- match.arg(role)

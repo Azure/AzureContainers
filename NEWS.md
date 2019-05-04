@@ -1,4 +1,4 @@
-# AzureContainers 1.0.1.9000
+# AzureContainers 1.0.2
 
 * Ensure dir for Kubernetes config file exists before writing the file.
 * Add `wait` argument to `create_aci` and `create_aks` methods; rely on AzureRMR 2.0 for implementation.
