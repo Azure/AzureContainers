@@ -8,8 +8,8 @@ Authors@R: c(
     person("Microsoft", role="cph")
     )
 Description: An interface to container functionality in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/overview/containers/>. Manage 'Azure Container Instance' (ACI), 'Azure Container Registry' (ACR) and 'Azure Kubernetes Service' (AKS) resources, push and pull images, and deploy services. On the client side, lightweight shells to the 'docker', 'kubectl' and 'helm' commandline tools are provided.
-URL: https://github.com/cloudyr/AzureContainers
-BugReports: https://github.com/cloudyr/AzureContainers/issues
+URL: https://github.com/Azure/AzureContainers
+BugReports: https://github.com/Azure/AzureContainers/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Depends: 
