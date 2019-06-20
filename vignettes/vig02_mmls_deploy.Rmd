@@ -34,7 +34,7 @@ For illustrative purposes, we'll reuse the random forest model from the Plumber 
 
 This is unchanged from the Plumber vignette, and is run offline.
 
-```{r, eval=FALSE}
+```r
 data(Boston, package="MASS")
 install.packages("randomForest")
 library(randomForest)
@@ -52,7 +52,7 @@ This script is run at container startup. The script initialises the prediction s
 
 Note that unlike Plumber, the R process that runs this script is _not_ persistent. Rather, it calls the ML Server operationalisation service which in turn manages a number of separate, background R processes. It is these processes that handle incoming requests, using the information supplied in the `publishService` call.
 
-```{r, eval=FALSE}
+```r
 # save as bos_rf_mls_deploy.R
 
 bos_rf <- readRDS("bos_rf.rds")
@@ -85,7 +85,7 @@ Some other differences of note from the Plumber Dockerfile:
 - It's necessary to modify some of ML Server's config files to enable it to work in a Kubernetes cluster. In particular, we have to supply a certificate so that different nodes in the cluster can recognise each other. Here, we use a certificate supplied by Microsoft; in a production setting, you should [use your own](https://blogs.msdn.microsoft.com/mlserver/2017/05/19/using-certificates-in-r-server-operationalization-for-linux/).
 - The startup command does more work than in the Plumber case, where it simply started R and called a Plumber function. Here, it initialises the operationalisation web and compute nodes, starts R, and calls the deployment script.
 
-```
+```dockerfile
 # Dockerfile for one-box deployment
 FROM ubuntu:16.04
 RUN apt-get -y update \
@@ -165,7 +165,7 @@ ENTRYPOINT ["/data/bootstrap.sh"]
 
 The yaml file for the ML Server deployment is essentially identical to that for Plumber, with only the names and port number being changed.
 
-```
+```yaml
 # save as bos-rf-mls.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -208,16 +208,11 @@ spec:
 
 The script for deploying to Kubernetes, given the above artifacts, is very simple. This reuses the ACR and AKS resources created in the Plumber vignette.
 
-```{r, eval=FALSE}
+```r
 library(AzureContainers)
 
-az <- AzureRMR::az_rm$new(
-    tenant="72f988bf-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    app="f72c1733-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    password="xxxxxxxxx")
-
-deployresgrp <- az$
-    get_subscription("35975484-xxxx-xxxx-xxxx-xxxxxxxxxxxx")$
+deployresgrp <- AzureRMR::get_azure_login()$
+    get_subscription("sub_id")$
     get_resource_group("deployresgrp")
 
 # get container registry
@@ -241,7 +236,7 @@ It's possible to call an ML Server prediction service in either synchronous or a
 
 Note also that ML Server returns a comprehensive response object, that includes the actual predicted values as a component. For more information, see [docs.microsoft.com](https://docs.microsoft.com/en-us/machine-learning-server/operationalize/concept-api).
 
-```{r, eval=FALSE}
+```r
 # get status of the service, including the IP address
 deployclus$get("service bos-rf-mls-svc")
 #> Kubernetes operation: get service bos-rf-svc  --kubeconfig=".../kubeconfigxxxx"
@@ -268,7 +263,7 @@ content(response, simplifyVector=TRUE)$outputParameters$pred
 
 To make an asynchronous (batch) request, we simply change the URI and pass a _list_ of model inputs. The reason for passing a list is because, when in batch mode, ML Server can process multiple inputs in parallel from the one request. Here, we pass the first 20 rows of the Boston dataset as two sets of 10 rows each. We also set the number of threads that ML Server will use to two, via the `parallelCount` query parameter in the URI.
 
-```{r, eval=FALSE}
+```r
 bos_json_list <- jsonlite::toJSON(list(
         list(inputData=MASS::Boston[1:10,]),
         list(inputData=MASS::Boston[11:20,])),
@@ -290,7 +285,7 @@ content(response)
 
 Once the request has been sent, we can obtain the predicted values by querying the server again, passing the batch execution ID as a parameter:
 
-```{r, eval=FALSE}
+```r
 response <- GET("http://52.187.245.39:12800/api/bos-rf/1.0.0/batch/9c6be3d2-f4a0-477b-830d-b07a43403c6e",
     add_headers(Authorization=paste0("Bearer ", token),
         `content-type`="application/json"))
