@@ -347,11 +347,7 @@ find_app_creds <- function(credlist, name, location, token)
 {
     creds <- if(is.null(credlist))
     {
-        tenant <- token$tenant
-
-        gr <- try(AzureGraph::get_graph_login(tenant=tenant), silent=TRUE)
-        if(inherits(gr, "try-error"))
-            gr <- AzureGraph::create_graph_login(tenant=tenant)
+        gr <- graph_login(token$tenant)
 
         message("Creating cluster service principal")
         appname <- paste("RAKSapp", name, location, sep="-")
