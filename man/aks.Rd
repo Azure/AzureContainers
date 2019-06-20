@@ -18,6 +18,7 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new AKS object.
 \item \code{get_cluster(config, role)}: Return an object representing the Docker registry endpoint.
+\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login} and the examples below.
 }
 }
 
@@ -50,6 +51,13 @@ myaks$sync_fields()
 
 # get the cluster endpoint
 kubclus <- myaks$get_cluster()
+
+# refresh the service principal password
+myaks$update_password()
+
+# refresh the service principal password, using custom credentials to authenticate with MS Graph
+# note that the 'password' argument here is for Graph, not AKS!
+myaks$update_password(app="app_id", password="app_password")
 
 }
 }

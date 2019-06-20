@@ -7,6 +7,7 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
+#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see [AzureGraph::create_graph_login] and the examples below.
 #'
 #' @section Details:
 #' Initializing a new object of this class can either retrieve an existing AKS resource, or create a new resource on the host. Generally, the best way to initialize an object is via the `get_aks`, `create_aks` or `list_aks` methods of the [az_resource_group] class, which handle the details automatically.
@@ -42,6 +43,13 @@
 #'
 #' # get the cluster endpoint
 #' kubclus <- myaks$get_cluster()
+#'
+#' # refresh the service principal password
+#' myaks$update_password()
+#'
+#' # refresh the service principal password, using custom credentials to authenticate with MS Graph
+#' # note that the 'password' argument here is for Graph, not AKS!
+#' myaks$update_password(app="app_id", password="app_password")
 #'
 #' }
 #' @aliases az_kubernetes_service
@@ -85,6 +93,22 @@ public=list(
 
         writeLines(profile, config)
         kubernetes_cluster$new(config=config)
+    },
+
+    update_service_password=function(new_password=NULL, key="key1", duration=1, ...)
+    {
+        app_id <- self$properties$servicePrincipalProfile$clientId
+        app <- graph_login(self$token$tenant, ...)$get_app(app_id)
+        secret <- app$update_password(password=new_password, name=key, password_duration=duration)
+
+        props <- list(
+            servicePrincipalProfile=list(
+                clientId=app_id,
+                secret=secret
+            )
+        )
+        self$do_operation(body=list(properties=props), encode="json", http_verb="PATCH")
+        self$sync_fields()
     }
 ))
 
