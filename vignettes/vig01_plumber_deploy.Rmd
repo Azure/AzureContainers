@@ -15,7 +15,7 @@ This document shows how you can deploy a fitted model as a web service using ACR
 
 We'll fit a simple model for illustrative purposes, using the Boston housing dataset which ships with R (in the MASS package). To make the deployment process more interesting, the model we fit will be a random forest, using the randomForest package. This is _not_ part of R, so we'll have to install it from CRAN.
 
-```{r, eval=FALSE}
+```r
 data(Boston, package="MASS")
 install.packages("randomForest")
 library(randomForest)
@@ -32,7 +32,7 @@ saveRDS(bos.rf, "bos_rf.rds")
 
 Now that we have the model, we also need a script to obtain predicted values from it given a set of inputs:
 
-```{r, eval=FALSE}
+```r
 # save as bos_rf_score.R
 
 bos_rf <- readRDS("bos_rf.rds")
@@ -54,7 +54,7 @@ This is fairly straightforward, but the comments may require some explanation. T
 
 Let's package up the model and the scoring script into a Docker image. A Dockerfile to do this would look like the following. This uses the base image supplied by Plumber (`trestletech/plumber`), installs randomForest, and then adds the model and the above scoring script. Finally, it runs the code that will start the server and listen on port 8000.
 
-```
+```dockerfile
 # example Dockerfile to expose a plumber service
 
 FROM trestletech/plumber
@@ -81,17 +81,12 @@ The code to store our image on Azure Container Registry is as follows. If you ar
 
 For more information on how to create a service principal, see the [AzureRMR readme](https://github.com/cloudyr/AzureRMR).
 
-```{r, eval=FALSE}
+```r
 library(AzureContainers)
 
-az <- AzureRMR::az_rm$new(
-    tenant="72f988bf-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    app="f72c1733-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    password="xxxxxxxxx")
-
 # create a resource group for our deployments
-deployresgrp <- az$
-    get_subscription("35975484-xxxx-xxxx-xxxx-xxxxxxxxxxxx")$
+deployresgrp <- AzureRMR::get_azure_login()$
+    get_subscription("sub_id")$
     create_resource_group("deployresgrp", location="australiaeast")
 
 # create container registry
@@ -114,7 +109,7 @@ All Docker calls in AzureContainers, like the one to build the image, return the
 
 The simplest way to deploy a service is via a Container Instance. The following code creates a single running container which contains our model, listening on port 8000.
 
-```{r, eval=FALSE}
+```r
 # create an instance with 2 cores and 8GB memory, and deploy our image
 deployaci <- deployresgrp$create_aci("deployaci",
     image="deployreg.azurecr.io/bos_rf",
@@ -125,7 +120,7 @@ deployaci <- deployresgrp$create_aci("deployaci",
 
 To check on the progress of the deployment, call the object's `sync_fields()` method. This will update and return its provisioning state, which will be `"Creating"` while the instance is being created, and `"Succeeded"` once it is running. Deploying a simple container like this usually takes less than a minute.
 
-```{r, eval=FALSE}
+```r
 deployaci$sync_fields()
 #> [1] "Succeeded"
 ```
@@ -134,7 +129,7 @@ Once the instance is running, let's call the prediction API with some sample dat
 
 The data to be scored---the first 10 rows of the Boston dataset---is passed in the _body_ of the request as a named list, encoded as JSON. A feature of Plumber is that, when the body of the request is in this format, it will extract the elements of the list and pass them to the scoring function as named arguments. This makes it easy to pass around relatively large amounts of data, eg if the data is wide, or for scoring multiple rows at a time. For more information on how to create and interact with Plumber APIs, consult the [Plumber documentation](https://www.rplumber.io/docs/).
 
-```{r, eval=FALSE}
+```r
 response <- httr::POST("http://deployaci.australiaeast.azurecontainer.io:8000/score",
     body=list(df=MASS::Boston[1:10,]), encode="json")
 httr::content(response, flatten=TRUE)
@@ -146,7 +141,7 @@ httr::content(response, flatten=TRUE)
 
 Deploying a service to a container instance is simple, but lacks many features that are important in a production setting. A better alternative for production purposes is to deploy to a Kubernetes cluster. Such a cluster can be created using Azure Kubernetes Service (AKS).
 
-```{r, eval=FALSE}
+```r
 # create a Kubernetes cluster with 2 nodes, running Linux (the default)
 deployclus_svc <- deployresgrp$create_aks("deployclus", agent_pools=aks_pools("pool1", 2))
 ```
@@ -155,7 +150,7 @@ Unlike an ACI resource, creating a Kubernetes cluster can take several minutes. 
 
 Having created the cluster, we can deploy our model and create a service. We'll use a YAML configuration file to specify the details for the deployment and service API. The image to be deployed is the same as before.
 
-```
+```yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -195,7 +190,7 @@ spec:
 
 The following code will obtain the cluster endpoint from the AKS resource and then deploy the image and service to the cluster. The configuration details for the `deployclus` cluster are stored in a file located in the R temporary directory; all of the cluster's methods will use this file. Unless told otherwise, AzureContainers does not touch your default Kubernetes configuration (`~/kube/config`).
 
-```{r, eval=FALSE}
+```r
 # get the cluster endpoint
 deployclus <- deployclus_svc$get_cluster()
 
@@ -208,7 +203,7 @@ deployclus$create("bos_rf.yaml")
 
 To check on the progress of the deployment, run the `get()` methods specifying the type and name of the resource to get information on. As with Docker, these correspond to calls to the `kubectl` commandline tool, and again, the actual commandline is stored as the `cmdline` attribute of the returned value.
 
-```{r, eval=FALSE}
+```r
 deployclus$get("deployment bos-rf")
 #> Kubernetes operation: get deployment bos-rf  --kubeconfig=".../kubeconfigxxxx"
 #> NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
@@ -222,7 +217,7 @@ deployclus$get("service bos-rf-svc")
 
 Once the service is up and running, as indicated by the presence of an external IP in the service details, let's test it with a HTTP request. The response should be the same as it was with the container instance.
 
-```{r, eval=FALSE}
+```r
 response <- httr::POST("http://52.187.249.58:8000/score",
     body=list(df=MASS::Boston[1:10,]), encode="json")
 httr::content(response, simplifyVector=TRUE)
@@ -231,14 +226,14 @@ httr::content(response, simplifyVector=TRUE)
 
 Finally, once we are done, we can tear down the service and deployment:
 
-```{r, eval=FALSE}
+```r
 deployclus$delete("service", "bos-rf-svc")
 deployclus$delete("deployment", "bos-rf")
 ```
 
 And if required, we can also delete all the resources created here, by simply deleting the resource group  (AzureContainers will prompt you for confirmation):
 
-```{r, eval=FALSE}
+```r
 deployresgrp$delete()
 ```
 
