@@ -35,6 +35,8 @@ test_that("AKS works",
     aks <- rg$get_aks(aksname)
     expect_true(is_aks(aks))
 
+    aks$update_service_password()
+
     clus <- aks$get_cluster()
     expect_true(is_kubernetes_cluster(clus))
 
