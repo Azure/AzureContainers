@@ -1,3 +1,7 @@
+# AzureContainers 1.0.2.9000
+
+* Add `aks$update_service_password()` method to reset/update the service principal credentials.
+
 # AzureContainers 1.0.2
 
 * Ensure dir for Kubernetes config file exists before writing the file.
