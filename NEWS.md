@@ -1,4 +1,4 @@
-# AzureContainers 1.0.2.9000
+# AzureContainers 1.0.3
 
 * Add `aks$update_service_password()` method to reset/update the service principal credentials.
 
