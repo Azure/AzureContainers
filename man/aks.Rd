@@ -56,7 +56,7 @@ kubclus <- myaks$get_cluster()
 myaks$update_password()
 
 # refresh the service principal password, using custom credentials to authenticate with MS Graph
-# note that the 'password' argument here is for Graph, not AKS!
+# note that the arguments here are for Graph, not AKS!
 myaks$update_password(app="app_id", password="app_password")
 
 }
