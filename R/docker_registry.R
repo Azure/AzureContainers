@@ -66,22 +66,23 @@ public=list(
     initialize=function(server, username=NULL, password=NULL, app=NULL, login=TRUE)
     {
         self$server <- server
-        self$username <- username
-        self$password <- password
-        self$app <- app
 
-        if(login)
+        if(login && (!is.null(username) || !is.null(app)))
             self$login(username, password, app)
         else invisible(NULL)
     },
 
-    login=function(username=self$username, password=self$password, app=self$app)
+    login=function(username=NULL, password=NULL, app=NULL)
     {
         identity <- if(!is.null(username))
             username
         else if(!is.null(app))
             app
-        else stop("No login identity available", call.=FALSE)
+        else stop("No login identity supplied", call.=FALSE)
+
+        self$username <- username
+        self$password <- password
+        self$app <- app
 
         cmd <- if(!is.null(password))
             paste("login --username", identity, "--password", self$password, self$server)
