@@ -68,16 +68,25 @@ public=list(
         self$server <- server
         self$username <- username
         self$password <- password
-        self$app <- NULL
+        self$app <- app
 
         if(login)
-            self$login()
+            self$login(username, password, app)
         else invisible(NULL)
     },
 
-    login=function()
+    login=function(username=self$username, password=self$password, app=self$app)
     {
-        cmd <- paste("login --username", self$username, "--password", self$password, self$server)
+        identity <- if(!is.null(username))
+            username
+        else if(!is.null(app))
+            app
+        else stop("No login identity available", call.=FALSE)
+
+        cmd <- if(!is.null(password))
+            paste("login --username", identity, "--password", self$password, self$server)
+        else paste("login --username", identity, self$server)
+
         call_docker(cmd)
     },
 
