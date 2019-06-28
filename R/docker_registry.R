@@ -61,12 +61,14 @@ public=list(
     server=NULL,
     username=NULL,
     password=NULL,
+    app=NULL,
 
-    initialize=function(server, username, password, login=TRUE)
+    initialize=function(server, username=NULL, password=NULL, app=NULL, login=TRUE)
     {
         self$server <- server
         self$username <- username
         self$password <- password
+        self$app <- NULL
 
         if(login)
             self$login()
@@ -107,7 +109,7 @@ public=list(
         if(confirm && interactive())
         {
             yn <- readline(paste0("Do you really want to delete the layer '", image, "'? (y/N) "))
-            if(tolower(substr(yn, 1, 1)) != "y") 
+            if(tolower(substr(yn, 1, 1)) != "y")
                 return(invisible(NULL))
         }
 
@@ -121,7 +123,7 @@ public=list(
         if(confirm && interactive())
         {
             yn <- readline(paste0("Do you really want to delete the image '", image, "'? (y/N) "))
-            if(tolower(substr(yn, 1, 1)) != "y") 
+            if(tolower(substr(yn, 1, 1)) != "y")
                 return(invisible(NULL))
         }
 
