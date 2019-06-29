@@ -43,4 +43,11 @@ test_that("ACI works",
         registry_creds=reg)
 
     expect_true(is_aci(aci2))
+
+    aciname3 <- paste0(sample(letters, 10, TRUE), collapse="")
+    aci3 <- rg$create_aci(aciname3,
+        image=paste0(reg$server, "/hello-world-sp"),
+        registry_creds=aci_creds(reg$server, app, password))
+
+    expect_true(is_aci(aci3))
 })

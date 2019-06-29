@@ -35,8 +35,7 @@ For \code{list_acrs()}, a list of such objects.
 \examples{
 \dontrun{
 
-rg <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+rg <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 

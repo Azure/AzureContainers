@@ -14,7 +14,8 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
            os = c("Linux", "Windows"),
            command = list(), env_vars = list(),
            ports = aci_ports(), dns_name = name, public_ip = TRUE,
-           restart = c("Always", "OnFailure", "Never"), ...)
+           restart = c("Always", "OnFailure", "Never"), managed = TRUE,
+           ...)
 }
 }
 
@@ -35,7 +36,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{dns_name}: The domain name prefix for the instance. Only takes effect if \code{public_ip=TRUE}.
 \item \code{public_ip}: Whether the instance should be publicly accessible.
 \item \code{restart}: Whether to restart the instance should an event occur.
-\item \code{wait}: Whether to wait until the ACI resource provisioning is complete.
+\item \code{managed}: Whether to assign the container instance a managed identity.
 \item \code{...}: Other named arguments to pass to the \link{az_resource} initialization function.
 }
 }
@@ -57,8 +58,7 @@ An object of class \code{az_container_instance} representing the instance.
 \examples{
 \dontrun{
 
-rg <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+rg <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 

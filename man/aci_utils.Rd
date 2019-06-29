@@ -8,14 +8,14 @@
 \usage{
 aci_ports(port = c(80L, 443L), protocol = "TCP")
 
-aci_creds(server, username, password)
+aci_creds(server, username = NULL, password = NULL)
 
 get_aci_credentials_list(lst)
 }
 \arguments{
 \item{port, protocol}{For \code{aci_ports}, vectors of the port numbers and protocols to open for the instance.}
 
-\item{server, username, password}{For \code{aci_creds}, the authentication details for a Docker registry.}
+\item{server, username, password}{For \code{aci_creds}, the authentication details for a Docker registry. See \link{docker_registry}.}
 
 \item{lst}{for \code{get_aci_credentials_list}, a list of objects.}
 }
@@ -24,4 +24,7 @@ Utilities for specifying ACI configuration information
 }
 \details{
 These are helper functions to be used in specifying the configuration for a container instance. Only \code{aci_ports} and \code{aci_creds} are meant to be called by the user; \code{get_aci_credentials_list} is exported to workaround namespacing issues on startup.
+}
+\seealso{
+\link{create_aci}, \link{aci}, \link{docker_registry}
 }
