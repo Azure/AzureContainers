@@ -20,8 +20,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' sub <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
 #' sub$list_vm_sizes("australiaeast")

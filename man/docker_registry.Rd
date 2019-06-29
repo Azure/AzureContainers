@@ -30,12 +30,10 @@ The following methods are available, in addition to those provided by the \link[
 The arguments to the \code{new()} method are:
 \itemize{
 \item \code{server}: The name of the registry server.
-\item \code{username}: The username that Docker will use to authenticate with the registry.
+\item \code{username}: The username that Docker will use to authenticate with the registry. This can be either the admin username, if the registry was created with an admin account, or the ID of a registered app that has access to the registry.
 \item \code{password}: The password that Docker will use to authenticate with the registry.
 \item \code{login}: Whether to login to the registry immediately; defaults to TRUE.
 }
-
-Currently this class does not support authentication methods other than a username/password combination.
 
 The \code{login()}, \code{push()} and \code{pull()} methods for this class call the \code{docker} commandline tool under the hood. This allows all the features supported by Docker to be available immediately, with a minimum of effort. Any calls to the \code{docker} tool will also contain the full commandline as the \code{cmdline} attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
 }
@@ -43,9 +41,7 @@ The \code{login()}, \code{push()} and \code{pull()} methods for this class call 
 \examples{
 \dontrun{
 
-# recommended way of retrieving a registry: via a resource group object
-rg <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+rg <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 

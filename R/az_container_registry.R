@@ -34,9 +34,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' # recommended way of retrieving a registry: via a resource group object
-#' rg <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
@@ -74,7 +72,7 @@ public=list(
         do.call(rbind, lapply(use, as.data.frame))
     },
 
-    get_docker_registry=function(username=NULL, password=NULL, app=NULL)
+    get_docker_registry=function(username=NULL, password=NULL)
     {
         if(self$properties$adminUserEnabled)
         {
@@ -83,8 +81,7 @@ public=list(
                 username <- creds$username
             if(is.null(password))
                 password <- creds$passwords[1]
-            docker_registry$new(self$properties$loginServer, username=username, password=password)
         }
-        else docker_registry$new(self$properties$loginServer, password=password, app=app)
+        docker_registry$new(self$properties$loginServer, username=username, password=password)
     }
 ))

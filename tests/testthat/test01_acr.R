@@ -12,14 +12,14 @@ acrname <- Sys.getenv("AZ_TEST_ACR")
 if(acrname == "")
     skip("ACR tests skipped: resource name not set")
 
+rgname <- Sys.getenv("AZ_TEST_RG")
+rg <- AzureRMR::az_rm$
+    new(tenant=tenant, app=app, password=password)$
+    get_subscription(subscription)$
+    get_resource_group(rgname)
+
 test_that("ACR works",
 {
-    rgname <- Sys.getenv("AZ_TEST_RG")
-    rg <- AzureRMR::az_rm$
-        new(tenant=tenant, app=app, password=password)$
-        get_subscription(subscription)$
-        get_resource_group(rgname)
-
     expect_true(is_acr(rg$create_acr(acrname)))
     acr <- rg$get_acr(acrname)
     expect_true(is_acr(acr))
@@ -40,4 +40,30 @@ test_that("ACR works",
     call_docker(cmdline)
 
     expect_equal(reg$list_repositories(), "hello-world")
+})
+
+test_that("ACR works with app login",
+{
+    acr <- rg$get_acr(acrname)
+    expect_true(is_acr(acr))
+
+    acr$add_role_assignment(
+        principal=AzureGraph::get_graph_login(tenant)$get_app(app),
+        role="owner"
+    )
+
+    reg <- acr$get_docker_registry(username=app, password=password)
+    expect_true(is_docker_registry(reg))
+    expect_identical(reg$username, app)
+
+    cmdline <- "build -f ../resources/hello_dockerfile -t hello-world-sp ."
+    output <- call_docker(cmdline)
+    expect_equal(attr(output, "cmdline"), paste("docker", cmdline))
+
+    reg$push("hello-world-sp")
+
+    cmdline <- paste0("image rm ", acrname, ".azurecr.io/hello-world-sp")
+    call_docker(cmdline)
+
+    expect_equal(reg$list_repositories(), c("hello-world", "hello-world-sp"))
 })

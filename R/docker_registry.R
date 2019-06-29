@@ -16,11 +16,9 @@
 #' @section Details:
 #' The arguments to the `new()` method are:
 #' - `server`: The name of the registry server.
-#' - `username`: The username that Docker will use to authenticate with the registry.
+#' - `username`: The username that Docker will use to authenticate with the registry. This can be either the admin username, if the registry was created with an admin account, or the ID of a registered app that has access to the registry.
 #' - `password`: The password that Docker will use to authenticate with the registry.
 #' - `login`: Whether to login to the registry immediately; defaults to TRUE.
-#'
-#' Currently this class does not support authentication methods other than a username/password combination.
 #'
 #' The `login()`, `push()` and `pull()` methods for this class call the `docker` commandline tool under the hood. This allows all the features supported by Docker to be available immediately, with a minimum of effort. Any calls to the `docker` tool will also contain the full commandline as the `cmdline` attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
 #'
@@ -34,9 +32,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' # recommended way of retrieving a registry: via a resource group object
-#' rg <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
@@ -61,28 +57,24 @@ public=list(
     server=NULL,
     username=NULL,
     password=NULL,
-    app=NULL,
 
-    initialize=function(server, username=NULL, password=NULL, app=NULL, login=TRUE)
+    initialize=function(server, username=NULL, password=NULL, login=!is.null(username))
     {
         self$server <- server
 
-        if(login && (!is.null(username) || !is.null(app)))
-            self$login(username, password, app)
+        if(login)
+            self$login(username, password)
         else invisible(NULL)
     },
 
-    login=function(username=NULL, password=NULL, app=NULL)
+    login=function(username=NULL, password=NULL)
     {
-        identity <- if(!is.null(username))
-            username
-        else if(!is.null(app))
-            app
+        if(!is.null(username))
+            identity <- username
         else stop("No login identity supplied", call.=FALSE)
 
         self$username <- username
         self$password <- password
-        self$app <- app
 
         cmd <- if(!is.null(password))
             paste("login --username", identity, "--password", self$password, self$server)
