@@ -76,11 +76,9 @@ public=list(
         self$username <- username
         self$password <- password
 
-        cmd <- if(!is.null(password))
-            paste("login --username", identity, "--password", self$password, self$server)
-        else paste("login --username", identity, self$server)
+        cmd <- paste("login --password-stdin --username", identity, self$server)
 
-        call_docker(cmd)
+        call_docker(cmd, input=password)
     },
 
     push=function(src_image, dest_image)
