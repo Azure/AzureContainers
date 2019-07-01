@@ -72,16 +72,16 @@ public=list(
         do.call(rbind, lapply(use, as.data.frame))
     },
 
-    get_docker_registry=function(username=NULL, password=NULL)
+    get_docker_registry=function(..., as_admin=FALSE)
     {
-        if(self$properties$adminUserEnabled)
+        if(as_admin)
         {
+            if(!self$properties$adminUserEnabled)
+                stop("Admin user account is disabled", call.=FALSE)
+
             creds <- self$list_credentials()
-            if(is.null(username))
-                username <- creds$username
-            if(is.null(password))
-                password <- creds$passwords[1]
+            docker_registry$new(username=creds$username, password=creds$passwords[1], app=NULL)
         }
-        docker_registry$new(self$properties$loginServer, username=username, password=password)
+        else docker_registry$new(...)
     }
 ))

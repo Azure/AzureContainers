@@ -55,30 +55,45 @@ docker_registry <- R6::R6Class("docker_registry",
 public=list(
 
     server=NULL,
-    username=NULL,
-    password=NULL,
+    creds=NULL,
+    token=NULL,
 
-    initialize=function(server, username=NULL, password=NULL, login=!is.null(username))
+    initialize=function(server, ..., domain="azurecr.io", login=TRUE)
     {
-        self$server <- server
+        self$server <- if(!is_url(server))
+            sprintf("https://%s.%s", server, domain)
+        else server
 
         if(login)
-            self$login(username, password)
-        else invisible(NULL)
+            self$login(...)
     },
 
-    login=function(username=NULL, password=NULL)
+    login=function(tenant="common", username=NULL, password=NULL, app=.az_cli_app_id, ..., token=NULL)
     {
-        if(!is.null(username))
-            identity <- username
-        else stop("No login identity supplied", call.=FALSE)
+        # ways to login:
+        # via creds inferred from AAD token
+        # if app == NULL, with admin account
+        self$creds <- if(is.null(app))
+        {
+            if(is.null(username) || is.null(password))
+                stop("Must supply username and password for admin login", call.=FALSE)
 
-        self$username <- username
-        self$password <- password
+            list(username=username, password=password)
+        }
+        else
+        {
+            # default is to reuse token from any existing AzureRMR login
+            if(is.null(token))
+                token <- AzureAuth::get_azure_token("https://management.azure.com/",
+                    tenant=tenant, app=app, password=password, username=username, ...)
 
-        cmd <- paste("login --password-stdin --username", identity, self$server)
+            self$token <- token
+            creds <- private$get_acr_creds()
+        }
 
-        call_docker(cmd, input=password)
+        cmd <- paste("login --password-stdin --username", self$creds$username, self$server)
+
+        call_docker(cmd, input=self$creds$password)
     },
 
     push=function(src_image, dest_image)
@@ -100,7 +115,7 @@ public=list(
 
     pull=function(image)
     {
-        image <- private$add_server(image)
+        image <- private$paste_server(image)
         call_docker(sprintf("pull %s", image))
     },
 
@@ -113,8 +128,8 @@ public=list(
                 return(invisible(NULL))
         }
 
-        res <- call_registry(self$server, self$username, self$password, file.path(layer, "blobs", digest),
-                             http_verb="DELETE")
+        res <- call_registry(self$server, self$creds$username, self$creds$password,
+                             file.path(layer, "blobs", digest), http_verb="DELETE")
         invisible(res)
     },
 
@@ -127,27 +142,60 @@ public=list(
                 return(invisible(NULL))
         }
 
-        res <- call_registry(self$server, self$username, self$password, file.path(image, "manifests", digest),
-                             http_verb="DELETE")
+        res <- call_registry(self$server, self$creds$username, self$creds$password,
+                             file.path(image, "manifests", digest), http_verb="DELETE")
         invisible(res)
     },
 
     list_repositories=function()
     {
-        res <- call_registry(self$server, self$username, self$password, "_catalog")
+        res <- call_registry(self$server, self$creds$username, self$creds$password, "_catalog")
         unlist(res$repositories)
+    },
+
+    call_docker=function(cmd, ...)
+    {
+        cmd <- paste(cmd, self$server)
+        call_docker(cmd, ...)
     }
 ),
 
 private=list(
 
-    add_server=function(image)
+    paste_server=function(image)
     {
         server <- paste0(self$server, "/")
         has_server <- substr(image, 1, nchar(server)) == server
         if(!has_server)
             paste0(server, image)
         else image
+    },
+
+    get_acr_creds=function()
+    {
+        if(!self$token$validate())
+            self$token$refresh()
+
+        uri <- httr::parse_url(self$server)
+        uri$path <- "oauth2/exchange"
+
+        tenant <- if(self$token$tenant == "common")
+            AzureAuth::decode_jwt(self$token$credentials$access_token)$payload$tid
+        else self$token$tenant
+
+        res <- httr::POST(uri,
+            body=list(
+                grant_type="access_token",
+                service=uri$hostname,
+                tenant=tenant,
+                access_token=self$token$credentials$access_token
+            ),
+            encode="form"
+        )
+
+        httr::stop_for_status(res)
+        reftok <- httr::content(res)$refresh_token
+        list(username="00000000-0000-0000-0000-000000000000", password=reftok)
     }
 ))
 
@@ -207,7 +255,8 @@ call_registry <- function(server, username, password, ...,
                           http_status_handler=c("stop", "warn", "message", "pass"))
 {
     auth_str <- openssl::base64_encode(paste(username, password, sep=":"))
-    url <- paste0("https://", server, "/v2/", ...)
+    url <- httr::parse_url(server)
+    url$path <-  paste0("/v2/", ...)
     headers <- httr::add_headers(Authorization=sprintf("Basic %s", auth_str))
     http_status_handler <- match.arg(http_status_handler)
     verb <- get(match.arg(http_verb), getNamespace("httr"))
@@ -232,5 +281,4 @@ process_registry_response <- function(response, handler)
     }
     else response
 }
-
 
