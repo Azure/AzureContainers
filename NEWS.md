@@ -9,6 +9,7 @@
 
 * Add `aks$update_service_password()` method to reset/update the service principal credentials.
 * Send the docker password via `stdin`, rather than on the commandline.
+* Not released to CRAN (superseded by 1.1.0 above).
 
 # AzureContainers 1.0.2
 
