@@ -18,7 +18,7 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new AKS object.
 \item \code{get_cluster(config, role)}: Return an object representing the Docker registry endpoint.
-\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login} and the examples below.
+\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login} and the examples below.
 }
 }
 

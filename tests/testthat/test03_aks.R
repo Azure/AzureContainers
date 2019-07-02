@@ -25,8 +25,9 @@ test_that("AKS works",
 {
     expect_true(is_acr(acr))
 
-    reg <- acr$get_docker_registry()
+    reg <- acr$get_docker_registry(as_admin=TRUE)
     expect_true(is_docker_registry(reg))
+    expect_false(is.null(reg$username) || is.null(reg$password))
 
     expect_is(rg$list_kubernetes_versions(), "character")
 
@@ -60,9 +61,6 @@ test_that("AKS works with RBAC",
         principal=AzureGraph::get_graph_login(tenant)$get_app(aks_app),
         role="Acrpull"
     )
-
-    reg <- acr$get_docker_registry()
-    expect_true(is_docker_registry(reg))
 
     clus <- aks$get_cluster()
     expect_true(is_kubernetes_cluster(clus))

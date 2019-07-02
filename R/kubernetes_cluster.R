@@ -99,16 +99,16 @@ public=list(
         private$config <- config
     },
 
-    create_registry_secret=function(registry, secret_name=registry$server, email)
+    create_registry_secret=function(registry, secret_name=registry$server$hostname, email)
     {
         if(is_acr(registry))
-            registry <- registry$get_docker_registry(registry)
+            registry <- registry$get_docker_registry(as_admin=TRUE)
 
         if(!is_docker_registry(registry))
             stop("Must supply a Docker registry object", call.=FALSE)
 
         cmd <- paste0("create secret docker-registry ", secret_name,
-                      " --docker-server=", registry$server,
+                      " --docker-server=", registry$server$hostname,
                       " --docker-username=", registry$username,
                       " --docker-password=", registry$password,
                       " --docker-email=", email)

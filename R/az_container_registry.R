@@ -46,8 +46,11 @@
 #' # see who has push and pull access
 #' myacr$list_role_assignments()
 #'
-#' # get the registry endpoint
-#' reg <- myacr$get_docker_registry()
+#' # get the registry endpoint (for interactive use)
+#' myacr$get_docker_registry()
+#'
+#' # get the registry endpoint (admin user account)
+#' myacr$get_docker_registry(as_admin=TRUE)
 #'
 #' }
 #' @aliases az_container_registry
