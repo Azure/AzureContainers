@@ -35,7 +35,7 @@ is_aci <- function(object)
 #' @export
 is_docker_registry <- function(object)
 {
-    R6::is.R6(object) && inherits(object, "docker_registry")
+    R6::is.R6(object) && inherits(object, "DockerRegistry")
 }
 
 
@@ -43,5 +43,5 @@ is_docker_registry <- function(object)
 #' @export
 is_kubernetes_cluster <- function(object)
 {
-    R6::is.R6(object) && inherits(object, "kubernetes_cluster")
+    R6::is.R6(object) && inherits(object, "KubernetesCluster")
 }

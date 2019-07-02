@@ -1,6 +1,6 @@
 #' Kubernetes cluster class
 #'
-#' Class representing a [Kubernetes](https://kubernetes.io/docs/home/) cluster. Note that this class can be used to interface with any Docker registry that supports the HTTP V2 API, not just those created via the Azure Container Registry service.
+#' Class representing a [Kubernetes](https://kubernetes.io/docs/home/) cluster. Note that this class can be used to interface with any Docker registry that supports the HTTP V2 API, not just those created via the Azure Container Registry service. Use the [kubernetes_cluster] function to instantiate new objects of this class.
 #'
 #' @docType class
 #' @section Methods:
@@ -19,11 +19,11 @@
 #' - `helm(cmd)`: Run a `helm` command on this cluster.
 #'
 #' @section Initialization:
-#' The `new()` method takes one argument: `config`, the name of the file containing the configuration details for the cluster. This should be a yaml or json file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
+#' The `new()` method takes one argument: `config`, the name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
 #'
 #' @section Secrets:
-#' To allow a cluster to authenticate with a Docker registry, call the `create_registry_secret` method with the following arguments:
-#' - `registry`: An object of class either [acr] representing an Azure Container Registry service, or [docker_registry] representing the registry itself.
+#' The recommended way to allow a cluster to authenticate with a Docker registry is to give its service principal the appropriate role-based access. However, you can also authenticate with a username and password. To do this, call the `create_registry_secret` method with the following arguments:
+#' - `registry`: An object of class either [acr] representing an Azure Container Registry service, or [DockerRegistry] representing the registry itself.
 #' - `secret_name`: The name to give the secret. Defaults to the name of the registry server.
 #' - `email`: The email address for the Docker registry.
 #'
@@ -90,7 +90,7 @@
 #'
 #' }
 #' @export
-kubernetes_cluster <- R6::R6Class("kubernetes_cluster",
+KubernetesCluster <- R6::R6Class("KubernetesCluster",
 
 public=list(
 
@@ -99,13 +99,19 @@ public=list(
         private$config <- config
     },
 
-    create_registry_secret=function(registry, secret_name=registry$server, email)
+    create_registry_secret=function(registry, secret_name=registry$server$hostname, email)
     {
         if(is_acr(registry))
-            registry <- registry$get_docker_registry(registry)
+            registry <- registry$get_docker_registry(as_admin=TRUE)
+
+        if(!is_docker_registry(registry))
+            stop("Must supply a Docker registry object", call.=FALSE)
+
+        if(is.null(registry$username) || is.null(registry$password))
+            stop("Docker registry object does not contain a username/password", call.=FALSE)
 
         cmd <- paste0("create secret docker-registry ", secret_name,
-                      " --docker-server=", registry$server,
+                      " --docker-server=", registry$server$hostname,
                       " --docker-username=", registry$username,
                       " --docker-password=", registry$password,
                       " --docker-email=", email)
@@ -212,6 +218,32 @@ public=list(
 private=list(
     config=NULL
 ))
+
+
+#' Create a new Kubernetes cluster object
+#'
+#' @param config The name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
+#' @details
+#' @return
+#' An R6 object of class `KubernetesCluster`.
+#'
+#' @seealso
+#' [KubernetesCluster] for methods for working with the cluster, [call_kubectl], [call_helm]
+#'
+#' [docker_registry] for the corresponding function to create a Docker registry object
+#'
+#' @examples
+#' \dontrun{
+#'
+#' kubernetes_cluster()
+#' kubernetes_cluster("myconfig.yaml")
+#'
+#' }
+#' @export
+kubernetes_cluster <- function(config=NULL)
+{
+    KubernetesCluster$new(config)
+}
 
 
 #' Call the Kubernetes commandline tool, kubectl

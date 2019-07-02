@@ -52,7 +52,7 @@ test_that("ACR works with app login",
         role="owner"
     )
 
-    reg <- acr$get_docker_registry(username=app, password=password)
+    reg <- acr$get_docker_registry(username=app, password=password, app=NULL)
     expect_true(is_docker_registry(reg))
     expect_identical(reg$username, app)
 
