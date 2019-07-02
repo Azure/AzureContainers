@@ -294,6 +294,9 @@ private=list(
 #'
 #' @seealso
 #' [DockerRegistry] for methods available for interacting with the registry, [call_docker]
+#'
+#' [kubernetes_cluster] for the corresponding function to create a Kubernetes cluster object
+#'
 #' @examples
 #' \dontrun{
 #'

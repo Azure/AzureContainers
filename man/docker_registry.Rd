@@ -64,4 +64,6 @@ docker_registry("https://hub.docker.com", username="mydockerid", password="passw
 }
 \seealso{
 \link{DockerRegistry} for methods available for interacting with the registry, \link{call_docker}
+
+\link{kubernetes_cluster} for the corresponding function to create a Kubernetes cluster object
 }
