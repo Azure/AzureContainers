@@ -43,8 +43,11 @@
 #' myacr$list_credentials()
 #' myacr$list_policies()
 #'
+#' # see who has push and pull access
+#' myacr$list_role_assignments()
+#'
 #' # get the registry endpoint
-#' dockerreg <- myacr$get_docker_registry()
+#' reg <- myacr$get_docker_registry()
 #'
 #' }
 #' @aliases az_container_registry
@@ -72,7 +75,7 @@ public=list(
         do.call(rbind, lapply(use, as.data.frame))
     },
 
-    get_docker_registry=function(..., as_admin=FALSE)
+    get_docker_registry=function(..., as_admin=FALSE, token=self$token)
     {
         if(as_admin)
         {
@@ -80,8 +83,8 @@ public=list(
                 stop("Admin user account is disabled", call.=FALSE)
 
             creds <- self$list_credentials()
-            docker_registry$new(username=creds$username, password=creds$passwords[1], app=NULL)
+            docker_registry(username=creds$username, password=creds$passwords[1], app=NULL)
         }
-        else docker_registry$new(..., token=self$token)
+        else docker_registry(..., token=token)
     }
 ))

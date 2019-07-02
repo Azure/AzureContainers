@@ -51,8 +51,11 @@ myacr <- rg$get_acr("myregistry")
 myacr$list_credentials()
 myacr$list_policies()
 
+# see who has push and pull access
+myacr$list_role_assignments()
+
 # get the registry endpoint
-dockerreg <- myacr$get_docker_registry()
+reg <- myacr$get_docker_registry()
 
 }
 }

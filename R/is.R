@@ -35,7 +35,7 @@ is_aci <- function(object)
 #' @export
 is_docker_registry <- function(object)
 {
-    R6::is.R6(object) && inherits(object, "docker_registry")
+    R6::is.R6(object) && inherits(object, "DockerRegistry")
 }
 
 
