@@ -82,6 +82,6 @@ public=list(
             creds <- self$list_credentials()
             docker_registry$new(username=creds$username, password=creds$passwords[1], app=NULL)
         }
-        else docker_registry$new(...)
+        else docker_registry$new(..., token=self$token)
     }
 ))

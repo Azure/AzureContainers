@@ -55,17 +55,17 @@ docker_registry <- R6::R6Class("docker_registry",
 public=list(
 
     server=NULL,
-    creds=NULL,
-    token=NULL,
+    username=NULL,
+    password=NULL,
+    aad_token=NULL,
 
     initialize=function(server, ..., domain="azurecr.io", login=TRUE)
     {
-        self$server <- if(!is_url(server))
-            sprintf("https://%s.%s", server, domain)
-        else server
+        if(!is_url(server))
+            server <- sprintf("https://%s.%s", server, domain)
+        self$server <- httr::parse_url(server)
 
-        if(login)
-            self$login(...)
+        if(login) self$login(...)
     },
 
     login=function(tenant="common", username=NULL, password=NULL, app=.az_cli_app_id, ..., token=NULL)
@@ -73,12 +73,13 @@ public=list(
         # ways to login:
         # via creds inferred from AAD token
         # if app == NULL, with admin account
-        self$creds <- if(is.null(app))
+        if(is.null(app))
         {
             if(is.null(username) || is.null(password))
                 stop("Must supply username and password for admin login", call.=FALSE)
 
-            list(username=username, password=password)
+            self$username <- username
+            self$password <- password
         }
         else
         {
@@ -87,29 +88,31 @@ public=list(
                 token <- AzureAuth::get_azure_token("https://management.azure.com/",
                     tenant=tenant, app=app, password=password, username=username, ...)
 
-            self$token <- token
-            creds <- private$get_acr_creds()
+            self$aad_token <- token
+            username <- "00000000-0000-0000-0000-000000000000"
+            password <- private$get_creds_from_aad()
         }
 
-        cmd <- paste("login --password-stdin --username", self$creds$username, self$server)
+        cmd <- paste("login --password-stdin --username", username, self$server$hostname)
+        call_docker(cmd, input=password)
 
-        call_docker(cmd, input=self$creds$password)
+        invisible(NULL)
     },
 
     push=function(src_image, dest_image)
     {
         if(missing(dest_image))
         {
-            dest_image <- private$add_server(src_image)
+            dest_image <- private$paste_server(src_image)
             out1 <- call_docker(sprintf("tag %s %s", src_image, dest_image))
         }
         else
         {
-            dest_image <- private$add_server(dest_image)
+            dest_image <- private$paste_server(dest_image)
             out1 <- call_docker(sprintf("tag %s %s", src_image, dest_image))
         }
-        out2 <- call_docker(sprintf("push %s", dest_image))
 
+        out2 <- call_docker(sprintf("push %s", dest_image))
         invisible(list(out1, out2))
     },
 
@@ -119,21 +122,40 @@ public=list(
         call_docker(sprintf("pull %s", image))
     },
 
-    delete_layer=function(layer, digest, confirm=TRUE)
+    get_image_manifest=function(image, tag="latest")
     {
-        if(confirm && interactive())
+        if(grepl(":", image))
         {
-            yn <- readline(paste0("Do you really want to delete the layer '", image, "'? (y/N) "))
-            if(tolower(substr(yn, 1, 1)) != "y")
-                return(invisible(NULL))
+            tag <- sub("^[^:]+:", "", image)
+            image <- sub(":.+$", "", image)
         }
 
-        res <- call_registry(self$server, self$creds$username, self$creds$password,
-                             file.path(layer, "blobs", digest), http_verb="DELETE")
-        invisible(res)
+        op <- file.path(image, "manifests", tag)
+        perms <- paste("repository", image, "pull", sep=":")
+
+        cont <- self$call_registry(op, permissions=perms)
+
+        # registry API doesn't set content-type correctly, need to process further
+        jsonlite::fromJSON(rawToChar(cont), simplifyVector=FALSE)
     },
 
-    delete_image=function(image, digest, confirm=TRUE)
+    get_image_digest=function(image, tag="latest")
+    {
+        if(grepl(":", image))
+        {
+            tag <- sub("^[^:]+:", "", image)
+            image <- sub(":.+$", "", image)
+        }
+
+        op <- file.path(image, "manifests", tag)
+        perms <- paste("repository", image, "pull", sep=":")
+
+        cont <- self$call_registry(op, http_verb="HEAD", permissions=perms, http_status_handler="pass")
+        httr::stop_for_status(cont)
+        httr::headers(cont)$`docker-content-digest`
+    },
+
+    delete_image=function(image, confirm=TRUE)
     {
         if(confirm && interactive())
         {
@@ -142,21 +164,51 @@ public=list(
                 return(invisible(NULL))
         }
 
-        res <- call_registry(self$server, self$creds$username, self$creds$password,
-                             file.path(image, "manifests", digest), http_verb="DELETE")
+        # get the digest for this image
+        digest <- self$get_image_digest(image)
+        if(is_empty(digest))
+            stop("Unable to find digest info for image", call.=FALSE)
+
+        op <- file.path(image, "manifests", digest)
+        perms <- paste("repository", image, "delete", sep=":")
+        res <- self$call_registry(op, http_verb="DELETE", permissions=perms)
         invisible(res)
     },
 
     list_repositories=function()
     {
-        res <- call_registry(self$server, self$creds$username, self$creds$password, "_catalog")
+        res <- self$call_registry("_catalog", permissions="registry:catalog:*")
         unlist(res$repositories)
     },
 
-    call_docker=function(cmd, ...)
+    call_registry=function(op, ..., encode="form",
+                           http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
+                           http_status_handler=c("stop", "warn", "message", "pass"),
+                           permissions="")
     {
-        cmd <- paste(cmd, self$server)
-        call_docker(cmd, ...)
+        headers <- if(is.null(self$aad_token))
+        {
+            auth_str <- openssl::base64_encode(paste(username, password, sep=":"))
+            httr::add_headers(
+                Accept="application/vnd.docker.distribution.manifest.v2+json",
+                Authorization=sprintf("Basic %s", auth_str)
+            )
+        }
+        else
+        {
+            creds <- private$get_creds_from_aad()
+            access_token <- private$get_access_token(creds, permissions)
+            httr::add_headers(
+                Accept="application/vnd.docker.distribution.manifest.v2+json",
+                Authorization=paste("Bearer", access_token)
+            )
+        }
+
+        uri <- self$server
+        uri$path <-  paste0("/v2/", op)
+
+        res <- httr::VERB(match.arg(http_verb), uri, headers, ..., encode=encode)
+        process_registry_response(res, match.arg(http_status_handler))
     }
 ),
 
@@ -164,38 +216,56 @@ private=list(
 
     paste_server=function(image)
     {
-        server <- paste0(self$server, "/")
+        server <- paste0(self$server$hostname, "/")
         has_server <- substr(image, 1, nchar(server)) == server
         if(!has_server)
             paste0(server, image)
         else image
     },
 
-    get_acr_creds=function()
+    get_creds_from_aad=function()
     {
-        if(!self$token$validate())
-            self$token$refresh()
+        if(!self$aad_token$validate())
+            self$aad_token$refresh()
 
-        uri <- httr::parse_url(self$server)
+        uri <- self$server
         uri$path <- "oauth2/exchange"
 
-        tenant <- if(self$token$tenant == "common")
-            AzureAuth::decode_jwt(self$token$credentials$access_token)$payload$tid
-        else self$token$tenant
+        tenant <- if(self$aad_token$tenant == "common")
+            AzureAuth::decode_jwt(self$aad_token$credentials$access_token)$payload$tid
+        else self$aad_token$tenant
 
         res <- httr::POST(uri,
             body=list(
                 grant_type="access_token",
                 service=uri$hostname,
                 tenant=tenant,
-                access_token=self$token$credentials$access_token
+                access_token=self$aad_token$credentials$access_token
             ),
             encode="form"
         )
 
         httr::stop_for_status(res)
-        reftok <- httr::content(res)$refresh_token
-        list(username="00000000-0000-0000-0000-000000000000", password=reftok)
+        httr::content(res)$refresh_token
+    },
+
+    get_access_token=function(creds, permissions)
+    {
+        uri <- self$server
+        uri$path <- "oauth2/token"
+
+        res <- httr::POST(uri,
+            body=list(
+                grant_type="refresh_token",
+                service=uri$hostname,
+                scope=permissions,
+                refresh_token=creds
+            ),
+            encode="form"
+        )
+
+        httr::stop_for_status(res)
+        httr::content(res)$access_token
     }
 ))
 
@@ -247,23 +317,6 @@ call_docker <- function(cmd="", ...)
     else system2("sudo", paste(.AzureContainers$docker, cmd), ...)
     attr(val, "cmdline") <- paste("docker", cmd)
     invisible(val)
-}
-
-
-call_registry <- function(server, username, password, ...,
-                          http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
-                          http_status_handler=c("stop", "warn", "message", "pass"))
-{
-    auth_str <- openssl::base64_encode(paste(username, password, sep=":"))
-    url <- httr::parse_url(server)
-    url$path <-  paste0("/v2/", ...)
-    headers <- httr::add_headers(Authorization=sprintf("Basic %s", auth_str))
-    http_status_handler <- match.arg(http_status_handler)
-    verb <- get(match.arg(http_verb), getNamespace("httr"))
-
-    res <- verb(url, headers)
-
-    process_registry_response(res, http_status_handler)
 }
 
 
