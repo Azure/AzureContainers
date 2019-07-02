@@ -16,8 +16,7 @@ An R6 object of class \code{KubernetesCluster}.
 Create a new Kubernetes cluster object
 }
 \examples{
-\dontrun
-{
+\dontrun{
 
 kubernetes_cluster()
 kubernetes_cluster("myconfig.yaml")

@@ -230,8 +230,7 @@ private=list(
 #' [docker_registry] for the corresponding function to create a Docker registry object
 #'
 #' @examples
-#' \dontrun
-#' {
+#' \dontrun{
 #'
 #' kubernetes_cluster()
 #' kubernetes_cluster("myconfig.yaml")
