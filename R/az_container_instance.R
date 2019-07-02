@@ -110,7 +110,7 @@ extract_creds.az_container_registry <- function(obj, ...)
 
 extract_creds.DockerRegistry <- function(obj, ...)
 {
-    list(server=obj$server, username=obj$username, password=obj$password)
+    list(server=obj$server$hostname, username=obj$username, password=obj$password)
 }
 
 extract_creds.aci_creds <- function(obj, ...)

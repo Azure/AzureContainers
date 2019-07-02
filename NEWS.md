@@ -3,6 +3,7 @@
 * Make `docker_registry` and `kubernetes_cluster` into constructor functions rather than R6 classes, for consistency with other AzureR packages. The corresponding class objects are now `DockerRegistry` and `KubernetesCluster`.
 * Enable AAD authentication for ACR. By default, instantiating a new docker registry object will authenticate using the AAD credentials of the currently signed-in user. Alternative authentication details can be supplied to `docker_registry`, which will be passed to `AzureAuth::get_azure_token`. See the help for `docker_registry` for more information.
 * Enable authenticating with service principals to ACR from ACI and AKS.
+* By default, create new container instances with a managed service identity.
 
 # AzureContainers 1.0.3
 

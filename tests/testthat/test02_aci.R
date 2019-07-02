@@ -34,20 +34,21 @@ test_that("ACI works",
 
     acr <- rg$get_acr(acrname)
     expect_true(is_acr(acr))
-    reg <- acr$get_docker_registry()
+    reg <- acr$get_docker_registry(as_admin=TRUE)
     expect_true(is_docker_registry(reg))
+    expect_false(is.null(reg$username) || is.null(reg$password))
 
     aciname2 <- paste0(sample(letters, 10, TRUE), collapse="")
     aci2 <- rg$create_aci(aciname2,
-        image=paste0(reg$server, "/hello-world"),
+        image=paste0(reg$server$hostname, "/hello-world"),
         registry_creds=reg)
 
     expect_true(is_aci(aci2))
 
     aciname3 <- paste0(sample(letters, 10, TRUE), collapse="")
     aci3 <- rg$create_aci(aciname3,
-        image=paste0(reg$server, "/hello-world-sp"),
-        registry_creds=aci_creds(reg$server, app, password))
+        image=paste0(reg$server$hostname, "/hello-world-sp"),
+        registry_creds=aci_creds(reg$server$hostname, app, password))
 
     expect_true(is_aci(aci3))
 })

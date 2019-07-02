@@ -77,14 +77,15 @@ public=list(
 
     get_docker_registry=function(..., as_admin=FALSE, token=self$token)
     {
+        server <- paste0("https://", self$properties$loginServer)
         if(as_admin)
         {
             if(!self$properties$adminUserEnabled)
                 stop("Admin user account is disabled", call.=FALSE)
 
             creds <- self$list_credentials()
-            docker_registry(username=creds$username, password=creds$passwords[1], app=NULL)
+            docker_registry(server, username=creds$username, password=creds$passwords[1], app=NULL)
         }
-        else docker_registry(..., token=token)
+        else docker_registry(server, ..., token=token)
     }
 ))
