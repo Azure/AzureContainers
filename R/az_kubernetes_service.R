@@ -7,7 +7,7 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
-#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see [AzureGraph::create_graph_login] and the examples below.
+#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see [AzureGraph::create_graph_login] and the examples below.
 #'
 #' @section Details:
 #' Initializing a new object of this class can either retrieve an existing AKS resource, or create a new resource on the host. Generally, the best way to initialize an object is via the `get_aks`, `create_aks` or `list_aks` methods of the [az_resource_group] class, which handle the details automatically.
@@ -90,7 +90,7 @@ public=list(
         }
 
         writeLines(profile, config)
-        kubernetes_cluster$new(config=config)
+        kubernetes_cluster(config=config)
     },
 
     update_service_password=function(new_password=NULL, key="key1", duration=1, ...)
@@ -107,6 +107,7 @@ public=list(
         )
         self$do_operation(body=list(properties=props), encode="json", http_verb="PATCH")
         self$sync_fields()
+        invisible(secret)
     }
 ))
 
