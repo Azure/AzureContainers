@@ -206,6 +206,21 @@ public=list(
 
         res <- httr::VERB(match.arg(http_verb), uri, headers, ..., encode=encode)
         process_registry_response(res, match.arg(http_status_handler))
+    },
+
+    print=function(...)
+    {
+        cat("Docker registry '", self$server$hostname, "'\n", sep="")
+        cat("<Authentication>\n")
+        if(is.null(self$aad_token))
+        {
+            cat("  Username:", self$username, "\n")
+            cat("  Password: <hidden>\n")
+        }
+        else cat("  Via Azure Active Directory\n")
+        cat("---\n")
+        cat(format_public_methods(self))
+        invisible(self)
     }
 ),
 

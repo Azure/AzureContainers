@@ -107,6 +107,9 @@ public=list(
         if(!is_docker_registry(registry))
             stop("Must supply a Docker registry object", call.=FALSE)
 
+        if(is.null(registry$username) || is.null(registry$password))
+            stop("Docker registry object does not contain a username/password", call.=FALSE)
+
         cmd <- paste0("create secret docker-registry ", secret_name,
                       " --docker-server=", registry$server$hostname,
                       " --docker-username=", registry$username,
