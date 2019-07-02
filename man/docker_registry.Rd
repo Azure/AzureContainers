@@ -32,7 +32,7 @@ The default method of authenticating is via AAD. Without any arguments, \code{do
 
 To authenticate via the admin user account, set \code{app=NULL} and supply the admin username and password in the corresponding arguments. Note that for this to work, the registry must have been created with the admin account enabled.
 
-Authenticating with a service principal can be done either indirectly via AAD, or via a username and password. See the examples below.
+Authenticating with a service principal can be done either indirectly via AAD, or via a username and password. See the examples below. The latter method is recommended, as it is both faster and allows easier interoperability with \link{KubernetesCluster} objects.
 }
 \examples{
 \dontrun{
@@ -46,10 +46,10 @@ docker_registry("https://myregistry.azurecr.io")
 # authenticating via the admin account
 docker_registry("myregistry", username="admin", password="password", app=NULL)
 
-# authenticating with a service principal: method 1, faster
+# authenticating with a service principal, method 1: recommended
 docker_registry("myregistry", username="app_id", password="client_creds", app=NULL)
 
-# authenticating with a service principal: method 2, slower
+# authenticating with a service principal, method 2
 docker_registry("myregistry", app="app_id", password="client_creds")
 
 # authenticating from a managed service identity (MSI)

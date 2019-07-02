@@ -90,7 +90,7 @@ public=list(
         }
 
         writeLines(profile, config)
-        kubernetes_cluster$new(config=config)
+        kubernetes_cluster(config=config)
     },
 
     update_service_password=function(new_password=NULL, key="key1", duration=1, ...)
