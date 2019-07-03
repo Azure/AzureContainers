@@ -209,7 +209,6 @@ add_aci_methods <- function()
             list(type="systemAssigned")
         else NULL
 
-        message("Creating container instance '", name, "'. Call the sync_fields() method to check progress.")
         AzureContainers::aci$new(self$token, self$subscription, self$name,
             type="Microsoft.containerInstance/containerGroups", name=name, location=location,
             properties=props,
