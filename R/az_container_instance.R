@@ -110,6 +110,9 @@ extract_creds.az_container_registry <- function(obj, ...)
 
 extract_creds.DockerRegistry <- function(obj, ...)
 {
+    if(is.null(obj$username) || is.null(obj$password))
+        stop("Docker registry object does not contain a username/password", call.=FALSE)
+
     list(server=obj$server$hostname, username=obj$username, password=obj$password)
 }
 
