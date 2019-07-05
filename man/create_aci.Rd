@@ -63,7 +63,7 @@ rg <- AzureRMR::get_azure_login()$
     get_resource_group("rgname")
 
 # get the ACR resource that contains the image
-myacr <- rg$get_acr("myregistry")
+myacr <- rg$get_acr("myregistry", as_admin=TRUE)
 
 rg$create_aci("mycontainer",
     image="myregistry.azurecr.io/myimage:latest",
