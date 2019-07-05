@@ -96,7 +96,7 @@ deployreg_svc <- deployresgrp$create_acr("deployreg")
 call_docker("build -t bos_rf .")
 
 # upload the image to Azure
-deployreg <- deployreg_svc$get_docker_registry()
+deployreg <- deployreg_svc$get_docker_registry(as_admin=TRUE)
 deployreg$push("bos_rf")
 ```
 
