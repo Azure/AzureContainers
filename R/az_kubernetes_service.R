@@ -7,7 +7,8 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
-#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see [AzureGraph::create_graph_login] and the examples below.
+#' - `update_aad_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
+#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 #'
 #' @section Details:
 #' Initializing a new object of this class can either retrieve an existing AKS resource, or create a new resource on the host. Generally, the best way to initialize an object is via the `get_aks`, `create_aks` or `list_aks` methods of the [az_resource_group] class, which handle the details automatically.
@@ -16,11 +17,21 @@
 #'
 #' For working with the cluster, including deploying images, services, etc use the object generated with the `get_cluster` method. This method takes two optional arguments:
 #'
-#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory if it exists (see [AzureAuth::AzureR_dir]); otherwise, in the R temporary directory. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
+#' - `config`: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory if it exists (see [AzureAuth::AzureR_dir]); otherwise, in the R temporary directory. To use the Kubernetes default `~/.kube/config` file, set this argument to NULL. Any existing file in the given location will be overwritten.
 #' - `role`: This can be `"User"` (the default) or `"Admin"`.
 #'
+#' @section Updating credentials:
+#' An AKS cluster requires at least one, and possibly three, service principals. The first service principal is used to manage the resources used by the cluster: the VMs, networking resources, virtual disks, etc. The other two are used for AAD integration. These service principals have secret passwords, which have to be refreshed as they expire.
+#'
+#' The `update_aad_password()` and `update_service_password()` methods let you refresh the passwords for the cluster's service principals. Their arguments are:
+#'
+#' - `new_password`: The new password. The default is to use a randomly chosen strong password.
+#' - `key`: The name of the password.
+#' - `duration`: The duration for which the new password is valid. Defaults to 1 year.
+#' - `...`: Other arguments passed to `AzureGraph::create_graph_login`. Note that these are used to authenticate with Microsoft Graph, which does the actual work of updating the service principals, not to the cluster itself.
+#'
 #' @seealso
-#' [create_aks], [get_aks], [delete_aks], [list_aks], [AzureAuth::AzureR_dir]
+#' [create_aks], [get_aks], [delete_aks], [list_aks], [AzureAuth::AzureR_dir], [AzureGraph::create_graph_login]
 #'
 #' [kubernetes_cluster] for interacting with the cluster endpoint
 #'
@@ -46,7 +57,7 @@
 #' myaks$update_password()
 #'
 #' # refresh the service principal password, using custom credentials to authenticate with MS Graph
-#' # note that the arguments here are for Graph, not AKS!
+#' # arguments here are for Graph, not AKS!
 #' myaks$update_password(app="app_id", password="app_password")
 #'
 #' }
@@ -93,21 +104,29 @@ public=list(
         kubernetes_cluster(config=config)
     },
 
+    update_aad_password=function(new_password=NULL, key="key1", duration=1, ...)
+    {
+        prof <- self$properties$aadProfile
+        if(is.null(prof))
+            stop("No Azure Active Directory profile associated with this cluster", call.=FALSE)
+
+        app <- graph_login(self$token$tenant, ...)$get_app(prof$serverAppID)
+        prof$serverAppSecret <- app$update_password(password=new_password, name=key, password_duration=duration)
+
+        self$do_operation(body=list(properties=list(aadProfile=prof)), encode="json", http_verb="PATCH")
+        self$sync_fields()
+        invisible(prof$serverAppSecret)
+    },
+
     update_service_password=function(new_password=NULL, key="key1", duration=1, ...)
     {
-        app_id <- self$properties$servicePrincipalProfile$clientId
-        app <- graph_login(self$token$tenant, ...)$get_app(app_id)
-        secret <- app$update_password(password=new_password, name=key, password_duration=duration)
+        prof <- self$properties$servicePrincipalProfile
+        app <- graph_login(self$token$tenant, ...)$get_app(prof$clientId)
+        prof$secret <- app$update_password(password=new_password, name=key, password_duration=duration)
 
-        props <- list(
-            servicePrincipalProfile=list(
-                clientId=app_id,
-                secret=secret
-            )
-        )
-        self$do_operation(body=list(properties=props), encode="json", http_verb="PATCH")
+        self$do_operation(body=list(properties=list(servicePrincipalProfile=prof)), encode="json", http_verb="PATCH")
         self$sync_fields()
-        invisible(secret)
+        invisible(prof$secret)
     }
 ))
 

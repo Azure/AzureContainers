@@ -18,7 +18,8 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new AKS object.
 \item \code{get_cluster(config, role)}: Return an object representing the Docker registry endpoint.
-\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly. The duration of the new password is 1 year by default. You can supply other authentication arguments to Microsoft Graph as part of the method call; see \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login} and the examples below.
+\item \code{update_aad_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
+\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 }
 }
 
@@ -30,8 +31,21 @@ Note that this class is separate from the Kubernetes cluster itself. This class 
 
 For working with the cluster, including deploying images, services, etc use the object generated with the \code{get_cluster} method. This method takes two optional arguments:
 \itemize{
-\item \code{config}: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory if it exists (see \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}); otherwise, in the R temporary directory. To use the Kubernetes default \code{~/.kube/config} file, set this argument to NULL. Note that any existing file in the given location will be overwritten.
+\item \code{config}: The file in which to store the cluster configuration details. By default, this will be located in the AzureR configuration directory if it exists (see \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}); otherwise, in the R temporary directory. To use the Kubernetes default \code{~/.kube/config} file, set this argument to NULL. Any existing file in the given location will be overwritten.
 \item \code{role}: This can be \code{"User"} (the default) or \code{"Admin"}.
+}
+}
+
+\section{Updating credentials}{
+
+An AKS cluster requires at least one, and possibly three, service principals. The first service principal is used to manage the resources used by the cluster: the VMs, networking resources, virtual disks, etc. The other two are used for AAD integration. These service principals have secret passwords, which have to be refreshed as they expire.
+
+The \code{update_aad_password()} and \code{update_service_password()} methods let you refresh the passwords for the cluster's service principals. Their arguments are:
+\itemize{
+\item \code{new_password}: The new password. The default is to use a randomly chosen strong password.
+\item \code{key}: The name of the password.
+\item \code{duration}: The duration for which the new password is valid. Defaults to 1 year.
+\item \code{...}: Other arguments passed to \code{AzureGraph::create_graph_login}. Note that these are used to authenticate with Microsoft Graph, which does the actual work of updating the service principals, not to the cluster itself.
 }
 }
 
@@ -54,13 +68,13 @@ kubclus <- myaks$get_cluster()
 myaks$update_password()
 
 # refresh the service principal password, using custom credentials to authenticate with MS Graph
-# note that the arguments here are for Graph, not AKS!
+# arguments here are for Graph, not AKS!
 myaks$update_password(app="app_id", password="app_password")
 
 }
 }
 \seealso{
-\link{create_aks}, \link{get_aks}, \link{delete_aks}, \link{list_aks}, \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}
+\link{create_aks}, \link{get_aks}, \link{delete_aks}, \link{list_aks}, \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}, \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login}
 
 \link{kubernetes_cluster} for interacting with the cluster endpoint
 

@@ -224,6 +224,7 @@ private=list(
 #'
 #' @param config The name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
 #' @details
+#' Use this function to instantiate a new object of the `KubernetesCluster` class, for interacting with a Kubernetes cluster.
 #' @return
 #' An R6 object of class `KubernetesCluster`.
 #'

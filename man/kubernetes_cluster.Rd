@@ -15,6 +15,9 @@ An R6 object of class \code{KubernetesCluster}.
 \description{
 Create a new Kubernetes cluster object
 }
+\details{
+Use this function to instantiate a new object of the \code{KubernetesCluster} class, for interacting with a Kubernetes cluster.
+}
 \examples{
 \dontrun{
 
