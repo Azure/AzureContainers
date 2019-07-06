@@ -107,7 +107,7 @@ srvapp$update(api=srvapp_api, identifierUris=I(sprintf("api://%s", srvapp_id)))
 # create the client app
 cliapp <- gr$create_app("akscliapp",
     isFallbackPublicClient=TRUE,
-    publicClient=list(redirectUris=list("https://akscliapp")
+    publicClient=list(redirectUris=list("https://akscliapp"))
 )
 cliapp_id <- cliapp$properties$appId
 
