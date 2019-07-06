@@ -62,7 +62,7 @@ After giving the cluster service principal the necessary permissions, you can th
 
 ## Integrating AKS with Azure Active Directory
 
-Integrating AKS and AAD requires creating two registered apps, the client and server, and giving them permissions to talk to each other. Most of the work here is actually done using the AzureGraph package; once the apps are correctly configured, we then pass them to the `create_aks` method.
+Integrating AKS and AAD requires creating two registered apps, the client and server, and giving them permissions to talk to each other. Most of the work here is actually done using the AzureGraph package; once the apps are correctly configured, we then pass them to the `create_aks` method. You'll need to be an administrator for your AAD tenant to carry out these steps.
 
 ```r
 # create the server app
@@ -105,7 +105,10 @@ srvapp_api$oauth2PermissionScopes <- list(
 srvapp$update(api=srvapp_api, identifierUris=I(sprintf("api://%s", srvapp_id)))
 
 # create the client app
-cliapp <- gr$create_app("akscliapp")
+cliapp <- gr$create_app("akscliapp",
+    isFallbackPublicClient=TRUE,
+    publicClient=list(redirectUris=list("https://akscliapp")
+)
 cliapp_id <- cliapp$properties$appId
 
 # tell the server app to trust the client

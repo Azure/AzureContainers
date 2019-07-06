@@ -191,11 +191,13 @@ spec:
 The following code will obtain the cluster endpoint from the AKS resource and then deploy the image and service to the cluster. The configuration details for the `deployclus` cluster are stored in a file located in the R temporary directory; all of the cluster's methods will use this file. Unless told otherwise, AzureContainers does not touch your default Kubernetes configuration (`~/kube/config`).
 
 ```r
+# grant the cluster pull access to the registry
+gr <- AzureGraph::get_graph_login()
+aks_app_id <- deployclus$properties$servicePrincipalProfile$clientID
+reg$add_role_assignment(gr$get_app(aks_app_id), "Acrpull")
+
 # get the cluster endpoint
 deployclus <- deployclus_svc$get_cluster()
-
-# pass registry authentication details to the cluster
-deployclus$create_registry_secret(deployreg, email="hongooi@microsoft.com")
 
 # create and start the service
 deployclus$create("bos_rf.yaml")
