@@ -96,9 +96,9 @@ srvapp_api$oauth2PermissionScopes <- list(
         adminConsentDisplayName="AKS",
         id=srvapp_newapi_id,
         isEnabled=TRUE,
-        type="Admin",
-        userConsentDescription=NULL,
-        userConsentDisplayName=NULL,
+        type="User",
+        userConsentDescription="AKS",
+        userConsentDisplayName="AKS",
         value="AKS"
     )
 )
