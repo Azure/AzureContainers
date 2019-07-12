@@ -57,6 +57,28 @@ reg$add_role_assignment(aks, "Acrpull")
 
 After giving the cluster service principal the necessary permissions, you can then deploy images from the registry as normal.
 
+## Creating an AKS resource and reusing an existing service principal
+
+This scenario is most relevant when creating an AKS resource in an automated environment, ie without a logged-in user's credentials. Currently, creating an AKS resource also involves creating an associated service principal, for the cluster to manage its sub-resources. In turn, creating this service principal will attempt to get the credentials for the logged-in user, which fails if there is no user present.
+
+To avoid this, you can create an app ahead of time and pass it to `create_aks`:
+
+```r
+# login to ARM and MS Graph with client credentials flow
+# your app must have the right permissions to work with ARM and Graph
+az <- AzureRMR::create_azure_login("mytenant", app="app_id", password="clientsecret")
+gr <- AzureGraph::create_graph_login("mytenant", app="app_id", password="clientsecret")
+
+app <- gr$create_app("myaksapp")
+
+az$
+    get_subscription("sub_id")$
+    get_resource_group("rgname")$
+    create_aks("myaks",
+        cluster_service_principal=app,
+        agent_pools=aks_pools("pool1", 2, "Standard_DS2_v2", "Linux"))
+```
+
 ## Integrating AKS with Azure Active Directory
 
 Integrating AKS and AAD requires creating two registered apps, the client and server, and giving them permissions to talk to each other. Most of the work here is actually done using the AzureGraph package; once the apps are correctly configured, we then pass them to the `create_aks` method. You'll need to be an administrator for your AAD tenant to carry out these steps.
