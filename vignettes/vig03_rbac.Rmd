@@ -45,17 +45,14 @@ rg$create_aci("myinstance", image="myacr.azurecr.io/myimage",
 
 ## Authenticating with a service principal from AKS to ACR
 
-This is the corresponding scenario for a Kubernetes cluster. We'll reuse the registry from the above example.
+The corresponding scenario for a Kubernetes cluster is much simpler: we simply call the `add_role_assignment` method for the ACR object, passing it the AKS object. We'll reuse the registry from the above example.
 
 ```r
 # create the AKS resource
 aks <- rg$create_aks("myaks", agent_pools=aks_pools("pool1", 2), enable_rbac=TRUE)
 
-# get the app ID for the cluster service principal
-aks_app_id <- aks$properties$servicePrincipalProfile$clientID
-
 # give the app pull access to the registry
-reg$add_role_assignment(gr$get_app(aks_app_id), "Acrpull")
+reg$add_role_assignment(aks, "Acrpull")
 ```
 
 After giving the cluster service principal the necessary permissions, you can then deploy images from the registry as normal.
