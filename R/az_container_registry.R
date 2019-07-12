@@ -59,6 +59,17 @@ acr <- R6::R6Class("az_container_registry", inherit=AzureRMR::az_resource,
 
 public=list(
 
+    add_role_permissions=function(principal, role, scope=NULL, ...)
+    {
+        if(is_aks(principal))
+        {
+            tenant <- self$token$tenant
+            gr <- graph_login(tenant, ...)
+            principal <- gr$get_app(principal$properties$servicePrincipalProfile$clientId)
+        }
+        super$add_role_permissions(principal, role, scope)
+    },
+
     list_credentials=function()
     {
         creds <- private$res_op("listCredentials", http_verb="POST")
