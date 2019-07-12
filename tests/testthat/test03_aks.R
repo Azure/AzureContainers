@@ -55,12 +55,7 @@ test_that("AKS works with RBAC",
     aks <- rg$create_aks(aksname, agent_pools=aks_pools("pool1", 2))
     expect_true(is_aks(aks))
 
-    aks_app <- aks$properties$servicePrincipalProfile$clientId
-
-    acr$add_role_assignment(
-        principal=AzureGraph::get_graph_login(tenant)$get_app(aks_app),
-        role="Acrpull"
-    )
+    acr$add_role_assignment(aks, "Acrpull")
 
     clus <- aks$get_cluster()
     expect_true(is_kubernetes_cluster(clus))
