@@ -6,6 +6,7 @@
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new ACR object. See 'Details'.
+#' - `add_role_assignment(principal, role, scope=NULL, ...)`: Adds a role for the specified principal. This is an override mainly to handle AKS objects, so that the Kubernetes cluster can be granted access to the registry. You can use the `...` arguments to supply authentication details for AzureGraph, which is used to retrieve the cluster service principal.
 #' - `list_credentials`: Return the username and passwords for this registry. Only valid if the Admin user for the registry has been enabled.
 #' - `list_policies`: Return the policies for this registry.
 #' - `list_usages`: Return the usage for this registry.
@@ -59,7 +60,7 @@ acr <- R6::R6Class("az_container_registry", inherit=AzureRMR::az_resource,
 
 public=list(
 
-    add_role_permissions=function(principal, role, scope=NULL, ...)
+    add_role_assignment=function(principal, role, scope=NULL, ...)
     {
         if(is_aks(principal))
         {
@@ -67,7 +68,7 @@ public=list(
             gr <- graph_login(tenant, ...)
             principal <- gr$get_app(principal$properties$servicePrincipalProfile$clientId)
         }
-        super$add_role_permissions(principal, role, scope)
+        super$add_role_assignment(principal, role, scope)
     },
 
     list_credentials=function()
