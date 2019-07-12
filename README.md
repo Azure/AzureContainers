@@ -40,11 +40,7 @@ aks <- resgroup$create_aks("myakscluster",
     agent_pools=aks_pools("pool1", 2, "Standard_DS2_v2", "Linux"))
 
 # give the cluster pull access to the registry
-aks_app <- aks$properties$servicePrincipalProfile$clientId
-acr$add_role_assignment(
-    principal=AzureGraph::get_graph_login()$get_app(aks_app),
-    role="Acrpull"
-)
+acr$add_role_assignment(aks, "Acrpull")
 
 # get cluster endpoint, deploy from ACR to AKS with predefined yaml definition file
 clus <- aks$get_cluster()

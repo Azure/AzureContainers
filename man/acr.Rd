@@ -17,6 +17,7 @@ Class representing an Azure Container Registry (ACR) resource. For working with 
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class:
 \itemize{
 \item \code{new(...)}: Initialize a new ACR object. See 'Details'.
+\item \code{add_role_assignment(principal, role, scope=NULL, ...)}: Adds a role for the specified principal. This is an override mainly to handle AKS objects, so that the Kubernetes cluster can be granted access to the registry. You can use the \code{...} arguments to supply authentication details for AzureGraph, which is used to retrieve the cluster service principal.
 \item \code{list_credentials}: Return the username and passwords for this registry. Only valid if the Admin user for the registry has been enabled.
 \item \code{list_policies}: Return the policies for this registry.
 \item \code{list_usages}: Return the usage for this registry.
@@ -53,6 +54,10 @@ myacr$list_policies()
 
 # see who has push and pull access
 myacr$list_role_assignments()
+
+# grant a Kubernetes cluster pull access
+myaks <- rg$get_aks("myaks")
+myacr$add_role_assignment(myaks, "Acrpull")
 
 # get the registry endpoint (for interactive use)
 myacr$get_docker_registry()
