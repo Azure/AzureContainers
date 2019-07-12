@@ -51,11 +51,11 @@ The corresponding scenario for a Kubernetes cluster is much simpler: we simply c
 # create the AKS resource
 aks <- rg$create_aks("myaks", agent_pools=aks_pools("pool1", 2), enable_rbac=TRUE)
 
-# give the app pull access to the registry
+# give the cluster pull access to the registry
 reg$add_role_assignment(aks, "Acrpull")
 ```
 
-After giving the cluster service principal the necessary permissions, you can then deploy images from the registry as normal.
+After giving the cluster the necessary permissions, you can then deploy images from the registry as normal.
 
 ## Creating an AKS resource and reusing an existing service principal
 
@@ -71,8 +71,7 @@ gr <- AzureGraph::create_graph_login("mytenant", app="app_id", password="clients
 
 app <- gr$create_app("myaksapp")
 
-az$
-    get_subscription("sub_id")$
+az$get_subscription("sub_id")$
     get_resource_group("rgname")$
     create_aks("myaks",
         cluster_service_principal=app,
@@ -94,7 +93,7 @@ srvapp_pwd <- srvapp$password
 # update group membership claims
 srvapp$update(groupMembershipClaims="all")
 
-# update API permissions (Directory.Read.All scope & role, User.Read.All)
+# update API permissions (Directory.Read.All scope & role, User.Read.All scope)
 srvapp$update(requiredResourceAccess=list(
     list(
         resourceAppId="00000003-0000-0000-c000-000000000000",
