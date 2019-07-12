@@ -55,6 +55,10 @@ myacr$list_policies()
 # see who has push and pull access
 myacr$list_role_assignments()
 
+# grant a Kubernetes cluster pull access
+myaks <- rg$get_aks("myaks")
+myacr$add_role_assignment(myaks, "Acrpull")
+
 # get the registry endpoint (for interactive use)
 myacr$get_docker_registry()
 
