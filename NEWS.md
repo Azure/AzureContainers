@@ -5,6 +5,7 @@
 * Enable authenticating with service principals to ACR from ACI and AKS.
 * By default, create new container instances with a managed service identity.
 * Add `aks$update_aad_password()` method to reset/update the password for AAD integration.
+* Add custom `acr$add_role_assignment()` method that recognises AKS objects.
 
 # AzureContainers 1.0.3
 
