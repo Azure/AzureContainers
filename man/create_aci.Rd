@@ -45,7 +45,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 An ACI resource is a running container hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-instances/}{documentation for the resource} for more information. Currently ACI only supports a single image in an instance.
 
-To supply the registry authentication credentials, the \code{registry_creds} argument should contain either an \href{acr}{ACR} object, a \link{docker_registry} object, or the result of a call to the \link{aci_creds} function.
+To supply the registry authentication credentials, the \code{registry_creds} argument should contain either an \link[=acr]{ACR} object, a \link{docker_registry} object, or the result of a call to the \link{aci_creds} function.
 
 The ports to open should be obtained by calling the \link{aci_ports} function. This takes a vector of port numbers as well as the protocol (TCP or UDP) for each port.
 }

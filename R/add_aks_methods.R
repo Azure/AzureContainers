@@ -28,7 +28,7 @@
 #' - `...`: Other named arguments to pass to the initialization function.
 #'
 #' @section Details:
-#' An AKS resource is a Kubernetes cluster hosted in Azure. See the [documentation for the resource](aks) for more information. To work with the cluster (deploy images, define and start services, etc) see the [documentation for the cluster endpoint](kubernetes_cluster).
+#' An AKS resource is a Kubernetes cluster hosted in Azure. See the [documentation for the resource][aks] for more information. To work with the cluster (deploy images, define and start services, etc) see the [documentation for the cluster endpoint][kubernetes_cluster].
 #'
 #' To specify the agent pools for the cluster, it is easiest to use the [aks_pools] function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
 #'

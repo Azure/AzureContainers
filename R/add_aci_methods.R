@@ -38,7 +38,7 @@
 #' @section Details:
 #' An ACI resource is a running container hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-instances/) for more information. Currently ACI only supports a single image in an instance.
 #'
-#' To supply the registry authentication credentials, the `registry_creds` argument should contain either an [ACR](acr) object, a [docker_registry] object, or the result of a call to the [aci_creds] function.
+#' To supply the registry authentication credentials, the `registry_creds` argument should contain either an [ACR][acr] object, a [docker_registry] object, or the result of a call to the [aci_creds] function.
 #'
 #' The ports to open should be obtained by calling the [aci_ports] function. This takes a vector of port numbers as well as the protocol (TCP or UDP) for each port.
 #'
