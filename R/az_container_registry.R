@@ -77,6 +77,9 @@ public=list(
 
     list_credentials=function()
     {
+        if(!self$properties$adminUserEnabled)
+            stop("Admin user account is disabled", call.=FALSE)
+
         creds <- private$res_op("listCredentials", http_verb="POST")
         pwds <- sapply(creds$passwords, `[[`, "value")
         names(pwds) <- sapply(creds$passwords, `[[`, "name")
@@ -99,9 +102,6 @@ public=list(
         server <- paste0("https://", self$properties$loginServer)
         if(as_admin)
         {
-            if(!self$properties$adminUserEnabled)
-                stop("Admin user account is disabled", call.=FALSE)
-
             creds <- self$list_credentials()
             docker_registry(server, username=creds$username, password=creds$passwords[1], app=NULL)
         }
