@@ -19,7 +19,7 @@
 #' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
 #' @section Details:
-#' An ACR resource is a Docker registry hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-registry/) for more information. To work with the registry (transfer images, retag images, etc) see the [documentation for the registry endpoint](docker_registry).
+#' An ACR resource is a Docker registry hosted in Azure. See the [documentation for the resource](https://docs.microsoft.com/en-us/azure/container-registry/) for more information. To work with the registry (transfer images, retag images, etc) see the [documentation for the registry endpoint][docker_registry].
 #'
 #' @section Value:
 #' An object of class `az_container_registry` representing the registry resource.

@@ -26,7 +26,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 \section{Details}{
 
-An ACR resource is a Docker registry hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-registry/}{documentation for the resource} for more information. To work with the registry (transfer images, retag images, etc) see the \href{docker_registry}{documentation for the registry endpoint}.
+An ACR resource is a Docker registry hosted in Azure. See the \href{https://docs.microsoft.com/en-us/azure/container-registry/}{documentation for the resource} for more information. To work with the registry (transfer images, retag images, etc) see the \link[=docker_registry]{documentation for the registry endpoint}.
 }
 
 \section{Value}{
