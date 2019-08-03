@@ -10,6 +10,8 @@ AzureContainers lets you build and deploy containerised services in R, using Doc
 
 Note that AzureContainers can talk to any Docker registry that uses the [V2 HTTP API](https://docs.docker.com/registry/spec/api/), not just those created via ACR. Similarly, it can interface with Kubernetes clusters anywhere, not just those created via AKS.
 
+The primary repo for this package is at https://github.com/Azure/AzureContainers; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureContainers. You can install the development version of the package with `devtools::install_github("Azure/AzureContainers")`.
+
 ## Example workflow
 
 Here is a sample R workflow to package up an R model as a container, deploy it to a Kubernetes cluster, and expose it as a service.
