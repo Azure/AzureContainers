@@ -1,6 +1,6 @@
 # AzureContainers 1.1.1
 
-* Enable creating ACI and AKS instances with assigned managed identities. Note that this is still in preview for AKS; see the (Microsoft Docs page)[https://docs.microsoft.com/en-us/azure/aks/use-managed-identity] for enabling this feature.
+* Enable creating ACI and AKS instances with assigned managed identities. Note that this is still in preview for AKS; see the [Microsoft Docs page](https://docs.microsoft.com/en-us/azure/aks/use-managed-identity) for enabling this feature.
 
 # AzureContainers 1.1.0
 
