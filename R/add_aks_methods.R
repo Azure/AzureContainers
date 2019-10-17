@@ -11,7 +11,7 @@
 #'            dns_prefix = name, kubernetes_version = NULL,
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
-#'            cluster_service_principal = NULL,
+#'            cluster_service_principal = NULL, managed_identity = FALSE,
 #'            properties = list(), ..., wait = TRUE)
 #' ```
 #' @section Arguments:
@@ -23,6 +23,7 @@
 #' - `agent_pools`: A list of pool specifications. See 'Details'.
 #' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 #' - `cluster_service_principal`: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session).
+#' - `managed_identity`: Whether the cluster should have a managed identity assigned to it. This is currently in preview; see the (Microsoft Docs page)[https://docs.microsoft.com/en-us/azure/aks/use-managed-identity] for enabling this feature.
 #' - `properties`: A named list of further Kubernetes-specific properties to pass to the initialization function.
 #' - `wait`: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 #' - `...`: Other named arguments to pass to the initialization function.
@@ -206,6 +207,7 @@ add_aks_methods <- function()
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
              cluster_service_principal=NULL,
+             managed_identity=FALSE,
              properties=list(), ..., wait=TRUE)
     {
         if(is_empty(kubernetes_version))
@@ -229,6 +231,10 @@ add_aks_methods <- function()
         if(is.null(props$servicePrincipalProfile$secret))
             stop("Must provide a service principal with a secret password", call.=FALSE)
 
+        identity <- if(managed_identity)
+            list(type="systemAssigned")
+        else NULL
+
         if(login_user != "" && login_passkey != "")
             props$linuxProfile <- list(
                 adminUsername=login_user,
@@ -242,7 +248,7 @@ add_aks_methods <- function()
         {
             res <- tryCatch(AzureContainers::aks$new(self$token, self$subscription, self$name,
                 type="Microsoft.ContainerService/managedClusters", name=name, location=location,
-                properties=props, ..., wait=wait), error=function(e) e)
+                properties=props, identity=identity, ..., wait=wait), error=function(e) e)
             if(!(inherits(res, "error") && grepl("Service principal clientID", res$message)))
                 break
         }

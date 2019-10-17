@@ -14,7 +14,7 @@
 #'            os = c("Linux", "Windows"),
 #'            command = list(), env_vars = list(),
 #'            ports = aci_ports(), dns_name = name, public_ip = TRUE,
-#'            restart = c("Always", "OnFailure", "Never"), managed = TRUE,
+#'            restart = c("Always", "OnFailure", "Never"), managed_identity = TRUE,
 #'            ...)
 #' ```
 #' @section Arguments:
@@ -32,7 +32,7 @@
 #' - `dns_name`: The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
 #' - `public_ip`: Whether the instance should be publicly accessible.
 #' - `restart`: Whether to restart the instance should an event occur.
-#' - `managed`: Whether to assign the container instance a managed identity.
+#' - `managed_identity`: Whether to assign the container instance a managed identity.
 #' - `...`: Other named arguments to pass to the [az_resource] initialization function.
 #'
 #' @section Details:
@@ -179,7 +179,7 @@ add_aci_methods <- function()
              dns_name=name,
              public_ip=TRUE,
              restart=c("Always", "OnFailure", "Never"),
-             managed=TRUE,
+             managed_identity=TRUE,
              ...,
              wait=TRUE)
     {
@@ -205,7 +205,7 @@ add_aci_methods <- function()
         if(public_ip)
             props$ipAddress <- list(type="public", dnsNameLabel=dns_name, ports=ports)
 
-        identity <- if(managed)
+        identity <- if(managed_identity)
             list(type="systemAssigned")
         else NULL
 

@@ -1,3 +1,7 @@
+# AzureContainers 1.1.1
+
+* Enable creating ACI and AKS instances with assigned managed identities. Note that this is still in preview for AKS; see the (Microsoft Docs page)[https://docs.microsoft.com/en-us/azure/aks/use-managed-identity] for enabling this feature.
+
 # AzureContainers 1.1.0
 
 * Make `docker_registry` and `kubernetes_cluster` into constructor functions rather than R6 classes, for consistency with other AzureR packages. The corresponding class objects are now `DockerRegistry` and `KubernetesCluster`.
