@@ -7,8 +7,8 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
-#' - `update_aad_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
-#' - `update_service_password(new_password=NULL, key="key1", duration=1, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
+#' - `update_aad_password(name=NULL, duration=NULL, ...)`: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
+#' - `update_service_password(name=NULL, duration=NULL, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 #'
 #' @section Details:
 #' Initializing a new object of this class can either retrieve an existing AKS resource, or create a new resource on the host. Generally, the best way to initialize an object is via the `get_aks`, `create_aks` or `list_aks` methods of the [az_resource_group] class, which handle the details automatically.
@@ -25,9 +25,8 @@
 #'
 #' The `update_aad_password()` and `update_service_password()` methods let you refresh the passwords for the cluster's service principals. Their arguments are:
 #'
-#' - `new_password`: The new password. The default is to use a randomly chosen strong password.
-#' - `key`: The name of the password.
-#' - `duration`: The duration for which the new password is valid. Defaults to 1 year.
+#' - `name`: An optional friendly name for the password.
+#' - `duration`: The duration for which the new password is valid. Defaults to 2 years.
 #' - `...`: Other arguments passed to `AzureGraph::create_graph_login`. Note that these are used to authenticate with Microsoft Graph, which does the actual work of updating the service principals, not to the cluster itself.
 #'
 #' @seealso
@@ -54,11 +53,11 @@
 #' kubclus <- myaks$get_cluster()
 #'
 #' # refresh the service principal password
-#' myaks$update_password()
+#' myaks$update_service_password()
 #'
 #' # refresh the service principal password, using custom credentials to authenticate with MS Graph
 #' # arguments here are for Graph, not AKS!
-#' myaks$update_password(app="app_id", password="app_password")
+#' myaks$update_service_password(app="app_id", password="app_password")
 #'
 #' }
 #' @aliases az_kubernetes_service
@@ -104,25 +103,27 @@ public=list(
         kubernetes_cluster(config=config)
     },
 
-    update_aad_password=function(new_password=NULL, key="key1", duration=1, ...)
+    update_aad_password=function(name=NULL, duration=NULL, ...)
     {
         prof <- self$properties$aadProfile
         if(is.null(prof))
             stop("No Azure Active Directory profile associated with this cluster", call.=FALSE)
 
         app <- graph_login(self$token$tenant, ...)$get_app(prof$serverAppID)
-        prof$serverAppSecret <- app$update_password(password=new_password, name=key, password_duration=duration)
+        app$add_password(name, duration)
+        prof$serverAppSecret <- app$password
 
         self$do_operation(body=list(properties=list(aadProfile=prof)), encode="json", http_verb="PATCH")
         self$sync_fields()
         invisible(prof$serverAppSecret)
     },
 
-    update_service_password=function(new_password=NULL, key="key1", duration=1, ...)
+    update_service_password=function(name=NULL, duration=NULL, ...)
     {
         prof <- self$properties$servicePrincipalProfile
         app <- graph_login(self$token$tenant, ...)$get_app(prof$clientId)
-        prof$secret <- app$update_password(password=new_password, name=key, password_duration=duration)
+        app$add_password(name, duration)
+        prof$secret <- app$password
 
         self$do_operation(body=list(properties=list(servicePrincipalProfile=prof)), encode="json", http_verb="PATCH")
         self$sync_fields()
