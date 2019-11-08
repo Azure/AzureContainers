@@ -18,8 +18,8 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new AKS object.
 \item \code{get_cluster(config, role)}: Return an object representing the Docker registry endpoint.
-\item \code{update_aad_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
-\item \code{update_service_password(new_password=NULL, key="key1", duration=1, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
+\item \code{update_aad_password(name=NULL, duration=NULL, ...)}: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
+\item \code{update_service_password(name=NULL, duration=NULL, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 }
 }
 
@@ -42,9 +42,8 @@ An AKS cluster requires at least one, and possibly three, service principals. Th
 
 The \code{update_aad_password()} and \code{update_service_password()} methods let you refresh the passwords for the cluster's service principals. Their arguments are:
 \itemize{
-\item \code{new_password}: The new password. The default is to use a randomly chosen strong password.
-\item \code{key}: The name of the password.
-\item \code{duration}: The duration for which the new password is valid. Defaults to 1 year.
+\item \code{name}: An optional friendly name for the password.
+\item \code{duration}: The duration for which the new password is valid. Defaults to 2 years.
 \item \code{...}: Other arguments passed to \code{AzureGraph::create_graph_login}. Note that these are used to authenticate with Microsoft Graph, which does the actual work of updating the service principals, not to the cluster itself.
 }
 }
@@ -65,11 +64,11 @@ myaks$sync_fields()
 kubclus <- myaks$get_cluster()
 
 # refresh the service principal password
-myaks$update_password()
+myaks$update_service_password()
 
 # refresh the service principal password, using custom credentials to authenticate with MS Graph
 # arguments here are for Graph, not AKS!
-myaks$update_password(app="app_id", password="app_password")
+myaks$update_service_password(app="app_id", password="app_password")
 
 }
 }

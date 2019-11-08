@@ -1,6 +1,6 @@
 Package: AzureContainers
 Title: Interface to 'Container Instances', 'Docker Registry' and 'Kubernetes' in 'Azure'
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Bill", "Liang", role = "ctb", comment = "Assistance debugging MMLS on Kubernetes"),
@@ -17,7 +17,7 @@ Depends:
 Imports: 
     utils,
     AzureRMR (>= 2.0.0),
-    AzureGraph,
+    AzureGraph (>= 1.1.0),
     openssl,
     httr,
     R6

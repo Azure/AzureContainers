@@ -1,3 +1,7 @@
+# AzureContainers 1.1.2
+
+* The `aks$update_aad_password()` and `aks$update_service_password()` methods now use the new Graph API calls for managing app passwords. The arguments to both these methods are `name` (an optional friendly name for the password) and `duration`. As a security measure, passwords can no longer be manually specified; instead all passwords are now auto-generated on the server with a cryptographically secure PRNG.
+
 # AzureContainers 1.1.1
 
 * Enable creating ACI and AKS instances with assigned managed identities. Note that this is still in preview for AKS; see the [Microsoft Docs page](https://docs.microsoft.com/en-us/azure/aks/use-managed-identity) for enabling this feature.
