@@ -251,6 +251,7 @@ add_aks_methods <- function()
                 properties=props, identity=identity, ..., wait=wait), error=function(e) e)
             if(!(inherits(res, "error") && grepl("Service principal clientID", res$message)))
                 break
+            Sys.sleep(5)
         }
         if(inherits(res, "error"))
         {
