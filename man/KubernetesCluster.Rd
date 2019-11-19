@@ -66,6 +66,9 @@ kubclus$create_registry_secret(rg$get_acr("myregistry"))
 # deploy a service
 kubclus$create("deployment.yaml")
 
+# deploy a service from an Internet URL
+kubclus$create("https://example.com/deployment.yaml")
+
 # can also supply the deployment parameters inline
 kubclus$create("
 apiVersion: extensions/v1beta1

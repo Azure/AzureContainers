@@ -51,6 +51,9 @@
 #' # deploy a service
 #' kubclus$create("deployment.yaml")
 #'
+#' # deploy a service from an Internet URL
+#' kubclus$create("https://example.com/deployment.yaml")
+#'
 #' # can also supply the deployment parameters inline
 #' kubclus$create("
 #' apiVersion: extensions/v1beta1
@@ -327,7 +330,7 @@ call_helm <- function(cmd="", ...)
 # generate a file from a character vector to be passed to kubectl
 make_file <- function(file, ext="")
 {
-    if(length(file) == 1 && file.exists(file))
+    if(length(file) == 1 && (file.exists(file) || is_url(file)))
         return(file)
 
     out <- tempfile(fileext=ext)

@@ -1,6 +1,7 @@
 # AzureContainers 1.1.2.9000
 
 - Add delay in loop to wait for service principal during AKS resource creation; could timeout prematurely otherwise.
+- `KubernetesCluster$create()`, `apply()`, etc now accept HTTP\[S\] URLs as well as filenames as arguments.
 
 # AzureContainers 1.1.2
 
