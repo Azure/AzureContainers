@@ -14,7 +14,7 @@
 #' - `expose(name, type, file, ...)`: Expose a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
 #' - `delete(type, name, file, ...)`: Delete a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
 #' - `apply(file, ...)`: Apply a configuration file, using `kubectl apply -f`.
-#' - `show_dashboard(port)`: Display the cluster dashboard. By default, use local port 30000.
+#' - `show_dashboard(port, ...)`: Display the cluster dashboard. By default, use local port 30000.
 #' - `kubectl(cmd, ...)`: Run an arbitrary `kubectl` command on this cluster. Called by the other methods above.
 #' - `helm(cmd, ...)`: Run a `helm` command on this cluster.
 #'
@@ -206,7 +206,7 @@ public=list(
             paste0("--kubeconfig=", private$config)
         else NULL
 
-        processx::process$new(.AzureContainers$kubectl, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config))
+        processx::process$new(.AzureContainers$kubectl, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config), ...)
         url <- paste0("http://localhost:",
             port,
             "/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/#!/overview")

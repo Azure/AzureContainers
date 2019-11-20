@@ -24,7 +24,7 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{expose(name, type, file, ...)}: Expose a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
 \item \code{delete(type, name, file, ...)}: Delete a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
 \item \code{apply(file, ...)}: Apply a configuration file, using \code{kubectl apply -f}.
-\item \code{show_dashboard(port)}: Display the cluster dashboard. By default, use local port 30000.
+\item \code{show_dashboard(port, ...)}: Display the cluster dashboard. By default, use local port 30000.
 \item \code{kubectl(cmd, ...)}: Run an arbitrary \code{kubectl} command on this cluster. Called by the other methods above.
 \item \code{helm(cmd, ...)}: Run a \code{helm} command on this cluster.
 }
