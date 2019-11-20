@@ -354,16 +354,24 @@ docker_registry <- function(server, tenant="common", username=NULL, password=NUL
 #' Call the docker commandline tool
 #'
 #' @param cmd The docker command line to execute.
-#' @param ... Other arguments to pass to [system2].
+#' @param echo Whether to echo the output of the command to the console.
+#' @param ... Other arguments to pass to [processx::run].
 #'
 #' @details
 #' This function calls the `docker` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 
 #' @return
-#' By default, the return code from the `docker` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#' A list with the following components:
+#' - `status`: The exit status of the docker tool. If this is `NA`, then the process was killed and had no exit status.
+#' - `stdout`: The standard output of the command, in a character scalar.
+#' - `stderr`: The standard error of the command, in a character scalar.
+#' - `timeout`: Whether the process was killed because of a timeout.
+#' - `cmdline`: The command line.
+#'
+#' The first four components are from `processx::run`; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 #'
 #' @seealso
-#' [system2], [call_kubectl] for the equivalent interface to the `kubectl` Kubernetes tool
+#' [processx::run], [call_kubectl] for the equivalent interface to the `kubectl` Kubernetes tool
 #'
 #' [docker_registry]
 #'
@@ -387,16 +395,26 @@ docker_registry <- function(server, tenant="common", username=NULL, password=NUL
 #'
 #' }
 #' @export
-call_docker <- function(cmd="", ...)
+call_docker <- function(cmd="", ..., echo=TRUE)
 {
     if(.AzureContainers$docker == "")
         stop("docker binary not found", call.=FALSE)
     message("Docker operation: ", cmd)
+
     win <- .Platform$OS.type == "windows"
-    val <- if(win)
-        system2(.AzureContainers$docker, cmd, ...)
-    else system2("sudo", paste(.AzureContainers$docker, cmd), ...)
-    attr(val, "cmdline") <- paste("docker", cmd)
+    if(!win)
+    {
+        dockercmd <- "sudo"
+        realcmd <- paste(.AzureContainers$docker, cmd)
+    }
+    else
+    {
+        dockercmd <- .AzureContainers$docker
+        realcmd <- cmd
+    }
+
+    val <- processx::run(dockercmd, strsplit(realcmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
+    val$cmdline <- paste("docker", cmd)
     invisible(val)
 }
 

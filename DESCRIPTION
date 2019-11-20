@@ -20,7 +20,8 @@ Imports:
     AzureGraph (>= 1.1.0),
     openssl,
     httr,
-    R6
+    R6,
+    processx
 Suggests:
     knitr,
     testthat,

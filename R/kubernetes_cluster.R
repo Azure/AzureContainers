@@ -253,16 +253,24 @@ kubernetes_cluster <- function(config=NULL)
 #' Call the Kubernetes commandline tool, kubectl
 #'
 #' @param cmd The kubectl command line to execute.
-#' @param ... Other arguments to pass to [system2].
+#' @param echo Whether to echo the output of the command to the console.
+#' @param ... Other arguments to pass to [processx::run].
 #'
 #' @details
 #' This function calls the `kubectl` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 
 #' @return
-#' By default, the return code from the `kubectl` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#' A list with the following components:
+#' - `status`: The exit status of the kubectl tool. If this is `NA`, then the process was killed and had no exit status.
+#' - `stdout`: The standard output of the command, in a character scalar.
+#' - `stderr`: The standard error of the command, in a character scalar.
+#' - `timeout`: Whether the process was killed because of a timeout.
+#' - `cmdline`: The command line.
+#'
+#' The first four components are from `processx::run`; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 #'
 #' @seealso
-#' [system2], [call_docker], [call_helm]
+#' [processx::run], [call_docker], [call_helm]
 #'
 #' [kubernetes_cluster]
 #'
@@ -286,13 +294,13 @@ kubernetes_cluster <- function(config=NULL)
 #'
 #' }
 #' @export
-call_kubectl <- function(cmd="", ...)
+call_kubectl <- function(cmd="", ..., echo=TRUE)
 {
     if(.AzureContainers$kubectl == "")
         stop("kubectl binary not found", call.=FALSE)
     message("Kubernetes operation: ", cmd)
-    val <- system2(.AzureContainers$kubectl, cmd, ...)
-    attr(val, "cmdline") <- paste("kubectl", cmd)
+    val <- processx::run(.AzureContainers$kubectl, strsplit(cmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
+    val$cmdline <- paste("kubectl", cmd)
     invisible(val)
 }
 
@@ -300,29 +308,37 @@ call_kubectl <- function(cmd="", ...)
 #' Call the Helm commandline tool
 #'
 #' @param cmd The Helm command line to execute.
-#' @param ... Other arguments to pass to [system2].
+#' @param echo Whether to echo the output of the command to the console.
+#' @param ... Other arguments to pass to [processx::run].
 #'
 #' @details
 #' This function calls the `helm` binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 
 #' @return
-#' By default, the return code from the `helm` binary. The return value will have an added attribute `cmdline` that contains the command line. This makes it easier to construct scripts that can be run outside R.
+#' A list with the following components:
+#' - `status`: The exit status of the helm tool. If this is `NA`, then the process was killed and had no exit status.
+#' - `stdout`: The standard output of the command, in a character scalar.
+#' - `stderr`: The standard error of the command, in a character scalar.
+#' - `timeout`: Whether the process was killed because of a timeout.
+#' - `cmdline`: The command line.
+#'
+#' The first four components are from `processx::run`; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 #'
 #' @seealso
-#' [system2], [call_docker], [call_kubectl]
+#' [processx::run], [call_docker], [call_kubectl]
 #'
 #' [kubernetes_cluster]
 #'
 #' [Kubectl command line reference](https://kubernetes.io/docs/reference/kubectl/overview/)
 #'
 #' @export
-call_helm <- function(cmd="", ...)
+call_helm <- function(cmd="", ..., echo=TRUE)
 {
     if(.AzureContainers$helm == "")
         stop("helm binary not found", call.=FALSE)
     message("Helm operation: ", cmd)
-    val <- system2(.AzureContainers$helm, cmd, ...)
-    attr(val, "cmdline") <- paste("helm", cmd)
+    val <- processx::run(.AzureContainers$helm, strsplit(cmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
+    val$cmdline <- paste("helm", cmd)
     invisible(val)
 }
 
