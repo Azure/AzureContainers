@@ -18,15 +18,15 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{new(...)}: Initialize a new registry object. See 'Initialization' below.
 \item \code{create_registry_secret(registry, secret_name, email)}: Provide authentication secret for a Docker registry. See 'Secrets' below.
 \item \code{delete_registry_secret(secret_name)}: Delete a registry authentication secret.
-\item \code{create(file)}: Creates a deployment or service from a file, using \code{kubectl create -f}.
-\item \code{get(type)}: Get information about resources, using \code{kubectl get}.
-\item \code{run(name, image)}: Run an image using \code{kubectl run --image}.
-\item \code{expose(name, type, file)}: Expose a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
-\item \code{delete(type, name, file)}: Delete a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
-\item \code{apply(file)}: Apply a configuration file, using \code{kubectl apply -f}.
+\item \code{create(file, ...)}: Creates a deployment or service from a file, using \code{kubectl create -f}.
+\item \code{get(type, ...)}: Get information about resources, using \code{kubectl get}.
+\item \code{run(name, image, ...)}: Run an image using \code{kubectl run --image}.
+\item \code{expose(name, type, file, ...)}: Expose a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
+\item \code{delete(type, name, file, ...)}: Delete a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
+\item \code{apply(file, ...)}: Apply a configuration file, using \code{kubectl apply -f}.
 \item \code{show_dashboard(port)}: Display the cluster dashboard. By default, use local port 30000.
-\item \code{kubectl(cmd)}: Run an arbitrary \code{kubectl} command on this cluster. Called by the other methods above.
-\item \code{helm(cmd)}: Run a \code{helm} command on this cluster.
+\item \code{kubectl(cmd, ...)}: Run an arbitrary \code{kubectl} command on this cluster. Called by the other methods above.
+\item \code{helm(cmd, ...)}: Run a \code{helm} command on this cluster.
 }
 }
 
@@ -45,9 +45,18 @@ The recommended way to allow a cluster to authenticate with a Docker registry is
 }
 }
 
-\section{Kubectl}{
+\section{Kubectl and helm}{
 
-The methods for this class call the \code{kubectl} commandline tool, passing it the \code{--config} option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that \code{kubectl} be installed. Any calls to \code{kubectl} will also contain the full commandline as the \code{cmdline} attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
+The methods for this class call the \code{kubectl} and \code{helm} commandline tools, passing the \code{--config} option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that the tools be installed. The returned object from a call to \code{kubectl} or \code{helm} will contain the following components:
+\itemize{
+\item \code{status}: The exit status. If this is \code{NA}, then the process was killed and had no exit status.
+\item \code{stdout}: The standard output of the command, in a character scalar.
+\item \code{stderr}: The standard error of the command, in a character scalar.
+\item \code{timeout}: Whether the process was killed because of a timeout.
+\item \code{cmdline}: The command line.
+}
+
+The first four components are from \code{processx::run}; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 }
 
 \examples{
@@ -109,7 +118,7 @@ kubclus$get("service")
 }
 }
 \seealso{
-\link{aks}, \link{call_kubectl}
+\link{aks}, \link{call_kubectl}, \link{call_helm}
 
 \href{https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands}{Kubectl commandline reference}
 }

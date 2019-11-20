@@ -4,10 +4,12 @@
 \alias{call_kubectl}
 \title{Call the Kubernetes commandline tool, kubectl}
 \usage{
-call_kubectl(cmd = "", ..., echo = TRUE)
+call_kubectl(cmd = "", config = NULL, ..., echo = TRUE)
 }
 \arguments{
 \item{cmd}{The kubectl command line to execute.}
+
+\item{config}{The pathname of the cluster config file, if required.}
 
 \item{...}{Other arguments to pass to \link[processx:run]{processx::run}.}
 

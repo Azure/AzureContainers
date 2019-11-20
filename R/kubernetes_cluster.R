@@ -8,15 +8,15 @@
 #' - `new(...)`: Initialize a new registry object. See 'Initialization' below.
 #' - `create_registry_secret(registry, secret_name, email)`: Provide authentication secret for a Docker registry. See 'Secrets' below.
 #' - `delete_registry_secret(secret_name)`: Delete a registry authentication secret.
-#' - `create(file)`: Creates a deployment or service from a file, using `kubectl create -f`.
-#' - `get(type)`: Get information about resources, using `kubectl get`.
-#' - `run(name, image)`: Run an image using `kubectl run --image`.
-#' - `expose(name, type, file)`: Expose a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
-#' - `delete(type, name, file)`: Delete a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
-#' - `apply(file)`: Apply a configuration file, using `kubectl apply -f`.
+#' - `create(file, ...)`: Creates a deployment or service from a file, using `kubectl create -f`.
+#' - `get(type, ...)`: Get information about resources, using `kubectl get`.
+#' - `run(name, image, ...)`: Run an image using `kubectl run --image`.
+#' - `expose(name, type, file, ...)`: Expose a service using `kubectl expose`. If the `file` argument is provided, read service information from there.
+#' - `delete(type, name, file, ...)`: Delete a resource (deployment or service) using `kubectl delete`. If the `file` argument is provided, read resource information from there.
+#' - `apply(file, ...)`: Apply a configuration file, using `kubectl apply -f`.
 #' - `show_dashboard(port)`: Display the cluster dashboard. By default, use local port 30000.
-#' - `kubectl(cmd)`: Run an arbitrary `kubectl` command on this cluster. Called by the other methods above.
-#' - `helm(cmd)`: Run a `helm` command on this cluster.
+#' - `kubectl(cmd, ...)`: Run an arbitrary `kubectl` command on this cluster. Called by the other methods above.
+#' - `helm(cmd, ...)`: Run a `helm` command on this cluster.
 #'
 #' @section Initialization:
 #' The `new()` method takes one argument: `config`, the name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default `~/.kube/config` file.
@@ -27,11 +27,18 @@
 #' - `secret_name`: The name to give the secret. Defaults to the name of the registry server.
 #' - `email`: The email address for the Docker registry.
 #'
-#' @section Kubectl:
-#' The methods for this class call the `kubectl` commandline tool, passing it the `--config` option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that `kubectl` be installed. Any calls to `kubectl` will also contain the full commandline as the `cmdline` attribute of the (invisible) returned value; this allows scripts to be developed that can be run outside R.
+#' @section Kubectl and helm:
+#' The methods for this class call the `kubectl` and `helm` commandline tools, passing the `--config` option to specify the configuration information for the cluster. This allows all the features supported by Kubernetes to be available immediately and with a minimum of effort, although it does require that the tools be installed. The returned object from a call to `kubectl` or `helm` will contain the following components:
+#' - `status`: The exit status. If this is `NA`, then the process was killed and had no exit status.
+#' - `stdout`: The standard output of the command, in a character scalar.
+#' - `stderr`: The standard error of the command, in a character scalar.
+#' - `timeout`: Whether the process was killed because of a timeout.
+#' - `cmdline`: The command line.
+#'
+#' The first four components are from `processx::run`; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 #'
 #' @seealso
-#' [aks], [call_kubectl]
+#' [aks], [call_kubectl], [call_helm]
 #'
 #' [Kubectl commandline reference](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)
 #'
@@ -102,7 +109,7 @@ public=list(
         private$config <- config
     },
 
-    create_registry_secret=function(registry, secret_name=registry$server$hostname, email)
+    create_registry_secret=function(registry, secret_name=registry$server$hostname, email, ...)
     {
         if(is_acr(registry))
             registry <- registry$get_docker_registry(as_admin=TRUE)
@@ -119,25 +126,25 @@ public=list(
                       " --docker-password=", registry$password,
                       " --docker-email=", email)
 
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    delete_registry_secret=function(secret_name)
+    delete_registry_secret=function(secret_name, ...)
     {
         cmd <- paste0("delete secret ", secret_name)
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    run=function(name, image, options="")
+    run=function(name, image, options="", ...)
     {
         cmd <- paste0("run ", name,
                       " --image ", image,
                       " ", options)
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
     expose=function(name, type=c("pod", "service", "replicationcontroller", "deployment", "replicaset"),
-                    file=NULL, options="")
+                    file=NULL, options="", ...)
     {
         if(is.null(file))
         {
@@ -151,24 +158,24 @@ public=list(
             cmd <- paste0("expose -f ", make_file(file, ".yaml"),
                           " ", options)
         }
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    create=function(file, options="")
+    create=function(file, options="", ...)
     {
         cmd <- paste0("create -f ", make_file(file, ".yaml"),
                       " ", options)
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    apply=function(file, options="")
+    apply=function(file, options="", ...)
     {
         cmd <- paste0("apply -f ", make_file(file, ".yaml"),
                       " ", options)
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    delete=function(type, name, file=NULL, options="")
+    delete=function(type, name, file=NULL, options="", ...)
     {
         if(is.null(file))
         {
@@ -181,14 +188,14 @@ public=list(
             cmd <- paste0("delete -f ", make_file(file, ".yaml"),
                           " ", options)
         }
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
-    get=function(type, options="")
+    get=function(type, options="", ...)
     {
         cmd <- paste0("get ", type,
                       " ", options)
-        self$kubectl(cmd)
+        self$kubectl(cmd, ...)
     },
 
     show_dashboard=function(port=30000, options="")
@@ -205,16 +212,16 @@ public=list(
 
     kubectl=function(cmd="", ...)
     {
-        if(!is_empty(private$config))
-            cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
-        call_kubectl(cmd, ...)
+        # if(!is_empty(private$config))
+        #     cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
+        call_kubectl(cmd, config=private$config, ...)
     },
 
     helm=function(cmd="", ...)
     {
-        if(!is_empty(private$config))
-            cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
-        call_helm(cmd, ...)
+        # if(!is_empty(private$config))
+        #     cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
+        call_helm(cmd, config=private$config, ...)
     }
 ),
 
@@ -254,6 +261,7 @@ kubernetes_cluster <- function(config=NULL)
 #'
 #' @param cmd The kubectl command line to execute.
 #' @param echo Whether to echo the output of the command to the console.
+#' @param config The pathname of the cluster config file, if required.
 #' @param ... Other arguments to pass to [processx::run].
 #'
 #' @details
@@ -294,13 +302,16 @@ kubernetes_cluster <- function(config=NULL)
 #'
 #' }
 #' @export
-call_kubectl <- function(cmd="", ..., echo=TRUE)
+call_kubectl <- function(cmd="", config=NULL, ..., echo=TRUE)
 {
     if(.AzureContainers$kubectl == "")
         stop("kubectl binary not found", call.=FALSE)
-    message("Kubernetes operation: ", cmd)
-    val <- processx::run(.AzureContainers$kubectl, strsplit(cmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
-    val$cmdline <- paste("kubectl", cmd)
+
+    if(!is.null(config))
+        config <- paste0("--kubeconfig=", config)
+    message("Kubernetes operation: ", cmd, " ", config)
+    val <- processx::run(.AzureContainers$kubectl, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config), ..., echo=echo)
+    val$cmdline <- paste("kubectl", cmd, config)
     invisible(val)
 }
 
@@ -309,6 +320,7 @@ call_kubectl <- function(cmd="", ..., echo=TRUE)
 #'
 #' @param cmd The Helm command line to execute.
 #' @param echo Whether to echo the output of the command to the console.
+#' @param config The pathname of the cluster config file, if required.
 #' @param ... Other arguments to pass to [processx::run].
 #'
 #' @details
@@ -332,13 +344,16 @@ call_kubectl <- function(cmd="", ..., echo=TRUE)
 #' [Kubectl command line reference](https://kubernetes.io/docs/reference/kubectl/overview/)
 #'
 #' @export
-call_helm <- function(cmd="", ..., echo=TRUE)
+call_helm <- function(cmd="", config=NULL, ..., echo=TRUE)
 {
     if(.AzureContainers$helm == "")
         stop("helm binary not found", call.=FALSE)
-    message("Helm operation: ", cmd)
-    val <- processx::run(.AzureContainers$helm, strsplit(cmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
-    val$cmdline <- paste("helm", cmd)
+
+    if(!is.null(config))
+        config <- paste0("--kubeconfig=", config)
+    message("Helm operation: ", cmd, " ", config)
+    val <- processx::run(.AzureContainers$helm, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config), ..., echo=echo)
+    val$cmdline <- paste("helm", cmd, config)
     invisible(val)
 }
 

@@ -4,10 +4,12 @@
 \alias{call_helm}
 \title{Call the Helm commandline tool}
 \usage{
-call_helm(cmd = "", ..., echo = TRUE)
+call_helm(cmd = "", config = NULL, ..., echo = TRUE)
 }
 \arguments{
 \item{cmd}{The Helm command line to execute.}
+
+\item{config}{The pathname of the cluster config file, if required.}
 
 \item{...}{Other arguments to pass to \link[processx:run]{processx::run}.}
 

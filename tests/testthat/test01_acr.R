@@ -32,7 +32,7 @@ test_that("ACR works",
 
     cmdline <- "build -f ../resources/hello_dockerfile -t hello-world ."
     output <- call_docker(cmdline)
-    expect_equal(attr(output, "cmdline"), paste("docker", cmdline))
+    expect_equal(output$cmdline, paste("docker", cmdline))
 
     reg$push("hello-world")
 
@@ -58,7 +58,7 @@ test_that("ACR works with app login",
 
     cmdline <- "build -f ../resources/hello_dockerfile -t hello-world-sp ."
     output <- call_docker(cmdline)
-    expect_equal(attr(output, "cmdline"), paste("docker", cmdline))
+    expect_equal(output$cmdline, paste("docker", cmdline))
 
     reg$push("hello-world-sp")
 
