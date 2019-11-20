@@ -200,7 +200,7 @@ public=list(
 
     show_dashboard=function(port=30000, options="")
     {
-        cmd <- paste0("proxy --port ", port,
+        cmd <- paste0("proxy --port=", port,
                       " ", options)
         self$kubectl(cmd, wait=FALSE)
         url <- paste0("http://localhost:",
