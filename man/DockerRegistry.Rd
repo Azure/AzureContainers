@@ -16,8 +16,8 @@ Class representing a \href{https://docs.docker.com/registry/}{Docker registry}. 
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class:
 \itemize{
 \item \code{login(...)}: Do a local login to the registry via \code{docker login}; necessary if you want to push and pull images. By default, instantiating a new object of this class will also log you in. See 'Details' below.
-\item \code{push(src_image, dest_image)}: Push an image to the registry, using \code{docker tag} and \code{docker push}.
-\item \code{pull(image)}: Pull an image from the registry, using \code{docker pull}.
+\item \code{push(src_image, dest_image, ...)}: Push an image to the registry, using \code{docker tag} and \code{docker push}.
+\item \code{pull(image, ...)}: Pull an image from the registry, using \code{docker pull}.
 \item \code{get_image_manifest(image, tag="latest")}: Gets the manifest for an image.
 \item \code{get_image_digest(image, tag="latest")}: Gets the digest (SHA hash) for an image.
 \item \code{delete_image(image, digest, confirm=TRUE)}: Deletes an image from the registry.

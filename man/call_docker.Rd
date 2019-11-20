@@ -4,15 +4,26 @@
 \alias{call_docker}
 \title{Call the docker commandline tool}
 \usage{
-call_docker(cmd = "", ...)
+call_docker(cmd = "", ..., echo = TRUE)
 }
 \arguments{
 \item{cmd}{The docker command line to execute.}
 
-\item{...}{Other arguments to pass to \link{system2}.}
+\item{...}{Other arguments to pass to \link[processx:run]{processx::run}.}
+
+\item{echo}{Whether to echo the output of the command to the console.}
 }
 \value{
-By default, the return code from the \code{docker} binary. The return value will have an added attribute \code{cmdline} that contains the command line. This makes it easier to construct scripts that can be run outside R.
+A list with the following components:
+\itemize{
+\item \code{status}: The exit status of the docker tool. If this is \code{NA}, then the process was killed and had no exit status.
+\item \code{stdout}: The standard output of the command, in a character scalar.
+\item \code{stderr}: The standard error of the command, in a character scalar.
+\item \code{timeout}: Whether the process was killed because of a timeout.
+\item \code{cmdline}: The command line.
+}
+
+The first four components are from \code{processx::run}; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 }
 \description{
 Call the docker commandline tool
@@ -39,7 +50,7 @@ call_docker("image prune -f")
 }
 }
 \seealso{
-\link{system2}, \link{call_kubectl} for the equivalent interface to the \code{kubectl} Kubernetes tool
+\link[processx:run]{processx::run}, \link{call_kubectl} for the equivalent interface to the \code{kubectl} Kubernetes tool
 
 \link{docker_registry}
 
