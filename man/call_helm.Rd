@@ -4,15 +4,28 @@
 \alias{call_helm}
 \title{Call the Helm commandline tool}
 \usage{
-call_helm(cmd = "", ...)
+call_helm(cmd = "", config = NULL, ..., echo = TRUE)
 }
 \arguments{
 \item{cmd}{The Helm command line to execute.}
 
-\item{...}{Other arguments to pass to \link{system2}.}
+\item{config}{The pathname of the cluster config file, if required.}
+
+\item{...}{Other arguments to pass to \link[processx:run]{processx::run}.}
+
+\item{echo}{Whether to echo the output of the command to the console.}
 }
 \value{
-By default, the return code from the \code{helm} binary. The return value will have an added attribute \code{cmdline} that contains the command line. This makes it easier to construct scripts that can be run outside R.
+A list with the following components:
+\itemize{
+\item \code{status}: The exit status of the helm tool. If this is \code{NA}, then the process was killed and had no exit status.
+\item \code{stdout}: The standard output of the command, in a character scalar.
+\item \code{stderr}: The standard error of the command, in a character scalar.
+\item \code{timeout}: Whether the process was killed because of a timeout.
+\item \code{cmdline}: The command line.
+}
+
+The first four components are from \code{processx::run}; AzureContainers adds the last to make it easier to construct scripts that can be run outside R.
 }
 \description{
 Call the Helm commandline tool
@@ -21,7 +34,7 @@ Call the Helm commandline tool
 This function calls the \code{helm} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
 }
 \seealso{
-\link{system2}, \link{call_docker}, \link{call_kubectl}
+\link[processx:run]{processx::run}, \link{call_docker}, \link{call_kubectl}
 
 \link{kubernetes_cluster}
 
