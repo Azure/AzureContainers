@@ -198,11 +198,15 @@ public=list(
         self$kubectl(cmd, ...)
     },
 
-    show_dashboard=function(port=30000, options="")
+    show_dashboard=function(port=30000, options="", ...)
     {
         cmd <- paste0("proxy --port=", port,
                       " ", options)
-        self$kubectl(cmd, wait=FALSE)
+        config <- if(!is.null(private$config))
+            paste0("--kubeconfig=", private$config)
+        else NULL
+
+        processx::process$new(.AzureContainers$kubectl, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config))
         url <- paste0("http://localhost:",
             port,
             "/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/#!/overview")
@@ -212,15 +216,11 @@ public=list(
 
     kubectl=function(cmd="", ...)
     {
-        # if(!is_empty(private$config))
-        #     cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
         call_kubectl(cmd, config=private$config, ...)
     },
 
     helm=function(cmd="", ...)
     {
-        # if(!is_empty(private$config))
-        #     cmd <- paste0(cmd, " --kubeconfig=", shQuote(private$config))
         call_helm(cmd, config=private$config, ...)
     }
 ),
