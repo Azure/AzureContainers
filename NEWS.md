@@ -2,6 +2,7 @@
 
 - Add delay in loop to wait for service principal during AKS resource creation; could timeout prematurely otherwise.
 - `KubernetesCluster$create()`, `apply()`, etc now accept HTTP\[S\] URLs as well as filenames as arguments.
+- Use the processx package to run external commands, rather than `base::system2()`. A major benefit of this change is that command output is automatically captured and returned as an R object, making it easier to write automated scripts.
 
 # AzureContainers 1.1.2
 
