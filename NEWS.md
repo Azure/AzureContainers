@@ -5,6 +5,7 @@
 - Use the processx package to run external commands, rather than `base::system2()`. A major benefit of this change is that command output is automatically captured and returned as an R object, making it easier to write automated scripts.
   - The commandline is now a list component of the R object, rather than an attribute.
 - The various `DockerRegistry` and `KubernetesCluster` methods for calling docker, kubectl and helm now have `...` as an argument, allowing you to pass extra inputs to these commands as needed.
+- Add `list_cluster_resources()` method for the AKS resource class, which returns a list of all the Azure resources managed by the cluster.
 
 # AzureContainers 1.1.2
 

@@ -18,6 +18,7 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new AKS object.
 \item \code{get_cluster(config, role)}: Return an object representing the Docker registry endpoint.
+\item \code{list_cluster_resources()}: Returns a list of all the Azure resources managed by the cluster.
 \item \code{update_aad_password(name=NULL, duration=NULL, ...)}: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
 \item \code{update_service_password(name=NULL, duration=NULL, ...)}: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 }

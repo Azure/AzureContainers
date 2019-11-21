@@ -7,6 +7,7 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
+#' - `list_cluster_resources()`: Returns a list of all the Azure resources managed by the cluster.
 #' - `update_aad_password(name=NULL, duration=NULL, ...)`: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
 #' - `update_service_password(name=NULL, duration=NULL, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
 #'
@@ -101,6 +102,13 @@ public=list(
 
         writeLines(profile, config)
         kubernetes_cluster(config=config)
+    },
+
+    list_cluster_resources=function()
+    {
+        clusrgname <- self$properties$nodeResourceGroup
+        clusrg <- az_resource_group$new(self$token, self$subscription, clusrgname)
+        clusrg$list_resources()
     },
 
     update_aad_password=function(name=NULL, duration=NULL, ...)
