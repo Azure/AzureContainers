@@ -249,7 +249,8 @@ add_aks_methods <- function()
             res <- tryCatch(AzureContainers::aks$new(self$token, self$subscription, self$name,
                 type="Microsoft.ContainerService/managedClusters", name=name, location=location,
                 properties=props, identity=identity, ..., wait=wait), error=function(e) e)
-            if(!(inherits(res, "error") && grepl("Service principal clientID", res$message)))
+            if(!(inherits(res, "error") &&
+                 grepl("Service principal|ServicePrincipal", res$message)))
                 break
             Sys.sleep(5)
         }
