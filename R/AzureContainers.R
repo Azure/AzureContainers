@@ -12,6 +12,7 @@ globalVariables("self", "AzureContainers")
 {
     # find docker, kubectl and helm binaries
     .AzureContainers$docker <- Sys.which("docker")
+    .AzureContainers$dockercompose <- Sys.which("docker-compose")
     .AzureContainers$kubectl <- Sys.which("kubectl")
     .AzureContainers$helm <- Sys.which("helm")
 
@@ -27,6 +28,8 @@ globalVariables("self", "AzureContainers")
 {
     if(.AzureContainers$docker != "")
         packageStartupMessage("Using docker binary ", .AzureContainers$docker)
+    if(.AzureContainers$dockercompose != "")
+        packageStartupMessage("Using docker-compose binary ", .AzureContainers$dockercompose)
     if(.AzureContainers$kubectl != "")
         packageStartupMessage("Using kubectl binary ", .AzureContainers$kubectl)
     if(.AzureContainers$helm != "")
@@ -34,6 +37,8 @@ globalVariables("self", "AzureContainers")
 
     if(.AzureContainers$docker == "")
         packageStartupMessage("NOTE: docker binary not found")
+    if(.AzureContainers$dockercompose == "")
+        packageStartupMessage("NOTE: docker-compose binary not found")
     if(.AzureContainers$kubectl == "")
         packageStartupMessage("NOTE: kubectl binary not found")
     if(.AzureContainers$helm == "")
