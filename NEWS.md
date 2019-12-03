@@ -1,4 +1,4 @@
-# AzureContainers 1.1.2.9000
+# AzureContainers 1.2.0
 
 - New `call_docker_compose` function for calling docker-compose.
 - Add delay in loop to wait for service principal during AKS resource creation; could timeout prematurely otherwise.
