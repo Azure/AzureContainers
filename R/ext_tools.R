@@ -94,7 +94,7 @@ call_docker <- function(cmd="", ..., echo=TRUE)
 #' @export
 call_docker_compose <- function(cmd="", ..., echo=TRUE)
 {
-    if(.AzureContainers$docker == "")
+    if(.AzureContainers$dockercompose == "")
         stop("docker-compose binary not found", call.=FALSE)
     message("Docker-compose operation: ", cmd)
 

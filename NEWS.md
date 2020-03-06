@@ -1,3 +1,7 @@
+# AzureContainers 1.2.0.9000
+
+- Fix a bug where `call_docker_compose` could be checking for the wrong binary.
+
 # AzureContainers 1.2.0
 
 - New `call_docker_compose` function for calling docker-compose.
