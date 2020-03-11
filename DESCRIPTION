@@ -1,6 +1,6 @@
 Package: AzureContainers
 Title: Interface to 'Container Instances', 'Docker Registry' and 'Kubernetes' in 'Azure'
-Version: 1.2.0.9000
+Version: 1.2.1
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Bill", "Liang", role = "ctb", comment = "Assistance debugging MMLS on Kubernetes"),
