@@ -37,15 +37,15 @@
 #'
 #' Of the agent pools in a cluster, at least one must be a _system pool_, which is used to host critical system pods such as CoreDNS and tunnelfront. If you specify more than one pool, the first pool will be treated as the system pool. Note that there are certain [extra requirements](https://docs.microsoft.com/en-us/azure/aks/use-system-pools) for the system pool.
 #'
-#' An AKS cluster requires an identity to manage the low-level resources it uses, such as virtual machines and networks. The default is to use a _managed identity_, in which the details of this process are handled by AKS. In AzureContainers version 1.2.1 and older, a _service principal_ was used instead, which is an older and less automated method. By setting `managed_identity=FALSE`, you can continue using a service principal instead of a managed identity.
+#' An AKS cluster requires an identity to manage the low-level resources it uses, such as virtual machines and networks. The default and recommended method is to use a _managed identity_, in which all the details of this process are handled by AKS. In AzureContainers version 1.2.1 and older, a _service principal_ was used instead, which is an older and less automated method. By setting `managed_identity=FALSE`, you can continue using a service principal instead of a managed identity.
 #'
-#' One thing to be aware of with service principals is that they have a secret password that will expire eventually. By default, the password for a newly-created service principal will expire after one year. You can run the `update_service_password` method of the AKS object to reset/update the password before it expires.
+#' One thing to be aware of with service principals is that they have a secret password that will expire eventually. By default, the password for a newly-created service principal will expire after one year. You should run the `update_service_password` method of the AKS object to reset/update the password before it expires.
 #'
 #' @section Value:
 #' An object of class `az_kubernetes_service` representing the service.
 #'
 #' @seealso
-#' [get_aks], [delete_aks], [list_aks], [aks_pools]
+#' [get_aks], [delete_aks], [list_aks], [aks_pool]
 #'
 #' [az_kubernetes_service]
 #'
