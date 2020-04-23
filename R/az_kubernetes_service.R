@@ -153,27 +153,30 @@ public=list(
 #' @param ... Other named arguments, to be used as parameters for the agent pool.
 #'
 #' @details
-#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster.
+#' `aks_pool` is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. `aks_pools` is a synonym for `aks_pool`, for backward compatibility.
 #'
 #' @return
-#' An object of class `aks_agent_pool`, suitable for passing to the `create_aks` constructor method.
+#' An object of class `aks_pool`, suitable for passing to the `create_aks` constructor method.
 #'
 #' @seealso
-#' [list_vm_sizes], [agent pool parameters on Microsoft Docs](https://docs.microsoft.com/en-us/rest/api/aks/managedclusters/createorupdate#managedclusteragentpoolprofile)
+#' [create_aks], [list_vm_sizes]
+#'
+#' [Agent pool parameters on Microsoft Docs](https://docs.microsoft.com/en-us/rest/api/aks/managedclusters/createorupdate#managedclusteragentpoolprofile)
 #'
 #' @examples
 #' # pool of 5 Linux VMs
-#' aks_pools("pool1", 5)
+#' aks_pool("pool1", 5)
 #'
 #' # pool of 3 Windows Server VMs, 500GB disk size each
-#' aks_pools("pool1", 3, os="Windows", disksize=500)
+#' aks_pool("pool1", 3, os="Windows", disksize=500)
 #'
 #' # enable cluster autoscaling, with a minimum of 1 and maximum of 10 nodes
-#' aks_pools("pool1", 5, cluster_autoscale=c(1, 10))
+#' aks_pool("pool1", 5, cluster_autoscale=c(1, 10))
 #'
+#' @rdname aks_pools
 #' @export
-aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
-                      use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
+aks_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
+                     use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
 {
     parms <- list(
         name=name,
@@ -200,6 +203,9 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=
     if(!is_empty(extras))
         parms <- utils::modifyList(extras, parms)
 
-    structure(parms, class="aks_agent_pool")
+    structure(parms, class="aks_pool")
 }
 
+#' @rdname aks_pools
+#' @export
+aks_pools <- aks_pool
