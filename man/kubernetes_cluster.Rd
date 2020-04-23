@@ -7,7 +7,7 @@
 kubernetes_cluster(config = NULL)
 }
 \arguments{
-\item{config}{The name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default \code{~/.kube/config} file.}
+\item{config}{The name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default \verb{~/.kube/config} file.}
 }
 \value{
 An R6 object of class \code{KubernetesCluster}.

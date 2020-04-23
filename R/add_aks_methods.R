@@ -12,6 +12,7 @@
 #'            enable_rbac = FALSE, agent_pools = list(),
 #'            login_user = "", login_passkey = "",
 #'            cluster_service_principal = NULL, managed_identity = FALSE,
+#'            private_cluster = FALSE,
 #'            properties = list(), ..., wait = TRUE)
 #' ```
 #' @section Arguments:
@@ -31,7 +32,7 @@
 #' @section Details:
 #' An AKS resource is a Kubernetes cluster hosted in Azure. See the [documentation for the resource][aks] for more information. To work with the cluster (deploy images, define and start services, etc) see the [documentation for the cluster endpoint][kubernetes_cluster].
 #'
-#' To specify the agent pools for the cluster, it is easiest to use the [aks_pools] function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
+#' To specify the agent pools for the cluster, it's easiest to use the [aks_pools] function. This lets you specify the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
 #'
 #' By default, the password for a newly-created service principal will expire after one year. You can run the `update_service_password` method of the AKS object to reset/update the password before it expires.
 #'
@@ -207,7 +208,7 @@ add_aks_methods <- function()
              login_user="", login_passkey="",
              enable_rbac=FALSE, agent_pools=list(),
              cluster_service_principal=NULL,
-             managed_identity=FALSE,
+             managed_identity=FALSE, private_cluster=FALSE,
              properties=list(), ..., wait=TRUE)
     {
         if(is_empty(kubernetes_version))
@@ -216,6 +217,11 @@ add_aks_methods <- function()
         # hide from CRAN check
         find_app_creds <- get("find_app_creds", getNamespace("AzureContainers"))
         cluster_service_principal <- find_app_creds(cluster_service_principal, name, location, self$token)
+
+        if(inherits(agent_pools, "aks_agent_pool"))
+            agent_pools <- list(unclass(agent_pools))
+        else if(is.list(agent_pools) && all(sapply(agent_pools, inherits, "aks_agent_pool")))
+            agent_pools <- lapply(agent_pools, unclass)
 
         props <- list(
             kubernetesVersion=kubernetes_version,
@@ -227,6 +233,12 @@ add_aks_methods <- function()
                 secret=cluster_service_principal[[2]]
             )
         )
+
+        if(private_cluster)
+        {
+            props$apiServerAccessProfile <- list(enablePrivateCluster=private_cluster)
+            props$networkProfile <- list(loadBalancerSku="standard")
+        }
 
         if(is.null(props$servicePrincipalProfile$secret))
             stop("Must provide a service principal with a secret password", call.=FALSE)

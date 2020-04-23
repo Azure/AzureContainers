@@ -12,6 +12,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
            enable_rbac = FALSE, agent_pools = list(),
            login_user = "", login_passkey = "",
            cluster_service_principal = NULL, managed_identity = FALSE,
+           private_cluster = FALSE,
            properties = list(), ..., wait = TRUE)
 }
 }
@@ -25,7 +26,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{kubernetes_version}: The Kubernetes version to use. If not specified, uses the most recent version of Kubernetes available.
 \item \code{enable_rbac}: Whether to enable role-based access controls.
 \item \code{agent_pools}: A list of pool specifications. See 'Details'.
-\item \code{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
+\item \verb{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 \item \code{cluster_service_principal}: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session).
 \item \code{managed_identity}: Whether the cluster should have a managed identity assigned to it. This is currently in preview; see the \href{https://docs.microsoft.com/en-us/azure/aks/use-managed-identity}{Microsoft Docs page} for enabling this feature.
 \item \code{properties}: A named list of further Kubernetes-specific properties to pass to the initialization function.
@@ -38,7 +39,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 An AKS resource is a Kubernetes cluster hosted in Azure. See the \link[=aks]{documentation for the resource} for more information. To work with the cluster (deploy images, define and start services, etc) see the \link[=kubernetes_cluster]{documentation for the cluster endpoint}.
 
-To specify the agent pools for the cluster, it is easiest to use the \link{aks_pools} function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
+To specify the agent pools for the cluster, it's easiest to use the \link{aks_pools} function. This lets you specify the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
 
 By default, the password for a newly-created service principal will expire after one year. You can run the \code{update_service_password} method of the AKS object to reset/update the password before it expires.
 }

@@ -146,32 +146,60 @@ public=list(
 #' @param count The number of nodes per pool.
 #' @param size The VM type (size) to use for the pool. To see a list of available VM sizes, use the [list_vm_sizes] method for the resource group or subscription classes.
 #' @param os The operating system to use for the pool. Can be "Linux" or "Windows".
+#' @param disksize The OS disk size in gigabytes for each node in the pool. A value of 0 means to use the default disk size for the VM type.
+#' @param use_scaleset Whether to use a VM scaleset instead of individual VMs for this pool. A scaleset offers greater flexibility than individual VMs, and is the recommended method of creating an agent pool.
+#' @param low_priority If this pool uses a scaleset, whether it should be made up of spot (low-priority) VMs. A spot VM pool is cheaper, but is subject to being deallocated to make room for other, higher-priority workloads. Ignored if `use_scaleset=FALSE`.
+#' @param cluster_autoscale The autoscaling parameters for the pool. This can be either `FALSE`, meaning autoscaling is disabled, or a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if `use_scaleset=FALSE`.
+#' @param ... Other named arguments, to be used as parameters for the agent pool.
 #'
 #' @details
-#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. You can specify multiple pools by providing vectors as input arguments; any scalar inputs will be replicated to match.
+#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster.
 #'
 #' @return
-#' A list of lists, suitable for passing to the `create_aks` constructor method.
+#' An object of class `aks_agent_pool`, suitable for passing to the `create_aks` constructor method.
 #'
 #' @seealso
-#' [list_vm_sizes]
+#' [list_vm_sizes], [agent pool parameters on Microsoft Docs](https://docs.microsoft.com/en-us/rest/api/aks/managedclusters/createorupdate#managedclusteragentpoolprofile)
 #'
 #' @examples
-#' # 1 pool of 5 Linux VMs
+#' # pool of 5 Linux VMs
 #' aks_pools("pool1", 5)
 #'
-#' # 1 pool of 3 Windows Server VMs
-#' aks_pools("pool1", 3, os="Windows")
+#' # pool of 3 Windows Server VMs, 500GB disk size each
+#' aks_pools("pool1", 3, os="Windows", disksize=500)
 #'
-#' # 2 pools with different VM sizes per pool
-#' aks_pools(c("pool1", "pool2"), count=c(3, 3), size=c("Standard_DS2_v2", "Standard_DS3_v2"))
+#' # enable cluster autoscaling, with a minimum of 1 and maximum of 10 nodes
+#' aks_pools("pool1", 5, cluster_autoscale=c(1, 10))
 #'
 #' @export
-aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
+aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
+                      use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
 {
-    count <- as.integer(count)
-    pool_df <- data.frame(name=name, count=count, vmSize=size, osType=os, stringsAsFactors=FALSE)
-    pool_df$name <- make.unique(pool_df$name, sep="")
-    lapply(seq_len(nrow(pool_df)), function(i) unclass(pool_df[i, ]))
+    parms <- list(
+        name=name,
+        count=as.integer(count),
+        vmSize=size,
+        osType=os,
+        osDiskSizeGB=disksize,
+        type <- if(use_scaleset) "VirtualMachineScaleSets" else "AvailabilitySet"
+    )
+
+    if(use_scaleset)
+    {
+        if(is.numeric(cluster_autoscale) && length(cluster_autoscale) == 2)
+        {
+            parms$enableAutoScaling <- TRUE
+            parms$minCount <- as.integer(min_count)
+            parms$maxCount <- as.integer(max_count)
+        }
+        if(low_priority)
+            parms$scaleSetPriority <- "spot"
+    }
+
+    extras <- list(...)
+    if(!is_empty(extras))
+        parms <- utils::modifyList(extras, parms)
+
+    structure(parms, class="aks_agent_pool")
 }
 

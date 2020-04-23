@@ -5,10 +5,6 @@
 \alias{acr}
 \alias{az_container_registry}
 \title{Azure Container Registry class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-acr
-}
 \description{
 Class representing an Azure Container Registry (ACR) resource. For working with the registry endpoint itself, including uploading and downloading images etc, see \link{docker_registry}.
 }
@@ -75,4 +71,3 @@ myacr$get_docker_registry(as_admin=TRUE)
 \href{https://docs.microsoft.com/en-us/azure/container-registry/}{Azure Container Registry} and
 \href{https://docs.microsoft.com/en-us/rest/api/containerregistry/registries}{API reference}
 }
-\keyword{datasets}
