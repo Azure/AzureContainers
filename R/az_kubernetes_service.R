@@ -181,7 +181,7 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=
         vmSize=size,
         osType=os,
         osDiskSizeGB=disksize,
-        type <- if(use_scaleset) "VirtualMachineScaleSets" else "AvailabilitySet"
+        type=if(use_scaleset) "VirtualMachineScaleSets" else "AvailabilitySet"
     )
 
     if(use_scaleset)
@@ -189,8 +189,8 @@ aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=
         if(is.numeric(cluster_autoscale) && length(cluster_autoscale) == 2)
         {
             parms$enableAutoScaling <- TRUE
-            parms$minCount <- as.integer(min_count)
-            parms$maxCount <- as.integer(max_count)
+            parms$minCount <- min(cluster_autoscale)
+            parms$maxCount <- max(cluster_autoscale)
         }
         if(low_priority)
             parms$scaleSetPriority <- "spot"

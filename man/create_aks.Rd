@@ -24,11 +24,12 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{location}: The location/region in which to create the service. Defaults to this resource group's location.
 \item \code{dns_prefix}: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
 \item \code{kubernetes_version}: The Kubernetes version to use. If not specified, uses the most recent version of Kubernetes available.
-\item \code{enable_rbac}: Whether to enable role-based access controls.
+\item \code{enable_rbac}: Whether to enable Kubernetes role-based access controls (which is distinct from Azure AD RBAC).
 \item \code{agent_pools}: A list of pool specifications. See 'Details'.
 \item \verb{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
 \item \code{cluster_service_principal}: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session).
 \item \code{managed_identity}: Whether the cluster should have a managed identity assigned to it. This is currently in preview; see the \href{https://docs.microsoft.com/en-us/azure/aks/use-managed-identity}{Microsoft Docs page} for enabling this feature.
+\item \code{private_cluster}: Whether this cluster is private (not visible from the public Internet). A private cluster is accessible only to hosts on its virtual network.
 \item \code{properties}: A named list of further Kubernetes-specific properties to pass to the initialization function.
 \item \code{wait}: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 \item \code{...}: Other named arguments to pass to the initialization function.
