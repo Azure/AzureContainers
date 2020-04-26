@@ -14,6 +14,9 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 test_that("ACI works",
 {
     acrname <- make_name(10)
@@ -62,5 +65,6 @@ test_that("ACI works",
 
 
 teardown({
+    options(azure_containers_tool_echo=echo)
     suppressMessages(rg$delete(confirm=FALSE))
 })

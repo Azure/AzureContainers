@@ -9,7 +9,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \section{Usage}{
 \preformatted{create_aks(name, location = self$location,
            dns_prefix = name, kubernetes_version = NULL,
-           enable_rbac = FALSE, agent_pools = aks_pool("pool1", 3),
+           enable_rbac = FALSE, agent_pools = agent_pool("pool1", 3),
            login_user = "", login_passkey = "",
            cluster_service_principal = NULL, managed_identity = TRUE,
            private_cluster = FALSE,
@@ -40,7 +40,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 An AKS resource is a Kubernetes cluster hosted in Azure. See the \link[=aks]{documentation for the resource} for more information. To work with the cluster (deploy images, define and start services, etc) see the \link[=kubernetes_cluster]{documentation for the cluster endpoint}.
 
-The nodes for an AKS cluster are organised into \emph{agent pools}, which are homogenous groups of virtual machines. To specify the details for an agent pool, use the \code{aks_pool} function, which returns an S3 object of that class. The \code{agent_pools} argument should contain such an object (if you want a single pool), or a list of such objects (for more than one pool).
+The nodes for an AKS cluster are organised into \emph{agent pools}, also known as \emph{node pools}, which are homogenous groups of virtual machines. To specify the details for a single agent pool, use the \code{agent_pool} function, which returns an S3 object of that class. To specify the details for multiple pools, you can supply a list of such objects, or a single call to the \code{aks_pools} function; see the examples below. Note that \code{aks_pools} is older, and does not support all the possible parameters for an agent pool.
 
 Of the agent pools in a cluster, at least one must be a \emph{system pool}, which is used to host critical system pods such as CoreDNS and tunnelfront. If you specify more than one pool, the first pool will be treated as the system pool. Note that there are certain \href{https://docs.microsoft.com/en-us/azure/aks/use-system-pools}{extra requirements} for the system pool.
 
@@ -61,16 +61,20 @@ rg <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 
-rg$create_aks("mycluster", agent_pools=aks_pool("pool1", 5))
+rg$create_aks("mycluster", agent_pools=agent_pool("pool1", 5))
 
 # GPU-enabled cluster
-rg$create_aks("mygpucluster", agent_pools=aks_pool("pool1", 5, size="Standard_NC6s_v3"))
+rg$create_aks("mygpucluster", agent_pools=agent_pool("pool1", 5, size="Standard_NC6s_v3"))
 
 # multiple agent pools
 rg$create_aks("mycluster", agent_pools=list(
-    aks_pool("pool1", 2, size="Standard_DS2_v2"),
-    aks_pool("pool2", 3, size="Standard_DS3_v2", disksize=300)
+    agent_pool("pool1", 2),
+    agent_pool("pool2", 3, size="Standard_NC6s_v3")
 ))
+
+# deprecated alternative for multiple pools
+rg$create_aks("mycluster",
+    agent_pools=aks_pools(c("pool1", "pool2"), c(2, 3), c("Standard_DS2_v2", "Standard_NC6s_v3")))
 
 }
 }

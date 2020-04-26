@@ -14,8 +14,11 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 aksname <- make_name(10)
-aks <- rg$create_aks(aksname, agent_pools=aks_pools("pool1", 1), managed_identity=FALSE)
+aks <- rg$create_aks(aksname, agent_pools=agent_pool("pool1", 1), managed_identity=FALSE)
 
 test_that("AKS/ACR works with service principal",
 {
@@ -70,5 +73,6 @@ test_that("AKS/ACR works with service principal/RBAC",
 
 
 teardown({
+    options(azure_containers_tool_echo=echo)
     suppressMessages(rg$delete(confirm=FALSE))
 })

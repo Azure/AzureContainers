@@ -14,11 +14,13 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 test_that("AKS works with service principal",
 {
     aksname <- paste0(sample(letters, 10, TRUE), collapse="")
-    expect_true(is_aks(rg$create_aks(aksname, agent_pools=aks_pools("pool1", 1), managed_identity=FALSE)))
-
+    expect_true(is_aks(rg$create_aks(aksname, agent_pools=agent_pool("pool1", 1), managed_identity=FALSE)))
     aks <- rg$get_aks(aksname)
     expect_true(is_aks(aks))
 
@@ -44,5 +46,6 @@ test_that("AKS works with service principal",
 
 
 teardown({
+    options(azure_containers_tool_echo=echo)
     suppressMessages(rg$delete(confirm=FALSE))
 })

@@ -14,6 +14,9 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 acrname <- make_name(10)
 
 test_that("ACR works",
@@ -67,5 +70,6 @@ test_that("ACR works with app login",
 })
 
 teardown({
+    options(azure_containers_tool_echo=echo)
     suppressMessages(rg$delete(confirm=FALSE))
 })

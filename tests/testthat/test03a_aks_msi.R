@@ -14,13 +14,16 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location="australiaeast")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 test_that("AKS works with managed identity",
 {
     aksname <- make_name(10)
 
     expect_is(rg$list_kubernetes_versions(), "character")
 
-    expect_true(is_aks(rg$create_aks(aksname, agent_pools=aks_pools("pool1", 1), managed_identity=TRUE)))
+    expect_true(is_aks(rg$create_aks(aksname, agent_pools=agent_pool("pool1", 1), managed_identity=TRUE)))
     expect_true(is_aks(rg$list_aks()[[1]]))
     aks <- rg$get_aks(aksname)
     expect_true(is_aks(aks))
@@ -48,5 +51,6 @@ test_that("AKS works with managed identity",
 
 
 teardown({
+    options(azure_containers_tool_echo=echo)
     suppressMessages(rg$delete(confirm=FALSE))
 })

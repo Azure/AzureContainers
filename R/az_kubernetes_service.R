@@ -7,6 +7,10 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new AKS object.
 #' - `get_cluster(config, role)`: Return an object representing the Docker registry endpoint.
+#' - `get_agent_pool(pollname)`: Returns an object of class `az_agent_pool` representing an agent pool. This class inherits from [AzureRMR::az_resource]; it currently has no extra methods, but these may be added in the future.
+#' - `list_agent_pools()`: Returns a list of agent pool objects.
+#' - `create_agent_pool(poolname, ..., wait=FALSE)`: Creates a new agent pool. See the [agent_pool] function for further arguments to this method.
+#' - `delete_agent_pool(poolname, confirm=TRUE. wait=FALSE)`: Deletes an agent pool.
 #' - `list_cluster_resources()`: Returns a list of all the Azure resources managed by the cluster.
 #' - `update_aad_password(name=NULL, duration=NULL, ...)`: Update the password for Azure Active Directory integration, returning the new password invisibly. See 'Updating credentials' below.
 #' - `update_service_password(name=NULL, duration=NULL, ...)`: Update the password for the service principal used to manage the cluster resources, returning the new password invisibly.  See 'Updating credentials' below.
@@ -22,7 +26,7 @@
 #' - `role`: This can be `"User"` (the default) or `"Admin"`.
 #'
 #' @section Updating credentials:
-#' An AKS resource can have up to three service principals associated with it. Two of these are for Azure Active Directory (AAD) integration. The third is used to manage the subsidiary resources used by the cluster: virtual machines, networks, load balancers, etc. The latter service principal is unnecessary if the AKS resource has its own managed identity, which is the recommended (and default) setup.
+#' An AKS resource can have up to three service principals associated with it. Two of these are for Azure Active Directory (AAD) integration. The third is used to manage the subsidiary resources (VMs, networks, disks, etc) used by the cluster, if it doesn't have a service identity.
 #'
 #' Any service principals used by the AKS resource will have secret passwords, which have to be refreshed as they expire. The `update_aad_password()` and `update_service_password()` methods let you refresh the passwords for the cluster's service principals. Their arguments are:
 #'
@@ -53,7 +57,14 @@
 #' # get the cluster endpoint
 #' kubclus <- myaks$get_cluster()
 #'
-#' # refresh the service principal password
+#' # list of agent pools
+#' myaks$list_agent_pools()
+#'
+#' # create a new agent pool, then delete it
+#' pool <- myaks$create_agent_pool("pool2", 3, size="Standard_DS3_v2")
+#' pool$delete()
+#'
+#' # refresh the service principal password (mostly for legacy clusters without a managed identity)
 #' myaks$update_service_password()
 #'
 #' # refresh the service principal password, using custom credentials to authenticate with MS Graph
@@ -114,7 +125,7 @@ public=list(
 
     create_agent_pool=function(poolname, ..., wait=FALSE)
     {
-        pool <- aks_pool(name=poolname, ...)
+        pool <- agent_pool(name=poolname, ...)
         az_agent_pool$new(self$token, self$subscription, resource_group=self$resource_group,
             type="Microsoft.ContainerService/managedClusters",
             name=file.path(self$name, "agentPools", poolname),
@@ -193,10 +204,10 @@ public=list(
 #' @param ... Other named arguments, to be used as parameters for the agent pool.
 #'
 #' @details
-#' `aks_pool` is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. `aks_pools` is a synonym for `aks_pool`, for backward compatibility.
+#' `agent_pool` is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster.
 #'
 #' @return
-#' An object of class `aks_pool`, suitable for passing to the `create_aks` constructor method.
+#' An object of class `agent_pool`, suitable for passing to the `create_aks` constructor method.
 #'
 #' @seealso
 #' [create_aks], [list_vm_sizes]
@@ -204,19 +215,21 @@ public=list(
 #' [Agent pool parameters on Microsoft Docs](https://docs.microsoft.com/en-us/rest/api/aks/managedclusters/createorupdate#managedclusteragentpoolprofile)
 #'
 #' @examples
-#' # pool of 5 Linux VMs
-#' aks_pool("pool1", 5)
+#' # pool of 5 Linux GPU-enabled VMs
+#' agent_pool("pool1", 5, size="Standard_NC6s_v3")
 #'
 #' # pool of 3 Windows Server VMs, 500GB disk size each
-#' aks_pool("pool1", 3, os="Windows", disksize=500)
+#' agent_pool("pool1", 3, os="Windows", disksize=500)
 #'
 #' # enable cluster autoscaling, with a minimum of 1 and maximum of 10 nodes
-#' aks_pool("pool1", 5, cluster_autoscale=c(1, 10))
+#' agent_pool("pool1", 5, cluster_autoscale=c(1, 10))
 #'
-#' @rdname aks_pools
+#' # use individual VMs rather than scaleset
+#' agent_pool("vmpool1", 3, use_scaleset=FALSE)
+#'
 #' @export
-aks_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
-                     use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
+agent_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
+                       use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
 {
     parms <- list(
         name=name,
@@ -243,9 +256,43 @@ aks_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0
     if(!is_empty(extras))
         parms <- utils::modifyList(parms, extras)
 
-    structure(parms, class="aks_pool")
+    structure(parms, class="agent_pool")
 }
 
-#' @rdname aks_pools
+
+#' Vectorised utility function for specifying Kubernetes agent pools
+#'
+#' @param name The name(s) of the pool(s).
+#' @param count The number of nodes per pool.
+#' @param size The VM type (size) to use for the pool. To see a list of available VM sizes, use the [list_vm_sizes] method for the resource group or subscription classes.
+#' @param os The operating system to use for the pool. Can be "Linux" or "Windows".
+#'
+#' @details
+#' This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. You can specify multiple pools by providing vectors as input arguments; any scalar inputs will be replicated to match.
+#'
+#' `aks_pools` is deprecated; please use [agent_pool] going forward.
+#'
+#' @return
+#' A list of lists, suitable for passing to the `create_aks` constructor method.
+#'
+#' @seealso
+#' [list_vm_sizes], [agent_pool]
+#'
+#' @examples
+#' # 1 pool of 5 Linux VMs
+#' aks_pools("pool1", 5)
+#'
+#' # 1 pool of 3 Windows Server VMs
+#' aks_pools("pool1", 3, os="Windows")
+#'
+#' # 2 pools with different VM sizes per pool
+#' aks_pools(c("pool1", "pool2"), count=c(3, 3), size=c("Standard_DS2_v2", "Standard_DS3_v2"))
+#'
 #' @export
-aks_pools <- aks_pool
+aks_pools <- function(name, count, size="Standard_DS2_v2", os="Linux")
+{
+    count <- as.integer(count)
+    pool_df <- data.frame(name=name, count=count, vmSize=size, osType=os, stringsAsFactors=FALSE)
+    pool_df$name <- make.unique(pool_df$name, sep="")
+    lapply(seq_len(nrow(pool_df)), function(i) unclass(pool_df[i, ]))
+}
