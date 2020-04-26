@@ -68,9 +68,18 @@ public=list(
     {
         if(is_aks(principal))
         {
-            tenant <- self$token$tenant
-            gr <- graph_login(tenant, ...)
-            principal <- gr$get_app(principal$properties$servicePrincipalProfile$clientId)
+            clientid <- principal$properties$servicePrincipalProfile$clientId
+            if(clientid == "msi")
+            {
+                ident <- principal$properties$identityProfile
+                principal <- ident[[1]]$objectId
+            }
+            else
+            {
+                tenant <- self$token$tenant
+                principal <- graph_login(tenant, ...)$get_app(clientid)
+
+            }
         }
         super$add_role_assignment(principal, role, scope)
     },

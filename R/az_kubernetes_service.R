@@ -22,9 +22,9 @@
 #' - `role`: This can be `"User"` (the default) or `"Admin"`.
 #'
 #' @section Updating credentials:
-#' An AKS cluster requires at least one, and possibly three, service principals. The first service principal is used to manage the resources used by the cluster: the VMs, networking resources, virtual disks, etc. The other two are used for AAD integration. These service principals have secret passwords, which have to be refreshed as they expire.
+#' An AKS resource can have up to three service principals associated with it. Two of these are for Azure Active Directory (AAD) integration. The third is used to manage the subsidiary resources used by the cluster: virtual machines, networks, load balancers, etc. The latter service principal is unnecessary if the AKS resource has its own managed identity, which is the recommended (and default) setup.
 #'
-#' The `update_aad_password()` and `update_service_password()` methods let you refresh the passwords for the cluster's service principals. Their arguments are:
+#' Any service principals used by the AKS resource will have secret passwords, which have to be refreshed as they expire. The `update_aad_password()` and `update_service_password()` methods let you refresh the passwords for the cluster's service principals. Their arguments are:
 #'
 #' - `name`: An optional friendly name for the password.
 #' - `duration`: The duration for which the new password is valid. Defaults to 2 years.
@@ -104,6 +104,43 @@ public=list(
         kubernetes_cluster(config=config)
     },
 
+    get_agent_pool=function(poolname)
+    {
+        az_agent_pool$new(self$token, self$subscription, resource_group=self$resource_group,
+            type="Microsoft.ContainerService/managedClusters",
+            name=file.path(self$name, "agentPools", poolname),
+            api_version=self$get_api_version())
+    },
+
+    create_agent_pool=function(poolname, ..., wait=FALSE)
+    {
+        pool <- aks_pool(name=poolname, ...)
+        az_agent_pool$new(self$token, self$subscription, resource_group=self$resource_group,
+            type="Microsoft.ContainerService/managedClusters",
+            name=file.path(self$name, "agentPools", poolname),
+            properties=pool[-1],
+            api_version=self$get_api_version(),
+            wait=wait)
+    },
+
+    delete_agent_pool=function(poolname, confirm=TRUE, wait=FALSE)
+    {
+        az_agent_pool$new(self$token, self$subscription, resource_group=self$resource_group,
+            type="Microsoft.ContainerService/managedClusters",
+            name=file.path(self$name, "agentPools", poolname),
+            deployed_properties=list(NULL),
+            api_version=self$get_api_version())$
+            delete(confirm=confirm, wait=wait)
+    },
+
+    list_agent_pools=function()
+    {
+        cont <- self$do_operation("agentPools")
+        api_version <- self$get_api_version()
+        lapply(get_paged_list(cont, self$token), function(parms)
+            az_agent_pool$new(self$token, self$subscription, deployed_properties=parms, api_version=api_version))
+    },
+
     list_cluster_resources=function()
     {
         clusrgname <- self$properties$nodeResourceGroup
@@ -129,6 +166,9 @@ public=list(
     update_service_password=function(name=NULL, duration=NULL, ...)
     {
         prof <- self$properties$servicePrincipalProfile
+        if(prof$clientId == "msi")
+            stop("Cluster uses service identity for managing resources", call.=FALSE)
+
         app <- graph_login(self$token$tenant, ...)$get_app(prof$clientId)
         app$add_password(name, duration)
         prof$secret <- app$password
@@ -148,7 +188,7 @@ public=list(
 #' @param os The operating system to use for the pool. Can be "Linux" or "Windows".
 #' @param disksize The OS disk size in gigabytes for each node in the pool. A value of 0 means to use the default disk size for the VM type.
 #' @param use_scaleset Whether to use a VM scaleset instead of individual VMs for this pool. A scaleset offers greater flexibility than individual VMs, and is the recommended method of creating an agent pool.
-#' @param low_priority If this pool uses a scaleset, whether it should be made up of spot (low-priority) VMs. A spot VM pool is cheaper, but is subject to being deallocated to make room for other, higher-priority workloads. Ignored if `use_scaleset=FALSE`.
+#' @param low_priority If this pool uses a scaleset, whether it should be made up of spot (low-priority) VMs. A spot VM pool is cheaper, but is subject to being evicted to make room for other, higher-priority workloads. Ignored if `use_scaleset=FALSE`.
 #' @param cluster_autoscale The autoscaling parameters for the pool. This can be either `FALSE`, meaning autoscaling is disabled, or a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if `use_scaleset=FALSE`.
 #' @param ... Other named arguments, to be used as parameters for the agent pool.
 #'
@@ -201,7 +241,7 @@ aks_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0
 
     extras <- list(...)
     if(!is_empty(extras))
-        parms <- utils::modifyList(extras, parms)
+        parms <- utils::modifyList(parms, extras)
 
     structure(parms, class="aks_pool")
 }
