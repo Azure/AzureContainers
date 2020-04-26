@@ -45,7 +45,7 @@
 #' An object of class `az_kubernetes_service` representing the service.
 #'
 #' @seealso
-#' [get_aks], [delete_aks], [list_aks], [aks_pools]
+#' [get_aks], [delete_aks], [list_aks], [agent_pool], [aks_pools]
 #'
 #' [az_kubernetes_service]
 #'

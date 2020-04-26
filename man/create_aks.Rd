@@ -79,7 +79,7 @@ rg$create_aks("mycluster",
 }
 }
 \seealso{
-\link{get_aks}, \link{delete_aks}, \link{list_aks}, \link{aks_pool}
+\link{get_aks}, \link{delete_aks}, \link{list_aks}, \link{agent_pool}, \link{aks_pools}
 
 \link{az_kubernetes_service}
 
