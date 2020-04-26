@@ -2,9 +2,9 @@
 
 - Significant enhancements for AKS:
   - Fully support creating clusters with managed identities. This is recommended and the new default, compared to the older method of using service principals to control cluster resources.
-  - Support creating clusters using VM scalesets for the cluster nodes. This is recommended and the new default, compared to using individual VMs. VM scalesets are a prerequisite for autoscaling and multiple agent pools.
+  - Support creating clusters using VM scalesets for the cluster nodes. This is recommended and the new default, compared to using individual VMs.
   - Support private clusters.
-  - Support autoscaling for agent pools backed by VM scalesets.
+  - Support node autoscaling for agent pools backed by VM scalesets.
   - Support spot (low-priority) nodes for agent pools backed by VM scalesets.
   - New methods for the `az_kubernetes_service` class, for managing agent pools: `get_agent_pool`, `create_agent_pool`, `delete_agent_pool` and `list_agent_pools`. Creating new agent pools requires VM scalesets, as mentioned above.
 - New `agent_pool` function to supply the parameters for a _single_ AKS agent pool.
