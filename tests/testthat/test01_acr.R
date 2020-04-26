@@ -8,15 +8,13 @@ subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Tests skipped: ARM credentials not set")
 
-acrname <- Sys.getenv("AZ_TEST_ACR")
-if(acrname == "")
-    skip("ACR tests skipped: resource name not set")
-
-rgname <- Sys.getenv("AZ_TEST_RG")
+rgname <- make_name(10)
 rg <- AzureRMR::az_rm$
     new(tenant=tenant, app=app, password=password)$
     get_subscription(subscription)$
-    get_resource_group(rgname)
+    create_resource_group(rgname, location="australiaeast")
+
+acrname <- make_name(10)
 
 test_that("ACR works",
 {
@@ -66,4 +64,8 @@ test_that("ACR works with app login",
     call_docker(cmdline)
 
     expect_equal(reg$list_repositories(), c("hello-world", "hello-world-sp"))
+})
+
+teardown({
+    suppressMessages(rg$delete(confirm=FALSE))
 })

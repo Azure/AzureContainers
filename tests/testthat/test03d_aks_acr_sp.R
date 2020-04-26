@@ -1,4 +1,4 @@
-context("AKS-ACR interop with managed identity")
+context("AKS-ACR interop with service principal")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
@@ -15,9 +15,9 @@ rg <- AzureRMR::az_rm$
     create_resource_group(rgname, location="australiaeast")
 
 aksname <- make_name(10)
-aks <- rg$create_aks(aksname, agent_pools=aks_pools("pool1", 1), managed_identity=TRUE)
+aks <- rg$create_aks(aksname, agent_pools=aks_pools("pool1", 1), managed_identity=FALSE)
 
-test_that("AKS/ACR works with managed identity",
+test_that("AKS/ACR works with service principal",
 {
     acrname <- make_name(10)
     acr <- rg$create_acr(acrname, admin_user_enabled=TRUE)
@@ -43,7 +43,7 @@ test_that("AKS/ACR works with managed identity",
 })
 
 
-test_that("AKS/ACR works with managed identity/RBAC",
+test_that("AKS/ACR works with service principal/RBAC",
 {
     acrname <- make_name(10)
     acr <- rg$create_acr(acrname, admin_user_enabled=FALSE)
