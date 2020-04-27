@@ -232,7 +232,9 @@ And if required, we can also delete all the resources created here, by simply de
 deployresgrp$delete()
 ```
 
-One important thing to note about the above example is that it is **insecure**. The service is exposed over HTTP, and there is no authentication layer: anyone on the Internet can contact the service and potentially interact with it. Depending on your use case, this may not be a problem; however; it's highly recommended that you should provide at least some level of authentication, as well as restricting the service to HTTPS only. You can also deploy the AKS cluster as a private cluster, which will make it visible only to hosts on its own subnet. 
+### Security note
+
+One important thing to note about the above example is that it is **insecure**. The Plumber service is exposed over HTTP, and there is no authentication layer: anyone on the Internet can contact the service and interact with it. Therefore, it's highly recommended that you should provide at least some level of authentication, as well as restricting the service to HTTPS only. You can also create the AKS resource as a private cluster; however, be aware that if you do this, you can only interact with the cluster endpoint from a host which is on the cluster's own subnet.
 
 
 ## See also
