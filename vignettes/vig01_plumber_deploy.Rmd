@@ -24,7 +24,7 @@ library(randomForest)
 bos_rf <- randomForest(medv ~ ., data=Boston, ntree=100)
 
 # save the model
-saveRDS(bos.rf, "bos_rf.rds")
+saveRDS(bos_rf, "bos_rf.rds")
 ```
 
 
@@ -58,7 +58,6 @@ Let's package up the model and the scoring script into a Docker image. A Dockerf
 # example Dockerfile to expose a plumber service
 
 FROM trestletech/plumber
-MAINTAINER Hong Ooi <hongooi@microsoft.com>
 
 # install the randomForest package
 RUN R -e 'install.packages(c("randomForest"))'
@@ -118,13 +117,6 @@ deployaci <- deployresgrp$create_aci("deployaci",
     ports=aci_ports(8000))
 ```
 
-To check on the progress of the deployment, call the object's `sync_fields()` method. This will update and return its provisioning state, which will be `"Creating"` while the instance is being created, and `"Succeeded"` once it is running. Deploying a simple container like this usually takes less than a minute.
-
-```r
-deployaci$sync_fields()
-#> [1] "Succeeded"
-```
-
 Once the instance is running, let's call the prediction API with some sample data. By default, AzureContainers will assign the container a domain name with prefix taken from the instance name. The port is 8000 as specified in the Dockerfile, and the URI path is `/score` indicating we want to call the scoring function defined earlier.
 
 The data to be scored---the first 10 rows of the Boston dataset---is passed in the _body_ of the request as a named list, encoded as JSON. A feature of Plumber is that, when the body of the request is in this format, it will extract the elements of the list and pass them to the scoring function as named arguments. This makes it easy to pass around relatively large amounts of data, eg if the data is wide, or for scoring multiple rows at a time. For more information on how to create and interact with Plumber APIs, consult the [Plumber documentation](https://www.rplumber.io/docs/).
@@ -132,7 +124,7 @@ The data to be scored---the first 10 rows of the Boston dataset---is passed in t
 ```r
 response <- httr::POST("http://deployaci.australiaeast.azurecontainer.io:8000/score",
     body=list(df=MASS::Boston[1:10,]), encode="json")
-httr::content(response, flatten=TRUE)
+httr::content(response, simplifyVector=TRUE)
 #> [1] 25.9269 22.0636 34.1876 33.7737 34.8081 27.6394 21.8007 22.3577 16.7812 18.9785
 ```
 
@@ -143,7 +135,7 @@ Deploying a service to a container instance is simple, but lacks many features t
 
 ```r
 # create a Kubernetes cluster with 2 nodes, running Linux (the default)
-deployclus_svc <- deployresgrp$create_aks("deployclus", agent_pools=aks_pools("pool1", 2))
+deployclus_svc <- deployresgrp$create_aks("deployclus", agent_pools=agent_pool("pool1", 2))
 ```
 
 Unlike an ACI resource, creating a Kubernetes cluster can take several minutes. By default, the `create_aks()` method will wait until the cluster provisioning is complete before it returns.
@@ -151,11 +143,14 @@ Unlike an ACI resource, creating a Kubernetes cluster can take several minutes. 
 Having created the cluster, we can deploy our model and create a service. We'll use a YAML configuration file to specify the details for the deployment and service API. The image to be deployed is the same as before.
 
 ```yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bos-rf
 spec:
+  selector:
+    matchLabels:
+      app: bos-rf
   replicas: 1
   template:
     metadata:
@@ -192,7 +187,7 @@ The following code will obtain the cluster endpoint from the AKS resource and th
 
 ```r
 # grant the cluster pull access to the registry
-reg$add_role_assignment(deployclus_svc, "Acrpull")
+deployreg_svc$add_role_assignment(deployclus_svc, "Acrpull")
 
 # get the cluster endpoint
 deployclus <- deployclus_svc$get_cluster()
@@ -209,22 +204,22 @@ deployclus$get("deployment bos-rf")
 #> NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 #> bos-rf    1         1         1            1           5m
 
-deployclus$get("service bos-rf-svc")
+svc <- read.table(text=deployclus$get("service bos-rf-svc")$stdout, header=TRUE)
 #> Kubernetes operation: get service bos-rf-svc  --kubeconfig=".../kubeconfigxxxx"
 #> NAME         TYPE           CLUSTER-IP   EXTERNAL-IP     PORT(S)          AGE
 #> bos-rf-svc   LoadBalancer   10.0.8.189   52.187.249.58   8000:32276/TCP   5m 
 ```
 
-Once the service is up and running, as indicated by the presence of an external IP in the service details, let's test it with a HTTP request. The response should be the same as it was with the container instance.
+Once the service is up and running, as indicated by the presence of an external IP in the service details, let's test it with a HTTP request. The response should be the same as it was with the container instance. Notice how we extract the IP address from the service details above.
 
 ```r
-response <- httr::POST("http://52.187.249.58:8000/score",
+response <- httr::POST(paste0("http://", svc$EXTERNAL.IP[1], ":8000/score"),
     body=list(df=MASS::Boston[1:10,]), encode="json")
 httr::content(response, simplifyVector=TRUE)
 #> [1] 25.9269 22.0636 34.1876 33.7737 34.8081 27.6394 21.8007 22.3577 16.7812 18.9785
 ```
 
-Finally, once we are done, we can tear down the service and deployment:
+Finally, once we are done, we can tear down the service and deployment. Depending on the version of Kubernetes the cluster is running, deleting the service may take a few minutes.
 
 ```r
 deployclus$delete("service", "bos-rf-svc")
@@ -236,6 +231,8 @@ And if required, we can also delete all the resources created here, by simply de
 ```r
 deployresgrp$delete()
 ```
+
+One important thing to note about the above example is that it is **insecure**. The service is exposed over HTTP, and there is no authentication layer: anyone on the Internet can contact the service and potentially interact with it. Depending on your use case, this may not be a problem; however; it's highly recommended that you should provide at least some level of authentication, as well as restricting the service to HTTPS only. You can also deploy the AKS cluster as a private cluster, which will make it visible only to hosts on its own subnet. 
 
 
 ## See also
