@@ -1,3 +1,15 @@
+# AzureContainers 1.2.1.9000
+
+- Significant enhancements for AKS:
+  - Fully support creating clusters with managed identities. This is recommended and the new default, compared to the older method of using service principals to control cluster resources.
+  - Support creating clusters using VM scalesets for the cluster nodes. This is recommended and the new default, compared to using individual VMs.
+  - Support private clusters.
+  - Support node autoscaling for agent pools backed by VM scalesets.
+  - Support spot (low-priority) nodes for agent pools backed by VM scalesets.
+  - New methods for the `az_kubernetes_service` class, for managing agent pools: `get_agent_pool`, `create_agent_pool`, `delete_agent_pool` and `list_agent_pools`. Creating new agent pools requires VM scalesets, as mentioned above.
+- New `agent_pool` function to supply the parameters for a _single_ AKS agent pool.
+- The functions to call external tools (`call_docker`, `call_docker_compose`, `call_kubernetes` and `call_helm`) now use the value of the system option `azure_containers_tool_echo` to determine whether to echo output to the screen. If this is unset, the fallback is `TRUE` (as in previous versions).
+
 # AzureContainers 1.2.1
 
 - Fix a bug where `call_docker_compose` could be checking for the wrong binary.

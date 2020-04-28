@@ -4,7 +4,8 @@
 \alias{call_helm}
 \title{Call the Helm commandline tool}
 \usage{
-call_helm(cmd = "", config = NULL, ..., echo = TRUE)
+call_helm(cmd = "", config = NULL, ...,
+  echo = getOption("azure_containers_tool_echo", TRUE))
 }
 \arguments{
 \item{cmd}{The Helm command line to execute.}

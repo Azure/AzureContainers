@@ -13,7 +13,7 @@
 #' @section Arguments:
 #' - `name`: The name of the container registry.
 #' - `location`: The location/region in which to create the container registry. Defaults to this resource group's location.
-#' - `admin_user_enabled`: Whether to enable the Admin user. Currently this must be TRUE to allow Docker to access the registry.
+#' - `admin_user_enabled`: Whether to enable the Admin user. Currently this must be `TRUE` for ACI to pull from the registry.
 #' - `sku`: Either "Basic", "Standard" (the default) or "Premium".
 #' - `wait`: Whether to wait until the ACR resource provisioning is complete.
 #' - `...`: Other named arguments to pass to the [az_resource] initialization function.

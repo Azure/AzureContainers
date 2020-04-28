@@ -4,7 +4,8 @@
 \alias{call_docker_compose}
 \title{Call the docker-compose commandline tool}
 \usage{
-call_docker_compose(cmd = "", ..., echo = TRUE)
+call_docker_compose(cmd = "", ...,
+  echo = getOption("azure_containers_tool_echo", TRUE))
 }
 \arguments{
 \item{cmd}{The docker-compose command line to execute.}

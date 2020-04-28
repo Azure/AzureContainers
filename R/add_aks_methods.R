@@ -9,9 +9,10 @@
 #' ```
 #' create_aks(name, location = self$location,
 #'            dns_prefix = name, kubernetes_version = NULL,
-#'            enable_rbac = FALSE, agent_pools = list(),
+#'            enable_rbac = FALSE, agent_pools = agent_pool("pool1", 3),
 #'            login_user = "", login_passkey = "",
-#'            cluster_service_principal = NULL, managed_identity = FALSE,
+#'            cluster_service_principal = NULL, managed_identity = TRUE,
+#'            private_cluster = FALSE,
 #'            properties = list(), ..., wait = TRUE)
 #' ```
 #' @section Arguments:
@@ -19,11 +20,12 @@
 #' - `location`: The location/region in which to create the service. Defaults to this resource group's location.
 #' - `dns_prefix`: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
 #' - `kubernetes_version`: The Kubernetes version to use. If not specified, uses the most recent version of Kubernetes available.
-#' - `enable_rbac`: Whether to enable role-based access controls.
-#' - `agent_pools`: A list of pool specifications. See 'Details'.
+#' - `enable_rbac`: Whether to enable Kubernetes role-based access controls (which is distinct from Azure AD RBAC).
+#' - `agent_pools`: The pool specification(s) for the cluster. See 'Details'.
 #' - `login_user,login_passkey`: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
-#' - `cluster_service_principal`: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session).
-#' - `managed_identity`: Whether the cluster should have a managed identity assigned to it. This is currently in preview; see the [Microsoft Docs page](https://docs.microsoft.com/en-us/azure/aks/use-managed-identity) for enabling this feature.
+#' - `cluster_service_principal`: The service principal that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session). Ignored if `managed_identity=TRUE`, which is the default.
+#' - `managed_identity`: Whether the cluster should have a managed identity assigned to it. If `FALSE`, a service principal will be used to manage the cluster's resources; see 'Details' below.
+#' - `private_cluster`: Whether this cluster is private (not visible from the public Internet). A private cluster is accessible only to hosts on its virtual network.
 #' - `properties`: A named list of further Kubernetes-specific properties to pass to the initialization function.
 #' - `wait`: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 #' - `...`: Other named arguments to pass to the initialization function.
@@ -31,15 +33,19 @@
 #' @section Details:
 #' An AKS resource is a Kubernetes cluster hosted in Azure. See the [documentation for the resource][aks] for more information. To work with the cluster (deploy images, define and start services, etc) see the [documentation for the cluster endpoint][kubernetes_cluster].
 #'
-#' To specify the agent pools for the cluster, it is easiest to use the [aks_pools] function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
+#' The nodes for an AKS cluster are organised into _agent pools_, also known as _node pools_, which are homogenous groups of virtual machines. To specify the details for a single agent pool, use the `agent_pool` function, which returns an S3 object of that class. To specify the details for multiple pools, you can supply a list of such objects, or a single call to the `aks_pools` function; see the examples below. Note that `aks_pools` is older, and does not support all the possible parameters for an agent pool.
 #'
-#' By default, the password for a newly-created service principal will expire after one year. You can run the `update_service_password` method of the AKS object to reset/update the password before it expires.
+#' Of the agent pools in a cluster, at least one must be a _system pool_, which is used to host critical system pods such as CoreDNS and tunnelfront. If you specify more than one pool, the first pool will be treated as the system pool. Note that there are certain [extra requirements](https://docs.microsoft.com/en-us/azure/aks/use-system-pools) for the system pool.
+#'
+#' An AKS cluster requires an identity to manage the low-level resources it uses, such as virtual machines and networks. The default and recommended method is to use a _managed identity_, in which all the details of this process are handled by AKS. In AzureContainers version 1.2.1 and older, a _service principal_ was used instead, which is an older and less automated method. By setting `managed_identity=FALSE`, you can continue using a service principal instead of a managed identity.
+#'
+#' One thing to be aware of with service principals is that they have a secret password that will expire eventually. By default, the password for a newly-created service principal will expire after one year. You should run the `update_service_password` method of the AKS object to reset/update the password before it expires.
 #'
 #' @section Value:
 #' An object of class `az_kubernetes_service` representing the service.
 #'
 #' @seealso
-#' [get_aks], [delete_aks], [list_aks], [aks_pools]
+#' [get_aks], [delete_aks], [list_aks], [agent_pool], [aks_pools]
 #'
 #' [az_kubernetes_service]
 #'
@@ -57,10 +63,20 @@
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
-#' rg$create_aks("mycluster", agent_pools=aks_pools("pool1", 5))
+#' rg$create_aks("mycluster", agent_pools=agent_pool("pool1", 5))
 #'
 #' # GPU-enabled cluster
-#' rg$create_aks("mygpucluster", agent_pools=aks_pools("pool1", 5, size="Standard_NC6s_v3"))
+#' rg$create_aks("mygpucluster", agent_pools=agent_pool("pool1", 5, size="Standard_NC6s_v3"))
+#'
+#' # multiple agent pools
+#' rg$create_aks("mycluster", agent_pools=list(
+#'     agent_pool("pool1", 2),
+#'     agent_pool("pool2", 3, size="Standard_NC6s_v3")
+#' ))
+#'
+#' # deprecated alternative for multiple pools
+#' rg$create_aks("mycluster",
+#'     agent_pools=aks_pools(c("pool1", "pool2"), c(2, 3), c("Standard_DS2_v2", "Standard_NC6s_v3")))
 #'
 #' }
 NULL
@@ -205,35 +221,59 @@ add_aks_methods <- function()
     function(name, location=self$location,
              dns_prefix=name, kubernetes_version=NULL,
              login_user="", login_passkey="",
-             enable_rbac=FALSE, agent_pools=list(),
+             enable_rbac=FALSE, agent_pools=agent_pool("pool1", 3),
              cluster_service_principal=NULL,
-             managed_identity=FALSE,
+             managed_identity=TRUE, private_cluster=FALSE,
              properties=list(), ..., wait=TRUE)
     {
         if(is_empty(kubernetes_version))
             kubernetes_version <- tail(self$list_kubernetes_versions(), 1)
 
-        # hide from CRAN check
-        find_app_creds <- get("find_app_creds", getNamespace("AzureContainers"))
-        cluster_service_principal <- find_app_creds(cluster_service_principal, name, location, self$token)
+        # figure out how to handle managing resources: either identity, or SP
+        if(managed_identity)
+        {
+            identity <- list(type="systemAssigned")
+            sp_profile <- NULL
+        }
+        else
+        {
+            identity <- NULL
+            # hide from CRAN check
+            find_app_creds <- get("find_app_creds", getNamespace("AzureContainers"))
+            cluster_service_principal <- find_app_creds(cluster_service_principal, name, location, self$token)
+
+            if(is.null(cluster_service_principal[[2]]))
+                stop("Must provide a service principal with a secret password", call.=FALSE)
+
+            sp_profile <- list(
+                clientId=cluster_service_principal[[1]],
+                secret=cluster_service_principal[[2]]
+            )
+        }
+
+        if(inherits(agent_pools, "agent_pool"))
+            agent_pools <- list(unclass(agent_pools))
+        else if(is.list(agent_pools) && all(sapply(agent_pools, inherits, "agent_pool")))
+            agent_pools <- lapply(agent_pools, unclass)
+
+        # 1st agent pool is system
+        agent_pools[[1]]$mode <- "System"
 
         props <- list(
             kubernetesVersion=kubernetes_version,
             dnsPrefix=dns_prefix,
             agentPoolProfiles=agent_pools,
-            enableRBAC=enable_rbac,
-            servicePrincipalProfile=list(
-                clientId=cluster_service_principal[[1]],
-                secret=cluster_service_principal[[2]]
-            )
+            enableRBAC=enable_rbac
         )
 
-        if(is.null(props$servicePrincipalProfile$secret))
-            stop("Must provide a service principal with a secret password", call.=FALSE)
+        if(private_cluster)
+        {
+            props$apiServerAccessProfile <- list(enablePrivateCluster=private_cluster)
+            props$networkProfile <- list(loadBalancerSku="standard")
+        }
 
-        identity <- if(managed_identity)
-            list(type="systemAssigned")
-        else NULL
+        if(!is.null(sp_profile))
+            props$servicePrincipalProfile <- sp_profile
 
         if(login_user != "" && login_passkey != "")
             props$linuxProfile <- list(

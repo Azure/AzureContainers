@@ -4,7 +4,8 @@
 \alias{call_docker}
 \title{Call the docker commandline tool}
 \usage{
-call_docker(cmd = "", ..., echo = TRUE)
+call_docker(cmd = "", ..., echo = getOption("azure_containers_tool_echo",
+  TRUE))
 }
 \arguments{
 \item{cmd}{The docker command line to execute.}

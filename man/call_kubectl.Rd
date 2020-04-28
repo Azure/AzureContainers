@@ -4,7 +4,8 @@
 \alias{call_kubectl}
 \title{Call the Kubernetes commandline tool, kubectl}
 \usage{
-call_kubectl(cmd = "", config = NULL, ..., echo = TRUE)
+call_kubectl(cmd = "", config = NULL, ...,
+  echo = getOption("azure_containers_tool_echo", TRUE))
 }
 \arguments{
 \item{cmd}{The kubectl command line to execute.}
