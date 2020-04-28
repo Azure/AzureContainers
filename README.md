@@ -38,7 +38,7 @@ reg$push("newcontainer")
 # create Kubernetes cluster with 2 nodes
 aks <- resgroup$create_aks("myakscluster",
     location="australiaeast",
-    agent_pools=aks_pools("pool1", 2, "Standard_DS2_v2", "Linux"))
+    agent_pools=agent_pool("pool1", 2))
 
 # give the cluster pull access to the registry
 acr$add_role_assignment(aks, "Acrpull")
