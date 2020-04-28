@@ -1,0 +1,72 @@
+---
+title: "Deploying a prediction service with RestRserve"
+Author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RestRserve model deployment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+This document shows how you can deploy a fitted model as a web service using ACR and AKS. The framework used is [RestRserve](https://restrserve.org), which is an alternative to the more common Plumber framework. The process is broadly similar to that for deploying a Plumber service, as described in the "Plumber model deployment" vignette. If you haven't already, you should read that vignette first as an introduction to how to use AzureContainers.
+
+
+RestRserve has a number of features that make it more suitable than Plumber for building robust, production-ready services. These include:
+
+- Automatic parallelisation
+- Built-in support for HTTPS
+- Support for both basic and bearer HTTP authentication schemes
+
+
+
+```r
+library(randomForest)
+library(RestRserve)
+
+bos_rf <- readRDS("bos_rf.rds")
+
+basic_auth_access <- read.table("basic_auth.txt", stringsAsFactors=FALSE)
+
+check_request <- function(request, types, limit)
+{
+    if(!(tolower(request$content_type) %in% types))
+        raise(HTTPError$unsupported_media_type())
+
+    if(length(request$body) == 0L)
+        raise(HTTPError$bad_request())
+
+    if(length(request$body) > limit)
+        raise(HTTPError$payload_too_large())
+}
+
+score <- function(request, response)
+{
+    allowed_types <- "application/json"
+    allowed_limit <- 1048576  # max 1 MB
+    check_request(request, allowed_types, allowed_limit)
+
+    df <- jsonlite::fromJSON(rawToChar(request$body), simplifyDataFrame=TRUE)
+    sc <- predict(bos_rf, df)
+
+    response$set_body(jsonlite::toJSON(sc, auto_unbox=TRUE))
+    response$set_content_type("application/json")
+}
+
+authenticate <- function(user, password)
+{
+    res <- FALSE
+    try({
+        user_n <- which(user == basic_auth_access[[1]])
+        res <- length(user_n) == 1 && basic_auth_access[[2]][user_n] == password
+    }, silent=TRUE)
+    res
+}
+
+auth_backend <- AuthBackendBasic$new(FUN=authenticate)
+auth_mw <- AuthMiddleware$new(auth_backend=auth_backend, routes="/score")
+app <- Application$new(middleware=list(auth_mw))
+app$add_post(path="/score", FUN=score)
+
+backend <- BackendRserve$new()
+backend$start(app, http_port=8080)
+```
