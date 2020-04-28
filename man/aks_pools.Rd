@@ -2,7 +2,7 @@
 % Please edit documentation in R/az_kubernetes_service.R
 \name{aks_pools}
 \alias{aks_pools}
-\title{Utility function for specifying Kubernetes agent pools}
+\title{Vectorised utility function for specifying Kubernetes agent pools}
 \usage{
 aks_pools(name, count, size = "Standard_DS2_v2", os = "Linux")
 }
@@ -19,10 +19,12 @@ aks_pools(name, count, size = "Standard_DS2_v2", os = "Linux")
 A list of lists, suitable for passing to the \code{create_aks} constructor method.
 }
 \description{
-Utility function for specifying Kubernetes agent pools
+Vectorised utility function for specifying Kubernetes agent pools
 }
 \details{
 This is a convenience function to simplify the task of specifying the agent pool for a Kubernetes cluster. You can specify multiple pools by providing vectors as input arguments; any scalar inputs will be replicated to match.
+
+\code{aks_pools} is deprecated; please use \link{agent_pool} going forward.
 }
 \examples{
 # 1 pool of 5 Linux VMs
@@ -36,5 +38,5 @@ aks_pools(c("pool1", "pool2"), count=c(3, 3), size=c("Standard_DS2_v2", "Standar
 
 }
 \seealso{
-\link{list_vm_sizes}
+\link{list_vm_sizes}, \link{agent_pool}
 }

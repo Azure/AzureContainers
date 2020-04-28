@@ -42,7 +42,7 @@
 #'
 #' }
 #' @export
-call_docker <- function(cmd="", ..., echo=TRUE)
+call_docker <- function(cmd="", ..., echo=getOption("azure_containers_tool_echo", TRUE))
 {
     if(.AzureContainers$docker == "")
         stop("docker binary not found", call.=FALSE)
@@ -60,6 +60,7 @@ call_docker <- function(cmd="", ..., echo=TRUE)
         realcmd <- cmd
     }
 
+    echo <- as.logical(echo)
     val <- processx::run(dockercmd, strsplit(realcmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
     val$cmdline <- paste("docker", cmd)
     invisible(val)
@@ -92,7 +93,7 @@ call_docker <- function(cmd="", ..., echo=TRUE)
 #'
 #' [Docker-compose command line reference](https://docs.docker.com/compose/)
 #' @export
-call_docker_compose <- function(cmd="", ..., echo=TRUE)
+call_docker_compose <- function(cmd="", ..., echo=getOption("azure_containers_tool_echo", TRUE))
 {
     if(.AzureContainers$dockercompose == "")
         stop("docker-compose binary not found", call.=FALSE)
@@ -110,6 +111,7 @@ call_docker_compose <- function(cmd="", ..., echo=TRUE)
         realcmd <- cmd
     }
 
+    echo <- as.logical(echo)
     val <- processx::run(dcmpcmd, strsplit(realcmd, " ", fixed=TRUE)[[1]], ..., echo=echo)
     val$cmdline <- paste("docker-compose", cmd)
     invisible(val)
@@ -161,7 +163,7 @@ call_docker_compose <- function(cmd="", ..., echo=TRUE)
 #'
 #' }
 #' @export
-call_kubectl <- function(cmd="", config=NULL, ..., echo=TRUE)
+call_kubectl <- function(cmd="", config=NULL, ..., echo=getOption("azure_containers_tool_echo", TRUE))
 {
     if(.AzureContainers$kubectl == "")
         stop("kubectl binary not found", call.=FALSE)
@@ -169,6 +171,8 @@ call_kubectl <- function(cmd="", config=NULL, ..., echo=TRUE)
     if(!is.null(config))
         config <- paste0("--kubeconfig=", config)
     message("Kubernetes operation: ", cmd, " ", config)
+
+    echo <- as.logical(echo)
     val <- processx::run(.AzureContainers$kubectl, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config), ..., echo=echo)
     val$cmdline <- paste("kubectl", cmd, config)
     invisible(val)
@@ -203,7 +207,7 @@ call_kubectl <- function(cmd="", config=NULL, ..., echo=TRUE)
 #' [Kubectl command line reference](https://kubernetes.io/docs/reference/kubectl/overview/)
 #'
 #' @export
-call_helm <- function(cmd="", config=NULL, ..., echo=TRUE)
+call_helm <- function(cmd="", config=NULL, ..., echo=getOption("azure_containers_tool_echo", TRUE))
 {
     if(.AzureContainers$helm == "")
         stop("helm binary not found", call.=FALSE)
@@ -211,6 +215,8 @@ call_helm <- function(cmd="", config=NULL, ..., echo=TRUE)
     if(!is.null(config))
         config <- paste0("--kubeconfig=", config)
     message("Helm operation: ", cmd, " ", config)
+
+    echo <- as.logical(echo)
     val <- processx::run(.AzureContainers$helm, c(strsplit(cmd, " ", fixed=TRUE)[[1]], config), ..., echo=echo)
     val$cmdline <- paste("helm", cmd, config)
     invisible(val)

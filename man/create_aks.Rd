@@ -9,9 +9,10 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \section{Usage}{
 \preformatted{create_aks(name, location = self$location,
            dns_prefix = name, kubernetes_version = NULL,
-           enable_rbac = FALSE, agent_pools = list(),
+           enable_rbac = FALSE, agent_pools = agent_pool("pool1", 3),
            login_user = "", login_passkey = "",
-           cluster_service_principal = NULL, managed_identity = FALSE,
+           cluster_service_principal = NULL, managed_identity = TRUE,
+           private_cluster = FALSE,
            properties = list(), ..., wait = TRUE)
 }
 }
@@ -23,11 +24,12 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{location}: The location/region in which to create the service. Defaults to this resource group's location.
 \item \code{dns_prefix}: The domain name prefix to use for the cluster endpoint. The actual domain name will start with this argument, followed by a string of pseudorandom characters.
 \item \code{kubernetes_version}: The Kubernetes version to use. If not specified, uses the most recent version of Kubernetes available.
-\item \code{enable_rbac}: Whether to enable role-based access controls.
-\item \code{agent_pools}: A list of pool specifications. See 'Details'.
-\item \code{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
-\item \code{cluster_service_principal}: The service principal (client) that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session).
-\item \code{managed_identity}: Whether the cluster should have a managed identity assigned to it. This is currently in preview; see the \href{https://docs.microsoft.com/en-us/azure/aks/use-managed-identity}{Microsoft Docs page} for enabling this feature.
+\item \code{enable_rbac}: Whether to enable Kubernetes role-based access controls (which is distinct from Azure AD RBAC).
+\item \code{agent_pools}: The pool specification(s) for the cluster. See 'Details'.
+\item \verb{login_user,login_passkey}: Optionally, a login username and public key (on Linux). Specify these if you want to be able to ssh into the cluster nodes.
+\item \code{cluster_service_principal}: The service principal that AKS will use to manage the cluster resources. This should be a list, with the first component being the client ID and the second the client secret. If not supplied, a new service principal will be created (requires an interactive session). Ignored if \code{managed_identity=TRUE}, which is the default.
+\item \code{managed_identity}: Whether the cluster should have a managed identity assigned to it. If \code{FALSE}, a service principal will be used to manage the cluster's resources; see 'Details' below.
+\item \code{private_cluster}: Whether this cluster is private (not visible from the public Internet). A private cluster is accessible only to hosts on its virtual network.
 \item \code{properties}: A named list of further Kubernetes-specific properties to pass to the initialization function.
 \item \code{wait}: Whether to wait until the AKS resource provisioning is complete. Note that provisioning a Kubernetes cluster can take several minutes.
 \item \code{...}: Other named arguments to pass to the initialization function.
@@ -38,9 +40,13 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 An AKS resource is a Kubernetes cluster hosted in Azure. See the \link[=aks]{documentation for the resource} for more information. To work with the cluster (deploy images, define and start services, etc) see the \link[=kubernetes_cluster]{documentation for the cluster endpoint}.
 
-To specify the agent pools for the cluster, it is easiest to use the \link{aks_pools} function. This takes as arguments the name(s) of the pools, the number of nodes, the VM size(s) to use, and the operating system (Windows or Linux) to run on the VMs.
+The nodes for an AKS cluster are organised into \emph{agent pools}, also known as \emph{node pools}, which are homogenous groups of virtual machines. To specify the details for a single agent pool, use the \code{agent_pool} function, which returns an S3 object of that class. To specify the details for multiple pools, you can supply a list of such objects, or a single call to the \code{aks_pools} function; see the examples below. Note that \code{aks_pools} is older, and does not support all the possible parameters for an agent pool.
 
-By default, the password for a newly-created service principal will expire after one year. You can run the \code{update_service_password} method of the AKS object to reset/update the password before it expires.
+Of the agent pools in a cluster, at least one must be a \emph{system pool}, which is used to host critical system pods such as CoreDNS and tunnelfront. If you specify more than one pool, the first pool will be treated as the system pool. Note that there are certain \href{https://docs.microsoft.com/en-us/azure/aks/use-system-pools}{extra requirements} for the system pool.
+
+An AKS cluster requires an identity to manage the low-level resources it uses, such as virtual machines and networks. The default and recommended method is to use a \emph{managed identity}, in which all the details of this process are handled by AKS. In AzureContainers version 1.2.1 and older, a \emph{service principal} was used instead, which is an older and less automated method. By setting \code{managed_identity=FALSE}, you can continue using a service principal instead of a managed identity.
+
+One thing to be aware of with service principals is that they have a secret password that will expire eventually. By default, the password for a newly-created service principal will expire after one year. You should run the \code{update_service_password} method of the AKS object to reset/update the password before it expires.
 }
 
 \section{Value}{
@@ -55,15 +61,25 @@ rg <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")$
     get_resource_group("rgname")
 
-rg$create_aks("mycluster", agent_pools=aks_pools("pool1", 5))
+rg$create_aks("mycluster", agent_pools=agent_pool("pool1", 5))
 
 # GPU-enabled cluster
-rg$create_aks("mygpucluster", agent_pools=aks_pools("pool1", 5, size="Standard_NC6s_v3"))
+rg$create_aks("mygpucluster", agent_pools=agent_pool("pool1", 5, size="Standard_NC6s_v3"))
+
+# multiple agent pools
+rg$create_aks("mycluster", agent_pools=list(
+    agent_pool("pool1", 2),
+    agent_pool("pool2", 3, size="Standard_NC6s_v3")
+))
+
+# deprecated alternative for multiple pools
+rg$create_aks("mycluster",
+    agent_pools=aks_pools(c("pool1", "pool2"), c(2, 3), c("Standard_DS2_v2", "Standard_NC6s_v3")))
 
 }
 }
 \seealso{
-\link{get_aks}, \link{delete_aks}, \link{list_aks}, \link{aks_pools}
+\link{get_aks}, \link{delete_aks}, \link{list_aks}, \link{agent_pool}, \link{aks_pools}
 
 \link{az_kubernetes_service}
 

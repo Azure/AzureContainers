@@ -5,10 +5,6 @@
 \alias{aci}
 \alias{az_container_instance}
 \title{Azure Container Instance class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-aci
-}
 \description{
 Class representing an Azure Container Instance (ACI) resource.
 }
@@ -49,4 +45,3 @@ myaci$restart()
 
 \href{https://docs.docker.com/engine/reference/commandline/cli/}{Docker commandline reference}
 }
-\keyword{datasets}

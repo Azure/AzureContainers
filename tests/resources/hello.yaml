@@ -1,13 +1,16 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello
+  name: hellodep
 spec:
+  selector:
+    matchLabels:
+      app: hellodep
   replicas: 1
   template:
     metadata:
       labels:
-        app: hello
+        app: hellodep
     spec:
       containers:
       - name: acrname
@@ -18,10 +21,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-svc
+  name: hellodep-svc
 spec:
   selector:
-    app: hello
+    app: hellodep
   type: LoadBalancer
   ports:
   - protocol: TCP

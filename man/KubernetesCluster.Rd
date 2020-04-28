@@ -4,10 +4,6 @@
 \name{KubernetesCluster}
 \alias{KubernetesCluster}
 \title{Kubernetes cluster class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-KubernetesCluster
-}
 \description{
 Class representing a \href{https://kubernetes.io/docs/home/}{Kubernetes} cluster. Note that this class can be used to interface with any Docker registry that supports the HTTP V2 API, not just those created via the Azure Container Registry service. Use the \link{kubernetes_cluster} function to instantiate new objects of this class.
 }
@@ -18,12 +14,12 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{new(...)}: Initialize a new registry object. See 'Initialization' below.
 \item \code{create_registry_secret(registry, secret_name, email)}: Provide authentication secret for a Docker registry. See 'Secrets' below.
 \item \code{delete_registry_secret(secret_name)}: Delete a registry authentication secret.
-\item \code{create(file, ...)}: Creates a deployment or service from a file, using \code{kubectl create -f}.
-\item \code{get(type, ...)}: Get information about resources, using \code{kubectl get}.
-\item \code{run(name, image, ...)}: Run an image using \code{kubectl run --image}.
-\item \code{expose(name, type, file, ...)}: Expose a service using \code{kubectl expose}. If the \code{file} argument is provided, read service information from there.
-\item \code{delete(type, name, file, ...)}: Delete a resource (deployment or service) using \code{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
-\item \code{apply(file, ...)}: Apply a configuration file, using \code{kubectl apply -f}.
+\item \code{create(file, ...)}: Creates a deployment or service from a file, using \verb{kubectl create -f}.
+\item \code{get(type, ...)}: Get information about resources, using \verb{kubectl get}.
+\item \code{run(name, image, ...)}: Run an image using \verb{kubectl run --image}.
+\item \code{expose(name, type, file, ...)}: Expose a service using \verb{kubectl expose}. If the \code{file} argument is provided, read service information from there.
+\item \code{delete(type, name, file, ...)}: Delete a resource (deployment or service) using \verb{kubectl delete}. If the \code{file} argument is provided, read resource information from there.
+\item \code{apply(file, ...)}: Apply a configuration file, using \verb{kubectl apply -f}.
 \item \code{show_dashboard(port, ...)}: Display the cluster dashboard. By default, use local port 30000.
 \item \code{kubectl(cmd, ...)}: Run an arbitrary \code{kubectl} command on this cluster. Called by the other methods above.
 \item \code{helm(cmd, ...)}: Run a \code{helm} command on this cluster.
@@ -32,7 +28,7 @@ The following methods are available, in addition to those provided by the \link[
 
 \section{Initialization}{
 
-The \code{new()} method takes one argument: \code{config}, the name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default \code{~/.kube/config} file.
+The \code{new()} method takes one argument: \code{config}, the name of the file containing the configuration details for the cluster. This should be a YAML or JSON file in the standard Kubernetes configuration format. Set this to NULL to use the default \verb{~/.kube/config} file.
 }
 
 \section{Secrets}{
@@ -122,4 +118,3 @@ kubclus$get("service")
 
 \href{https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands}{Kubectl commandline reference}
 }
-\keyword{datasets}
