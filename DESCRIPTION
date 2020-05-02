@@ -25,6 +25,12 @@ Imports:
 Suggests:
     knitr,
     testthat,
-    uuid
+    uuid,
+    MASS,
+    bcrypt,
+    randomForest,
+    plumber,
+    RestRserve,
+    AzureKeyVault
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
 RoxygenNote: 7.1.0
