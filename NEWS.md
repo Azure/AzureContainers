@@ -9,6 +9,7 @@
   - New methods for the `az_kubernetes_service` class, for managing agent pools: `get_agent_pool`, `create_agent_pool`, `delete_agent_pool` and `list_agent_pools`. Creating new agent pools requires VM scalesets, as mentioned above.
 - New `agent_pool` function to supply the parameters for a _single_ AKS agent pool.
 - The functions to call external tools (`call_docker`, `call_docker_compose`, `call_kubernetes` and `call_helm`) now use the value of the system option `azure_containers_tool_echo` to determine whether to echo output to the screen. If this is unset, the fallback is `TRUE` (as in previous versions).
+- Replace MMLS with RestRserve in vignette.
 
 # AzureContainers 1.2.1
 
