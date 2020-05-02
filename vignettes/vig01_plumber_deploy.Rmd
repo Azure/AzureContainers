@@ -13,11 +13,10 @@ This document shows how you can deploy a fitted model as a web service using ACR
 
 ## Fit the model
 
-We'll fit a simple model for illustrative purposes, using the Boston housing dataset which ships with R (in the MASS package). To make the deployment process more interesting, the model we fit will be a random forest, using the randomForest package. This is _not_ part of R, so we'll have to install it from CRAN.
+We'll fit a simple model for illustrative purposes, using the Boston housing dataset which ships with R (in the MASS package). To make the deployment process more interesting, the model we fit will be a random forest, using the randomForest package.
 
 ```r
 data(Boston, package="MASS")
-install.packages("randomForest")
 library(randomForest)
 
 # train a model for median house price as a function of the other variables
@@ -26,7 +25,6 @@ bos_rf <- randomForest(medv ~ ., data=Boston, ntree=100)
 # save the model
 saveRDS(bos_rf, "bos_rf.rds")
 ```
-
 
 ## Scoring script for plumber
 
@@ -214,7 +212,7 @@ Once the service is up and running, as indicated by the presence of an external 
 
 ```r
 response <- httr::POST(paste0("http://", svc$EXTERNAL.IP[1], ":8000/score"),
-    body=list(df=MASS::Boston[1:10,]), encode="json")
+    body=list(df=MASS::Boston[1:10, ]), encode="json")
 httr::content(response, simplifyVector=TRUE)
 #> [1] 25.9269 22.0636 34.1876 33.7737 34.8081 27.6394 21.8007 22.3577 16.7812 18.9785
 ```
@@ -234,10 +232,13 @@ deployresgrp$delete()
 
 ### Security note
 
-One important thing to note about the above example is that it is **insecure**. The Plumber service is exposed over HTTP, and there is no authentication layer: anyone on the Internet can contact the service and interact with it. Therefore, it's highly recommended that you should provide at least some level of authentication, as well as restricting the service to HTTPS only. You can also create the AKS resource as a private cluster; however, be aware that if you do this, you can only interact with the cluster endpoint from a host which is on the cluster's own subnet.
+One important thing to note about the above example is that it is **insecure**. The Plumber service is exposed over HTTP, and there is no authentication layer: anyone on the Internet can contact the service and interact with it. Therefore, it's highly recommended that you should provide at least some level of authentication, as well as restricting the service to HTTPS only (this will require deploying an ingress controller to the Kubernetes cluster). You can also create the AKS resource as a private cluster; however, be aware that if you do this, you can only interact with the cluster endpoint from a host which is on the cluster's own subnet.
 
 
 ## See also
 
-An alternative to Plumber is the [model operationalisation](https://docs.microsoft.com/en-us/machine-learning-server/what-is-operationalization) framework found in [Microsoft Machine Learning Server](https://www.microsoft.com/en-us/sql-server/machinelearningserver). While it is proprietary software, unlike Plumber which is open source, ML Server provides a number of features not available in the latter. These include model management, so that you can easily access multiple versions of a given model, as well as performing batch (asynchronous) requests. See the vignette "ML Server model deployment" for more information.
+Plumber is a relatively simple framework for creating and deploying services. There are some alternatives for those looking for more features:
 
+- The [RestRserve](https://restrserve.org) package is a more comprehensive framework, built on top of functionality provided by Rserve. It includes features such as automatic parallelisation, support for HTTPS, and support for basic and bearer authentication schemes.
+
+- The [model operationalisation](https://docs.microsoft.com/en-us/machine-learning-server/what-is-operationalization) framework found in [Microsoft Machine Learning Server](https://www.microsoft.com/en-us/sql-server/machinelearningserver) also provides a way to deploy models. A notable feature of MMLS is model management, which allows you to deploy different generations of a model and distinguish between them. Note that MMLS is proprietary software, unlike Plumber and RestRserve.
