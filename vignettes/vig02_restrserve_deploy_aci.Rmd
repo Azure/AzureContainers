@@ -16,13 +16,11 @@ This document shows how you can deploy a fitted model as a web service to an Azu
 
 In particular, we'll show how to implement the latter two features in this vignette.
 
-## Deploying to ACI
+## Deployment artifacts
 
-For illustrative purposes, we'll reuse the random forest model and resource group from the Plumber deployment vignette. First, here is how we would deploy a RestRserve container to ACI, utilising both HTTPS and basic auth.
+### Model object
 
-### Preliminary artifacts
-
-We'll reuse the model object from the Plumber vignette: a random forest fitted to the Boston housing dataset. The code to fit the model is reproduced below for convenience.
+For illustrative purposes, we'll reuse the random forest model and resource group from the Plumber deployment vignette. The code to fit the model is reproduced below for convenience.
 
 ```r
 data(Boston, package="MASS")
@@ -48,7 +46,9 @@ user_str <- sapply(user_list, function(x) paste(x[1], hashpw(x[2]), sep=":"))
 writeLines(user_str, ".htpasswd")
 ```
 
-To enable HTTPS, we need to provide a TLS certificate and public key. Again, in a production setting, the cert will typically be provided to you; for this vignette, we'll generate a self-signed cert instead. If you are running Linux or MacOS and have openssl installed, you can use that to generate the cert. Here, since we're already using Azure, we'll leverage the Azure Key Vault service to do it in a platform-independent manner.
+### TLS certificate/private key
+
+To enable HTTPS, we need to provide a TLS certificate and private key. Again, in a production setting, the cert will typically be provided to you; for this vignette, we'll generate a self-signed cert instead. If you are running Linux or MacOS and have openssl installed, you can use that to generate the cert. Here, since we're already using Azure, we'll leverage the Azure Key Vault service to do it in a platform-independent manner.
 
 ```r
 library(AzureRMR)
@@ -127,7 +127,9 @@ app$add_post(path="/score", FUN=score)
 backend <- BackendRserve$new(app)
 ```
 
-Here is the dockerfile for the app. Save this as `RestRserve-aci.dockerfile`:
+### Dockerfile
+
+Here is the dockerfile for the image. Save this as `RestRserve-aci.dockerfile`:
 
 ```dockerfile
 FROM rexyai/restrserve
@@ -149,6 +151,8 @@ EXPOSE 8080
 
 CMD ["Rscript", "-e", "source('app.R'); backend$start(app, http_port=-1, https.port=8080, tls.key=normalizePath('cert.key'), tls.cert=normalizePath('cert.cer'))"]
 ```
+
+## Create the container
 
 We now build the image and upload it to an Azure Container Registry. This assumes a fresh start; if you have created an ACR in this resource group already, you can reuse that instead by calling `get_acr` instead of `create_acr`.
 
