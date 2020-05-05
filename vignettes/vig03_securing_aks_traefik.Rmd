@@ -321,7 +321,5 @@ httr::content(response, simplifyVector=TRUE)
 
 ## Further comments
 
-In this vignette, we've used Let's Encrypt to obtain a TLS certificate, as it is a convenient and free source of certificates. In a production setting you would generally use a certificate issued to your organisation.
-
-Similarly, we've secured the predictive service with a single username and password. While we could add more users to the authentication file, a more flexible and scalable solution is to use a frontend service, such as [Azure API Management](https://azure.microsoft.com/services/api-management/), or a directory service like [Azure Active Directory](https://azure.microsoft.com/services/active-directory/). The specifics will typically be determined by your organisation's IT infrastructure, and are beyond the scope of this vignette.
+In this vignette, we've secured the predictive service with a single username and password. While we could add more users to the authentication file, a more flexible and scalable solution is to use a frontend service, such as [Azure API Management](https://azure.microsoft.com/services/api-management/), or a directory service like [Azure Active Directory](https://azure.microsoft.com/services/active-directory/). The specifics will typically be determined by your organisation's IT infrastructure, and are beyond the scope of this vignette.
 

@@ -8,7 +8,7 @@ call_helm(cmd = "", config = NULL, ...,
   echo = getOption("azure_containers_tool_echo", TRUE))
 }
 \arguments{
-\item{cmd}{The Helm command line to execute.}
+\item{cmd}{The Helm command line to execute. This should be a \emph{vector} of individual helm arguments, but can also be a single commandline string. See below.}
 
 \item{config}{The pathname of the cluster config file, if required.}
 
@@ -33,6 +33,8 @@ Call the Helm commandline tool
 }
 \details{
 This function calls the \code{helm} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
+
+The helm command should be specified as a vector of the individual arguments, which is what \code{processx::run} expects. If a single string is passed, for convenience and back-compatibility reasons \code{call_docker_compose} will split it into arguments for you. This is prone to error, for example if you are working with pathnames that contain spaces, so it's strongly recommended to pass a vector of arguments as a general practice.
 }
 \seealso{
 \link[processx:run]{processx::run}, \link{call_docker}, \link{call_kubectl}
