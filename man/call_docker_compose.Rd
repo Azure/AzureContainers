@@ -8,7 +8,7 @@ call_docker_compose(cmd = "", ...,
   echo = getOption("azure_containers_tool_echo", TRUE))
 }
 \arguments{
-\item{cmd}{The docker-compose command line to execute.}
+\item{cmd}{The docker-compose command line to execute. This should be a \emph{vector} of individual docker-compose arguments, but can also be a single commandline string. See below.}
 
 \item{...}{Other arguments to pass to \link[processx:run]{processx::run}.}
 
@@ -31,6 +31,8 @@ Call the docker-compose commandline tool
 }
 \details{
 This function calls the \code{docker-compose} binary, which must be located in your search path. AzureContainers will search for the binary at package startup, and print a warning if it is not found.
+
+The docker-compose command should be specified as a vector of the individual arguments, which is what \code{processx::run} expects. If a single string is passed, for convenience and back-compatibility reasons \code{call_docker_compose} will split it into arguments for you. This is prone to error, for example if you are working with pathnames that contain spaces, so it's strongly recommended to pass a vector of arguments as a general practice.
 }
 \seealso{
 \link[processx:run]{processx::run}, \link{call_docker}, \link{call_kubectl} for the equivalent interface to the \code{kubectl} Kubernetes tool
