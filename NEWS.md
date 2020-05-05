@@ -1,4 +1,4 @@
-# AzureContainers 1.2.1.9000
+# AzureContainers 1.3.0
 
 - Significant enhancements for AKS:
   - Fully support creating clusters with managed identities. This is recommended and the new default, compared to the older method of using service principals to control cluster resources.
