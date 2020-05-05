@@ -11,6 +11,7 @@
 - The functions to call external tools (`call_docker`, `call_docker_compose`, `call_kubernetes` and `call_helm`) now use the value of the system option `azure_containers_tool_echo` to determine whether to echo output to the screen. If this is unset, the fallback is `TRUE` (as in previous versions).
 - Remove MMLS vignette; version 9.3.0 is now very old.
 - New vignettes on securing an ACI deployment with RestRserve, and deploying a secured service on AKS with Traefik/Let's Encrypt. 
+- The utility functions `call_docker`, `call_docker_compose`, `call_kubectl` and `call_helm` now accept a vector of individual commandline options as the first argument, which is the format expected by `processx::run`. You can still provide the full commandline as a single string but this is discouraged, as it will likely fail for things like paths containing spaces.
 
 # AzureContainers 1.2.1
 
