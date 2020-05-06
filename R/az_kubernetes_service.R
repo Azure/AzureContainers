@@ -200,7 +200,7 @@ public=list(
 #' @param disksize The OS disk size in gigabytes for each node in the pool. A value of 0 means to use the default disk size for the VM type.
 #' @param use_scaleset Whether to use a VM scaleset instead of individual VMs for this pool. A scaleset offers greater flexibility than individual VMs, and is the recommended method of creating an agent pool.
 #' @param low_priority If this pool uses a scaleset, whether it should be made up of spot (low-priority) VMs. A spot VM pool is cheaper, but is subject to being evicted to make room for other, higher-priority workloads. Ignored if `use_scaleset=FALSE`.
-#' @param cluster_autoscale The autoscaling parameters for the pool. This can be either `FALSE`, meaning autoscaling is disabled, or a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if `use_scaleset=FALSE`.
+#' @param autoscale_nodes The cluster autoscaling parameters for the pool. To enable autoscaling, set this to a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if `use_scaleset=FALSE`.
 #' @param ... Other named arguments, to be used as parameters for the agent pool.
 #'
 #' @details
@@ -222,14 +222,14 @@ public=list(
 #' agent_pool("pool1", 3, os="Windows", disksize=500)
 #'
 #' # enable cluster autoscaling, with a minimum of 1 and maximum of 10 nodes
-#' agent_pool("pool1", 5, cluster_autoscale=c(1, 10))
+#' agent_pool("pool1", 5, autoscale_nodes=c(1, 10))
 #'
 #' # use individual VMs rather than scaleset
 #' agent_pool("vmpool1", 3, use_scaleset=FALSE)
 #'
 #' @export
 agent_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize=0,
-                       use_scaleset=TRUE, low_priority=FALSE, cluster_autoscale=FALSE, ...)
+                       use_scaleset=TRUE, low_priority=FALSE, autoscale_nodes=FALSE, ...)
 {
     parms <- list(
         name=name,
@@ -242,11 +242,11 @@ agent_pool <- function(name, count, size="Standard_DS2_v2", os="Linux", disksize
 
     if(use_scaleset)
     {
-        if(is.numeric(cluster_autoscale) && length(cluster_autoscale) == 2)
+        if(is.numeric(autoscale_nodes) && length(autoscale_nodes) == 2)
         {
             parms$enableAutoScaling <- TRUE
-            parms$minCount <- min(cluster_autoscale)
-            parms$maxCount <- max(cluster_autoscale)
+            parms$minCount <- min(autoscale_nodes)
+            parms$maxCount <- max(autoscale_nodes)
         }
         if(low_priority)
             parms$scaleSetPriority <- "spot"
