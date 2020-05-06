@@ -39,7 +39,7 @@
 #' reg$list_repositories()
 #'
 #' # create an image from a Dockerfile in the current directory
-#' call_docker("build -t myimage .")
+#' call_docker(c("build", "-t", "myimage", "."))
 #'
 #' # push the image
 #' reg$push("myimage")

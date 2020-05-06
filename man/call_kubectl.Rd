@@ -43,14 +43,14 @@ The kubectl command should be specified as a vector of the individual arguments,
 call_kubectl()
 
 # append "--help" to get help for a command
-call_kubectl("create --help")
+call_kubectl(c("create", "--help"))
 
 # deploy a service from a yaml file
-call_kubectl("create -f deployment.yaml")
+call_kubectl(c("create", "-f", "deployment.yaml"))
 
 # get deployment and service status
-call_kubectl("get deployment")
-call_kubectl("get service")
+call_kubectl(c("get", "deployment"))
+call_kubectl(c("get", "service"))
 
 }
 }
