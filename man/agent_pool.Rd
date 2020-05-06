@@ -6,7 +6,7 @@
 \usage{
 agent_pool(name, count, size = "Standard_DS2_v2", os = "Linux",
   disksize = 0, use_scaleset = TRUE, low_priority = FALSE,
-  cluster_autoscale = FALSE, ...)
+  autoscale_nodes = FALSE, ...)
 }
 \arguments{
 \item{name}{The name(s) of the pool(s).}
@@ -23,7 +23,7 @@ agent_pool(name, count, size = "Standard_DS2_v2", os = "Linux",
 
 \item{low_priority}{If this pool uses a scaleset, whether it should be made up of spot (low-priority) VMs. A spot VM pool is cheaper, but is subject to being evicted to make room for other, higher-priority workloads. Ignored if \code{use_scaleset=FALSE}.}
 
-\item{cluster_autoscale}{The autoscaling parameters for the pool. This can be either \code{FALSE}, meaning autoscaling is disabled, or a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if \code{use_scaleset=FALSE}.}
+\item{autoscale_nodes}{The cluster autoscaling parameters for the pool. To enable autoscaling, set this to a vector of 2 numbers giving the minimum and maximum size of the agent pool. Ignored if \code{use_scaleset=FALSE}.}
 
 \item{...}{Other named arguments, to be used as parameters for the agent pool.}
 }
@@ -44,7 +44,7 @@ agent_pool("pool1", 5, size="Standard_NC6s_v3")
 agent_pool("pool1", 3, os="Windows", disksize=500)
 
 # enable cluster autoscaling, with a minimum of 1 and maximum of 10 nodes
-agent_pool("pool1", 5, cluster_autoscale=c(1, 10))
+agent_pool("pool1", 5, autoscale_nodes=c(1, 10))
 
 # use individual VMs rather than scaleset
 agent_pool("vmpool1", 3, use_scaleset=FALSE)

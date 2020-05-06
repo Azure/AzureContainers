@@ -37,8 +37,11 @@ test_that("AKS works with managed identity",
     pools <- aks$list_agent_pools()
     expect_true(is.list(pools) && length(pools) == 1 && all(sapply(pools, inherits, "az_agent_pool")))
 
-    pool2 <- aks$create_agent_pool("pool2", 1, disksize=500, wait=TRUE)
+    pool2 <- aks$create_agent_pool("pool2", 2, disksize=500, wait=TRUE, autoscale_nodes=c(1, 5))
     expect_is(pool2, "az_agent_pool")
+    expect_true(pool2$properties$enableAutoScaling)
+    expect_equal(pool2$properties$minCount, 1)
+    expect_equal(pool2$properties$maxCount, 5)
 
     pools <- aks$list_agent_pools()
     expect_true(is.list(pools) && length(pools) == 2 && all(sapply(pools, inherits, "az_agent_pool")))

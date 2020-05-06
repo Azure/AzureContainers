@@ -34,6 +34,27 @@ This function calls the \code{docker} binary, which must be located in your sear
 
 The docker command should be specified as a vector of the individual arguments, which is what \code{processx::run} expects. If a single string is passed, for convenience and back-compatibility reasons \code{call_docker} will split it into arguments for you. This is prone to error, for example if you are working with pathnames that contain spaces, so it's strongly recommended to pass a vector of arguments as a general practice.
 }
+\examples{
+\dontrun{
+
+# without any args, prints the docker help screen
+call_docker()
+
+# build an image: recommended usage
+call_docker(c("build", "-t", "myimage", "."))
+
+# alternative usage, will be split into individual arguments
+call_docker("build -t myimage .")
+
+# list running containers
+call_docker(c("container", "ls"))
+
+# prune unused containers and images
+call_docker(c("container", "prune", "-f"))
+call_docker(c("image", "prune", "-f"))
+
+}
+}
 \seealso{
 \link[processx:run]{processx::run}, \link{call_docker_compose}, \link{call_kubectl} for the equivalent interface to the \code{kubectl} Kubernetes tool
 
