@@ -1,7 +1,10 @@
 FROM alpine
 
+RUN mkdir /test
+RUN cd /test
+
 RUN echo $'#!/bin/bash \n\
 sleep infinity' > sleep.sh
 
 RUN chmod +x sleep.sh
-ENTRYPOINT ["sleep.sh"]
+ENTRYPOINT ["/test/sleep.sh"]

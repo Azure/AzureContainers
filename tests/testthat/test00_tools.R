@@ -6,6 +6,9 @@ if(.AzureContainers$docker == "" ||
    .AzureContainers$helm == "")
     skip("Tests skipped: external tools not found")
 
+echo <- getOption("azure_containers_tool_echo")
+options(azure_containers_tool_echo=FALSE)
+
 test_that("Docker works",
 {
     cmd <- "--help"
@@ -36,4 +39,8 @@ test_that("Helm works",
     obj <- call_helm(cmd)
     expect_is(obj, "list")
     expect_identical(trimws(obj$cmdline), "helm --help")
+})
+
+teardown({
+    options(azure_containers_tool_echo=echo)
 })
