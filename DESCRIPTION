@@ -24,6 +24,7 @@ Imports:
     processx
 Suggests:
     knitr,
+    rmarkdown,
     testthat,
     uuid,
     MASS,
