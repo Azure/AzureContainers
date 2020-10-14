@@ -97,7 +97,7 @@ deployreg_svc$add_role_assignment(deployclus_svc, "Acrpull")
 
 ### Install traefik
 
-The middleware we'll use to enable HTTPS and authentication is [Traefik](https://containo.us/traefik/). This features built-in integration with Let's Encrypt, which is a popular source for TLS certificates (necessary for HTTPS). An alternative to Traefik is [Nginx](https://www.nginx.com/).
+The middleware we'll use to enable HTTPS and authentication is [Traefik](https://traefik.io/traefik/). This features built-in integration with Let's Encrypt, which is a popular source for TLS certificates (necessary for HTTPS). An alternative to Traefik is [Nginx](https://www.nginx.com/).
 
 Deploying traefik and enabling HTTPS involves the following steps, on top of deploying the model service itself:
 
