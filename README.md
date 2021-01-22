@@ -2,7 +2,7 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureContainers)](https://cran.r-project.org/package=AzureContainers)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureContainers)
-[![Build Status](https://asiadatascience.visualstudio.com/AzureR/_apis/build/status/Azure.AzureContainers?branchName=master)](https://asiadatascience.visualstudio.com/AzureR/_build/latest?definitionId=6&branchName=master)
+![R-CMD-check](https://github.com/Azure/AzureContainers/workflows/R-CMD-check/badge.svg)
 
 A package for working with [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/services/container-registry/), [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/services/kubernetes-service/) and [Azure Container Instances (ACI)](https://azure.microsoft.com/en-us/services/container-instances/). Extends the Azure Resource Manager interface provided by the [AzureRMR](https://github.com/Azure/AzureRMR) package.
 
