@@ -81,7 +81,7 @@ myaks$update_service_password(app="app_id", password="app_password")
 }
 }
 \seealso{
-\link{create_aks}, \link{get_aks}, \link{delete_aks}, \link{list_aks}, \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}, \link[AzureGraph:create_graph_login]{AzureGraph::create_graph_login}
+\link{create_aks}, \link{get_aks}, \link{delete_aks}, \link{list_aks}, \link[AzureAuth:AzureR_dir]{AzureAuth::AzureR_dir}, \link[AzureGraph:graph_login]{AzureGraph::create_graph_login}
 
 \link{kubernetes_cluster} for interacting with the cluster endpoint
 

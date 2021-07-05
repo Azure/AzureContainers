@@ -36,14 +36,20 @@ test_that("ACI works",
     # from local image
     aciname <- make_name(10)
     expect_true(is_aci(rg$create_aci(aciname,
-        image="hello-world")))
+        image="hello-world",
+        env_vars=list(MYVAR="myvalue")),
+        secure_env_vars=list(MYSECUREVAR="mysecurevalue"),
+        command=c("/bin/sh", "-c", "ls"))
+    )
 
     aci <- rg$get_aci(aciname)
     expect_true(is_aci(aci))
     expect_true(is_aci(rg$list_acis()[[1]]))
 
     expect_silent(aci$stop())
+    Sys.sleep(2)
     expect_silent(aci$start())
+    Sys.sleep(2)
     expect_silent(aci$restart())
 
     # from Resource Manager object
