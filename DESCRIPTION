@@ -34,4 +34,4 @@ Suggests:
     RestRserve,
     AzureKeyVault
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

@@ -26,8 +26,9 @@
 #' - `cores`: The number of CPU cores for the instance.
 #' - `memory`: The memory size in GB for the instance.
 #' - `os`: The operating system to run in the instance.
-#' - `command`: A list of commands to run in the instance.
+#' - `command`: A list of commands to run in the instance. This is similar to the `--entrypoint` commandline argument to `docker run`; see [here](https://docs.microsoft.com/en-us/azure/container-instances/container-instances-start-command) for some examples.
 #' - `env_vars`: A list of name-value pairs to set as environment variables in the instance.
+#' - `secure_env_vars`: A list of name-value pairs to set as _secure_ environment variables in the instance. The values of these variables are not visible in the container's properties, eg when viewed in the Azure portal or via the CLI.
 #' - `ports`: The network ports to open. By default, opens ports 80 and 443. See 'Details'.
 #' - `dns_name`: The domain name prefix for the instance. Only takes effect if `public_ip=TRUE`.
 #' - `public_ip`: Whether the instance should be publicly accessible.
@@ -175,6 +176,7 @@ add_aci_methods <- function()
              os=c("Linux", "Windows"),
              command=list(),
              env_vars=list(),
+             secure_env_vars=list(),
              ports=aci_ports(),
              dns_name=name,
              public_ip=TRUE,
@@ -183,12 +185,20 @@ add_aci_methods <- function()
              ...,
              wait=TRUE)
     {
+        as_name_value_pairs <- function(vars, securevars)
+        {
+            c(
+                lapply(seq_along(vars), function(i) list(name=names(vars)[i], value=vars[[i]])),
+                lapply(seq_along(securevars), function(i) list(name=names(securevars)[i], secureValue=securevars[[i]]))
+            )
+        }
+
         containers <- list(
             name=container,
             properties=list(
                 image=image,
-                command=command,
-                environmentVariables=env_vars,
+                command=I(command),
+                environmentVariables=as_name_value_pairs(env_vars, secure_env_vars),
                 resources=list(requests=list(cpu=cores, memoryInGB=memory)),
                 ports=ports
             )

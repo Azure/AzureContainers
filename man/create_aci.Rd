@@ -30,8 +30,9 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{cores}: The number of CPU cores for the instance.
 \item \code{memory}: The memory size in GB for the instance.
 \item \code{os}: The operating system to run in the instance.
-\item \code{command}: A list of commands to run in the instance.
+\item \code{command}: A list of commands to run in the instance. This is similar to the \code{--entrypoint} commandline argument to \verb{docker run}; see \href{https://docs.microsoft.com/en-us/azure/container-instances/container-instances-start-command}{here} for some examples.
 \item \code{env_vars}: A list of name-value pairs to set as environment variables in the instance.
+\item \code{secure_env_vars}: A list of name-value pairs to set as \emph{secure} environment variables in the instance. The values of these variables are not visible in the container's properties, eg when viewed in the Azure portal or via the CLI.
 \item \code{ports}: The network ports to open. By default, opens ports 80 and 443. See 'Details'.
 \item \code{dns_name}: The domain name prefix for the instance. Only takes effect if \code{public_ip=TRUE}.
 \item \code{public_ip}: Whether the instance should be publicly accessible.
