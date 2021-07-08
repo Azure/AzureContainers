@@ -1,4 +1,4 @@
-# AzureContainers 1.3.1.9000
+# AzureContainers 1.3.2
 
 - Add a `secure_env_vars` argument to the `create_aci()` method, to set secure environment variables in the instance.  The values of these variables are not visible in the container's properties, eg when viewed in the Azure portal or via the CLI.
 - Fix a bug in setting the environment variables for ACI (#16).
