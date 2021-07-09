@@ -237,4 +237,4 @@ One important thing to note about the above example is that it is **insecure**. 
 
 ## See also
 
-Plumber is a relatively simple framework for creating and deploying services. As an alternative, the [RestRserve](https://restrserve.org) package is a more comprehensive framework, built on top of functionality provided by Rserve. It includes features such as automatic parallelisation, support for HTTPS, and support for basic and bearer authentication schemes.
+Plumber is a relatively simple framework for creating and deploying services. As an alternative, the [RestRserve](https://restrserve.org) package is a more comprehensive framework, built on top of functionality provided by Rserve. It includes features such as automatic parallelisation, support for HTTPS, and support for basic and bearer authentication schemes. See the vignette "Deploying an ACI service with HTTPS and authentication" for more information.
